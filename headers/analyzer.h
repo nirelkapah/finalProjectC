@@ -6,10 +6,11 @@
 #include "utility.h"
 
 typedef enum Addressing_Method {
-    IMMEDIATE,
-    DIRECT,
-    INDIRECT_REGISTER,
-    DIRECT_REGISTER
+    IMMEDIATE = 0,
+    DIRECT = 1,
+    INDIRECT_REGISTER = 2,
+    DIRECT_REGISTER= 3,
+    MATRIX = 4
 } Addressing_Method;
 
 typedef enum valid_methods {
