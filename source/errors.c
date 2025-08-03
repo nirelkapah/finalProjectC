@@ -1,6 +1,4 @@
-/**
- * This file handles the printing of errors.
- */
+/* This file handles the printing of errors.*/
 #include <stdio.h>
 #include "errors.h"
 
@@ -79,7 +77,10 @@ Error errors[] = {
         {Error_70, "Invalid operand, note that reserved words and macro names cannot be used as operands"},
         {Error_71, "Label name is not a valid command"},  /* Example: "LABEL r7" */
         {Error_72, " was declared as \".entry\" but was not defined"},
-        {Error_73, " [CODE_8] | ERROR | Memory capacity exceeded! Assembler machine-coding is suspended, however line scanning continues"}
+        {Error_73, " [CODE_8] | ERROR | Memory capacity exceeded! Assembler machine-coding is suspended, however line scanning continues"},
+        {Error_74, "Instruction \".mat\" has invalid syntax. Expected format: .mat [rows][cols] values..."},
+        {Error_75, "Invalid matrix operand syntax. Expected format: LABEL[rX][rY]"},
+        {Error_76, "Instruction \".mat\" has more values than allowed by rows * cols definition"},
 };
 
 void print_system_error(int error_code) {

@@ -12,111 +12,165 @@
 #include "utility.h"
 #include "definitions.h"
 
-void add_data_code(unsigned short *data, int *DC, int number) {
-    /* Getting the 15-bit 2's complement binary representation of the number */
-    unsigned short word = (unsigned short)(number & MASK_15BIT);
+void add_data_code(unsigned short *data, int *DC, int number)
+{
+    /* Store as 10-bit 2's complement */
+    unsigned short word = (unsigned short)(number & MASK_10BIT);
 
-    /* Adding the code to the data array */
     data[*DC] = word;
-
-    (*DC)++;  /* Incrementing data count */
+    (*DC)++;
 }
 
-void add_instruction_code(unsigned short *code, int *Usage, int *IC, unsigned short word, int *errors_found) {
-    /* Checking if memory limit was reached */
-    if (*Usage == CAPACITY) {
+void add_instruction_code(unsigned short *code, int *Usage, int *IC, unsigned short word, int *errors_found)
+{
+    if (*Usage == CAPACITY)
+    {
         print_system_error(Error_73);
         *errors_found = 1;
-        (*Usage)++;  /* Incrementing usage count so the next iteration will not print another error message */
-        return;  /* Scanning line finished */
+        (*Usage)++;
+        return;
     }
-    if (*Usage > CAPACITY) {  /* Checking if memory limit was exceeded */
-        return;  /* Scanning line finished */
-    }
-    /* Adding the code to the code array */
-    code[*IC] = word;
+    if (*Usage > CAPACITY)
+        return;
 
-    (*IC)++;  /* Incrementing data count */
-    *Usage += 1;  /* Incrementing usage count */
+    code[*IC] = (word & MASK_10BIT);
+    (*IC)++;
+    *Usage += 1;
 }
 
-void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *line, int method, char *operand, int operands_num, int *errors_found) {
-    unsigned short word = 0, temp = 0;
+/* ===== Helper for matrix operands ===== */
+static void add_matrix_operands(unsigned short *code, int *Usage, int *IC, int address, int row_reg, int col_reg, int *errors_found)
+{
+    unsigned short base;
+    unsigned short regs;
 
-    /* Handling the word */
-    switch (method) {
-        case IMMEDIATE:
-            operand++;  /* Skipping the 'HASH' sign */
-            word |= BIT_ABSOLUTE_FLAG;  /* Setting bit 2 for "Absolute" */
-            temp |= (unsigned short)(atoi(operand) & MASK_12BIT);
-            word |= temp << SHIFT_DST_OPERAND;  /* Setting bits 3-14 */
-            add_instruction_code(code,Usage,IC,word,errors_found);  /* Adding machine code (second word) */
-            return;  /* Scanning line finished */
-        case DIRECT:
-            if (add_label(operand,*IC,OPERAND,TBD) == NULL) {  /* Indicates memory allocation failed */
+    /* First word: base address */
+    base = ((address & 0xFF) << OPERAND_ADDR_SHIFT) | ARE_RELOCATABLE;
+    add_instruction_code(code, Usage, IC, base, errors_found);
+
+    /* Second word: row and column registers */
+    regs = ((row_reg & 0xF) << MATRIX_ROW_SHIFT) |
+           ((col_reg & 0xF) << MATRIX_COL_SHIFT) |
+           ARE_ABSOLUTE;
+    add_instruction_code(code, Usage, IC, regs, errors_found);
+}
+
+void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *line, int method, char *operand, int operands_num, int *errors_found)
+{
+    unsigned short word = 0, temp = 0;
+    char label_name[31];
+    int row = 0, col = 0;
+
+    switch (method)
+    {
+    case IMMEDIATE:
+        operand++;
+        word |= BIT_ABSOLUTE_FLAG;
+        temp = (unsigned short)(atoi(operand) & MASK_10BIT);
+        word |= (temp << SHIFT_DST_OPERAND);
+        add_instruction_code(code, Usage, IC, word, errors_found);
+        return;
+
+    case DIRECT:
+        if (add_label(operand, *IC, OPERAND, TBD) == NULL)
+        {
+            fclose(line->file);
+            free_line(line);
+            free_labels();
+            free_macros();
+            free_all_memory();
+            exit(1);
+        }
+        word |= BIT_MASK_SIGNAL;
+        word |= (line->line_num << BIT_MASK_SIGNAL);
+        add_instruction_code(code, Usage, IC, word, errors_found);
+        return;
+
+    case INDIRECT_REGISTER:
+        operand++;
+        word |= BIT_ABSOLUTE_FLAG;
+        word |= (which_regis(operand) << (operands_num == 1 ? SHIFT_DST_REGISTER : SHIFT_SRC_REGISTER));
+        add_instruction_code(code, Usage, IC, word, errors_found);
+        return;
+
+    case DIRECT_REGISTER:
+        word |= BIT_ABSOLUTE_FLAG;
+        word |= (which_regis(operand) << (operands_num == 1 ? SHIFT_DST_REGISTER : SHIFT_SRC_REGISTER));
+        add_instruction_code(code, Usage, IC, word, errors_found);
+        return;
+
+    case MATRIX:
+        /* Expected syntax: LABEL[rX][rY] */
+        if (sscanf(operand, "%30[^[][%d][%d]", label_name, &row, &col) == 3)
+        {
+            /* Add label reference for second pass resolution */
+            if (add_label(label_name, *IC, OPERAND, TBD) == NULL)
+            {
                 fclose(line->file);
                 free_line(line);
                 free_labels();
                 free_macros();
                 free_all_memory();
-                exit(1);  /* Exiting program */
+                exit(1);
             }
-            word |= BIT_MASK_SIGNAL;  /* Setting bits 0 and 1 to signal to the "second pass" to update this label address */
-            word |= line->line_num << BIT_MASK_SIGNAL;  /* Setting bits 3-14 to represent the line number for a potential error message in the "second pass"*/
-            add_instruction_code(code,Usage,IC,word,errors_found);  /* Adding machine code (second word) */
-            return;  /* Scanning line finished */
-        case INDIRECT_REGISTER:
-            operand++;  /* Skipping the 'ASTERISK' sign */
-            word |= BIT_ABSOLUTE_FLAG;  /* Setting bit 2 for "Absolute" */
-            word |= which_regis(operand) << (operands_num == 1 ? SHIFT_DST_REGISTER : SHIFT_SRC_REGISTER);  /* Setting bits 3-5 or 6-8 */
-            add_instruction_code(code,Usage,IC,word,errors_found);  /* Adding machine code (second word) */
-            return;  /* Scanning line finished */
-        case DIRECT_REGISTER:
-            word |= BIT_ABSOLUTE_FLAG;  /* Setting bit 2 for "Absolute" */
-            word |= which_regis(operand) << (operands_num == 1 ? SHIFT_DST_REGISTER : SHIFT_SRC_REGISTER);  /* Setting bits 3-5 or 6-8 */
-            add_instruction_code(code,Usage,IC,word,errors_found);  /* Adding machine code (second word) */
+            /* Generate two words: address placeholder + row/col regs */
+            add_matrix_operands(code, Usage, IC, 0, row, col, errors_found);
+        }
+        else
+        {
+            print_syntax_error(Error_75, line->file_am_name, line->line_num);
+        }
+        return;
+
+    default:
+        /* Unknown addressing method */
+        print_syntax_error(Error_69, line->file_am_name, line->line_num);
+        *errors_found = 1;
+        return;
     }
 }
 
-void handle_one_operand(unsigned short *code, int *Usage, int *IC, Line *line, int method, char *operand, int ind, int *errors_found) {
+void handle_one_operand(unsigned short *code, int *Usage, int *IC, Line *line, int method, char *operand, int ind, int *errors_found)
+{
     unsigned short word = 0;
     Op_Code *opcodes = get_opcodes();
 
     word |= (ind << SHIFT_OPCODE_POS) | BIT_ABSOLUTE_FLAG;
+    word |= (BIT_MASK << (method + SHIFT_DST_OPERAND));
+    add_instruction_code(code, Usage, IC, word, errors_found);
 
-    word |= (BIT_MASK << (method + SHIFT_DST_OPERAND));  /* Setting the matching bit (3 to 6) */
-    add_instruction_code(code,Usage,IC,word,errors_found);  /* Adding machine code (first word) */
-
-    /* Handling the second word */
-    process_operation_code(code,Usage,IC,line,method,operand,opcodes[ind].operands_num,errors_found);
+    process_operation_code(code, Usage, IC, line, method, operand, opcodes[ind].operands_num, errors_found);
 }
 
-void handle_two_operands(unsigned short *code, int *Usage, int *IC, Line *line, char *operand, char *second_operand, int ind, int *errors_found) {
+void handle_two_operands(unsigned short *code, int *Usage, int *IC, Line *line, char *operand, char *second_operand, int ind, int *errors_found)
+{
     unsigned short word = 0, second_word = 0;
     Op_Code *opcodes = get_opcodes();
-    int method = which_addressing_method(operand,line,errors_found);
-    int method_2 = which_addressing_method(second_operand,line,errors_found);
+    int method, method_2;
+
+    method = which_addressing_method(operand, line, errors_found);
+    method_2 = which_addressing_method(second_operand, line, errors_found);
 
     word |= (ind << SHIFT_OPCODE_POS) | BIT_ABSOLUTE_FLAG;
-    word |= (BIT_MASK << (method_2 + SHIFT_DST_OPERAND));  /* Setting the matching bit (range 3-6) */
-    word |= (BIT_MASK << (method + SHIFT_SRC_OPERAND));  /* Setting the matching bit (range 7-10) */
-    add_instruction_code(code,Usage,IC,word,errors_found);  /* Adding machine code (first word) */
+    word |= (BIT_MASK << (method_2 + SHIFT_DST_OPERAND));
+    word |= (BIT_MASK << (method + SHIFT_SRC_OPERAND));
+    add_instruction_code(code, Usage, IC, word, errors_found);
 
-    /* Handling a special case for a shared word */
+    /* Combine if both operands are registers */
     if ((method == INDIRECT_REGISTER || method == DIRECT_REGISTER) &&
-        (method_2 == INDIRECT_REGISTER || method_2 == DIRECT_REGISTER)) {
+        (method_2 == INDIRECT_REGISTER || method_2 == DIRECT_REGISTER))
+    {
+        if (method == INDIRECT_REGISTER) operand++;
+        if (method_2 == INDIRECT_REGISTER) second_operand++;
+
         second_word |= BIT_ABSOLUTE_FLAG;
-        if (method == INDIRECT_REGISTER)
-            operand++;  /* Skipping the 'ASTERISK' sign */
-        if (method_2 == INDIRECT_REGISTER)
-            second_operand++;  /* Skipping the 'ASTERISK' sign */
-        second_word |= which_regis(operand) << SHIFT_SRC_REGISTER;  /* Setting bits 6-8 */
-        second_word |= which_regis(second_operand) << SHIFT_DST_REGISTER;  /* Setting bits 3-5 */
-        add_instruction_code(code,Usage,IC,second_word,errors_found);  /* Adding machine code (second word) */
-        return;  /* Scanning line finished */
-        }
-    /* Handling the second word */
-    process_operation_code(code,Usage,IC,line,method,operand,opcodes[ind].operands_num,errors_found);
-    /* Handling the third word */
-    process_operation_code(code,Usage,IC,line,method_2,second_operand,opcodes[ind].operands_num-1,errors_found);  /* operands_num-1 to signal that opernd is of type "destination" */
+        second_word |= (which_regis(operand) << SHIFT_SRC_REGISTER);
+        second_word |= (which_regis(second_operand) << SHIFT_DST_REGISTER);
+        add_instruction_code(code, Usage, IC, second_word, errors_found);
+        return;
+    }
+
+    /* Handle separately */
+    process_operation_code(code, Usage, IC, line, method, operand, opcodes[ind].operands_num, errors_found);
+    process_operation_code(code, Usage, IC, line, method_2, second_operand, opcodes[ind].operands_num - 1, errors_found);
 }

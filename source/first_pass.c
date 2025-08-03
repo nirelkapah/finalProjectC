@@ -129,14 +129,14 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     if (line->label != NULL) {
         if (contains_whitespace(ptr)) {
             while (*ptr != NULL_TERMINATOR && !isspace(*ptr))  /* Skipping the label name */
-                ptr++;
+            ptr++;
             while (*ptr != NULL_TERMINATOR && isspace(*ptr))  /* Setting 'ptr' to point to the next word */
-                ptr++;
+            ptr++;
             /* Getting the next word */
-            current_word = get_first_word(ptr);
+        current_word = get_first_word(ptr);
             if (current_word == NULL) {  /* Indicates memory allocation failed (all the other allocations were freed inside function) */
-                fclose(line->file);
-                free_line(line);
+            fclose(line->file);
+            free_line(line);
                 exit(1);  /* Exiting program */
             }
         } else {
@@ -148,7 +148,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     }
     /* Checking for a potential instruction */
     if (is_instruction(data,Usage,DC,line,ptr,current_word,errors_found) != 0) {
-        deallocate_memory(current_word);
+            deallocate_memory(current_word);
         return;  /* Scanning line finished */
     }
 
@@ -161,13 +161,13 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     /* Handling special cases */
     if (is_macro_name(current_word) != NULL) {  /* Checking for a failed macro call */
         print_specific_error(Error_33,line->file_am_name,line->line_num,current_word);
-        *errors_found = 1;
-        deallocate_memory(current_word);
+            *errors_found = 1;
+            deallocate_memory(current_word);
         return;  /* Scanning line finished */
     }
     if (strchr(current_word+1,COLON) != NULL) {  /* Checking for a failed label declaration */
         print_specific_error(Error_65,line->file_am_name,line->line_num,current_word);
-        *errors_found = 1;
+                    *errors_found = 1;
         deallocate_memory(current_word);
         return;  /* Scanning line finished */
     }

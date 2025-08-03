@@ -217,7 +217,7 @@ int *get_numbers(Line *line, char *ptr, int *num_count, int *errors_found) {
             num = atoi(buffer);
 
             /* Checking if the number is in range */
-            if (num < MIN_15BIT || num > MAX_15BIT) {
+            if (num < MIN_10BIT || num > MAX_10BIT) {
                 print_syntax_error(Error_39,line->file_am_name,line->line_num);
                 *errors_found = 1;
                 return NULL;
@@ -345,9 +345,20 @@ void free_line(Line *line) {
     free(line);
 }
 
+/* Convert a 10-bit value to a 5-digit base-4 string */
+void convert_to_base4(unsigned short value, char *output) {
+    int i;
+    for (i = 4; i >= 0; i--) {
+        output[i] = (value % 4) + '0';
+        value /= 4;
+    }
+    output[5] = '\0';
+}
+
 void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *data, int *IC, int *DC) {
-    FILE *file_ob = fopen(file_ob_name,"w");
-    int i = 0, j = 0;;
+    FILE *file_ob = fopen(file_ob_name, "w");
+    char base4[6]; /* 5 digits + null terminator */
+    int i = 0, j = 0;
 
     if (file_ob == NULL) {  /* Failed to open file for writing */
         print_system_error(Error_6);
@@ -356,19 +367,24 @@ void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *da
         exit(1);  /* Exiting program */
     }
 
-    /* Writing header into file */
-    fprintf(file_ob,"  %d %d\n",*IC,*DC);
+    /* Write header line: instruction count and data count */
+    fprintf(file_ob, "  %d %d\n", *IC, *DC);
 
-    /* Writing machine code into file */
-    for (; i<*IC; i++) {
-        fprintf(file_ob,"%04d %05o\n",i+STARTING_ADDRESS,code[i]);
+    /* Write code section in base-4 */
+    for (i = 0; i < *IC; i++) {
+        convert_to_base4(code[i] & MASK_10BIT, base4);
+        fprintf(file_ob, "%04d %s\n", i + STARTING_ADDRESS, base4);
     }
-    for (; j<*DC; j++) {
-        fprintf(file_ob,"%04d %05o\n",j+i+STARTING_ADDRESS,data[j]);
+
+    /* Write data section in base-4 */
+    for (j = 0; j < *DC; j++) {
+        convert_to_base4(data[j] & MASK_10BIT, base4);
+        fprintf(file_ob, "%04d %s\n", j + i + STARTING_ADDRESS, base4);
     }
 
     fclose(file_ob);
 }
+
 
 void create_ent_file(char *file_ent_name) {
     FILE *file_ent = fopen(file_ent_name,"w");

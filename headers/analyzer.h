@@ -183,6 +183,7 @@ void entry_found(Line *line,char *ptr,int *errors_found);
  */
 void extern_found(Line *line,char *ptr,int *errors_found);
 
+void mat_found(unsigned short *data,int *Usage,int *DC,Line *line,char *ptr,int *errors_found);
 
 /**
  * Validates the operation found in the given line.

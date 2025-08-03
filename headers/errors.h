@@ -1,6 +1,4 @@
-/**
- * This is the errors header file.
- */
+/* This is the errors header file.*/
 #ifndef ERRORS_H
 #define ERRORS_H
 
@@ -35,7 +33,8 @@ typedef enum ERROR_CODES {
     Error_63, Error_64, Error_65,
     Error_66, Error_67, Error_68,
     Error_69, Error_70, Error_71,
-    Error_72, Error_73
+    Error_72, Error_73, Error_74, 
+    Error_75, Error_76
 } ERROR_CODES;
 
 /**
@@ -61,6 +60,7 @@ void print_syntax_error(int error_code,char *file_name,int line_num);
  * @param line_num The line number where the error occurred.
  * @param word The word that caused the error.
  */
+
 void print_specific_error(int error_code, char *file_name, int line_num, char *word);
 
 
