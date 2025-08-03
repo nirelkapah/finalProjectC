@@ -2,7 +2,9 @@
  * This file handles the machine-coding for the assembler and contains functions for
  * handling operands and adding data and instruction codes to their arrays.
  */
+#include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include "machine_code.h"
 #include "errors.h"
@@ -38,28 +40,9 @@ void add_instruction_code(unsigned short *code, int *Usage, int *IC, unsigned sh
     *Usage += 1;
 }
 
-/* ===== Helper for matrix operands ===== */
-static void add_matrix_operands(unsigned short *code, int *Usage, int *IC, int address, int row_reg, int col_reg, int *errors_found)
-{
-    unsigned short base;
-    unsigned short regs;
-
-    /* First word: base address */
-    base = ((address & 0xFF) << OPERAND_ADDR_SHIFT) | ARE_RELOCATABLE;
-    add_instruction_code(code, Usage, IC, base, errors_found);
-
-    /* Second word: row and column registers */
-    regs = ((row_reg & 0xF) << MATRIX_ROW_SHIFT) |
-           ((col_reg & 0xF) << MATRIX_COL_SHIFT) |
-           ARE_ABSOLUTE;
-    add_instruction_code(code, Usage, IC, regs, errors_found);
-}
-
 void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *line, int method, char *operand, int operands_num, int *errors_found)
 {
     unsigned short word = 0, temp = 0;
-    char label_name[31];
-    int row = 0, col = 0;
 
     switch (method)
     {
@@ -100,27 +83,22 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
         return;
 
     case MATRIX:
-        /* Expected syntax: LABEL[rX][rY] */
-        if (sscanf(operand, "%30[^[][%d][%d]", label_name, &row, &col) == 3)
+    {
+        char label_only[31];
+        if (sscanf(operand, "%30[^[]", label_only) == 1)
         {
-            /* Add label reference for second pass resolution */
-            if (add_label(label_name, *IC, OPERAND, TBD) == NULL)
+            if (add_label(label_only, *IC, OPERAND, TBD) == NULL)
             {
-                fclose(line->file);
-                free_line(line);
-                free_labels();
-                free_macros();
-                free_all_memory();
-                exit(1);
+                print_system_error(Error_1);
+                *errors_found = 1;
+                return;
             }
-            /* Generate two words: address placeholder + row/col regs */
-            add_matrix_operands(code, Usage, IC, 0, row, col, errors_found);
         }
-        else
-        {
-            print_syntax_error(Error_75, line->file_am_name, line->line_num);
-        }
+        /* Add placeholder for resolution in second pass */
+        add_instruction_code(code, Usage, IC, BIT_MASK_SIGNAL, errors_found);
+        add_instruction_code(code, Usage, IC, 0, errors_found); /* second word placeholder */
         return;
+    }
 
     default:
         /* Unknown addressing method */
@@ -160,8 +138,10 @@ void handle_two_operands(unsigned short *code, int *Usage, int *IC, Line *line, 
     if ((method == INDIRECT_REGISTER || method == DIRECT_REGISTER) &&
         (method_2 == INDIRECT_REGISTER || method_2 == DIRECT_REGISTER))
     {
-        if (method == INDIRECT_REGISTER) operand++;
-        if (method_2 == INDIRECT_REGISTER) second_operand++;
+        if (method == INDIRECT_REGISTER)
+            operand++;
+        if (method_2 == INDIRECT_REGISTER)
+            second_operand++;
 
         second_word |= BIT_ABSOLUTE_FLAG;
         second_word |= (which_regis(operand) << SHIFT_SRC_REGISTER);

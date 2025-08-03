@@ -13,157 +13,192 @@
 #include "definitions.h"
 
 /* Defining the head of the labels linked list */
+
 static Label *head = NULL;
 
-Label *add_label(char *name, int address, Type type, Location location) {
+Label *add_label(char *name, int address, Type type, Location location)
+{
     Label *last_label;
+    Label *new_label;
 
-    Label *new_label = (Label *)malloc(sizeof(Label));
-    if (new_label == NULL) {
+    /* Allocate memory for new label */
+    new_label = (Label *)malloc(sizeof(Label));
+    if (new_label == NULL)
+    {
         print_system_error(Error_1);
-        return NULL;  /* Indicates failure */
+        return NULL; /* Indicates failure */
     }
+
     /* Allocating memory and copying the name */
-    new_label->name = (char *)malloc(strlen(name)+1);  /* +1 to accommodate '\0' */
-    if (new_label->name == NULL) {
+    new_label->name = (char *)malloc(strlen(name) + 1); /* +1 to accommodate '\0' */
+    if (new_label->name == NULL)
+    {
         print_system_error(Error_1);
         free(new_label);
-        return NULL;  /* Indicates failure */
+        return NULL; /* Indicates failure */
     }
-    strcpy(new_label->name,name);
+    strcpy(new_label->name, name);
 
     /* Setting the address, type, location and next pointer */
     new_label->address = address;
     new_label->type = type;
 
-    if (location != TBD) {
+    if (location != TBD)
+    {
         new_label->location = location;
-    } else {
+    }
+    else
+    {
         new_label->location = TBD;
     }
     new_label->next = NULL;
 
     /* If the list is empty, setting the new label as the head */
-    if (head == NULL) {
+    if (head == NULL)
+    {
         head = new_label;
-    } else {
+    }
+    else
+    {
         /* Otherwise, finding the end of the list and adding the new label */
         last_label = get_last_label();
         last_label->next = new_label;
     }
-    return new_label;  /* Indicates success */
+    return new_label; /* Indicates success */
 }
 
-Label *is_label_name(char *label_name) {
+Label *is_label_name(char *label_name)
+{
     Label *current = head;
-
-    while (current != NULL) {
-        if (strcmp(current->name,label_name) == 0 && current->type != OPERAND) {
-            return current;  /* Indicates name is a label name and returns a pointer to its node */
+    while (current != NULL)
+    {
+        if (strcmp(current->name, label_name) == 0)
+        {
+            return current; /* return even if OPERAND type */
         }
         current = current->next;
     }
-    return NULL;  /* Indicates name is not a label name */
+    return NULL;
 }
 
-Label *is_label_defined(char *label_name) {
+Label *is_label_defined(char *label_name)
+{
     Label *current = head;
 
-    while (current != NULL) {
-        if (strcmp(current->name,label_name) == 0 &&  /* Determining if label was defined based on location and type */
-            ((current->type != EXTERN && current->location != TBD) || (current->type == EXTERN && current->location == TBD))) {
-            return current;  /* Indicates name is a label name and returns a pointer to its node */
+    while (current != NULL)
+    {
+        if (strcmp(current->name, label_name) == 0 && /* Determining if label was defined based on location and type */
+            ((current->type != EXTERN && current->location != TBD) || (current->type == EXTERN && current->location == TBD)))
+        {
+            return current; /* Indicates name is a label name and returns a pointer to its node */
         }
         current = current->next;
     }
-    return NULL;  /* Indicates name is not a label name */
+    return NULL; /* Indicates name is not a label name */
 }
 
-int check_entry_labels(char *file_am_name) {
+int check_entry_labels(char *file_am_name)
+{
     Label *current = head;
     int errors_found = 0;
 
-    while (current != NULL) {
-        if (current->type == ENTRY && current->location == TBD) {  /* Checking for an undefined "entry" label */
-            printf(" [CODE_7] | ERROR | File \"%s\" | Label \"%s\"",file_am_name,current->name);
+    while (current != NULL)
+    {
+        if (current->type == ENTRY && current->location == TBD)
+        { /* Checking for an undefined "entry" label */
+            printf(" [CODE_7] | ERROR | File \"%s\" | Label \"%s\"", file_am_name, current->name);
             print_system_error(Error_72);
-            errors_found = 1;  /* Indicates not all "entry" labels were defined */
+            errors_found = 1; /* Indicates not all "entry" labels were defined */
         }
         current = current->next;
     }
     return errors_found;
 }
 
-void update_data_labels(int *IC) {
+void update_data_labels(int *IC)
+{
     Label *current = head;
 
-    while (current != NULL) {
-        if (current->location == DATA) {
+    while (current != NULL)
+    {
+        if (current->location == DATA)
+        {
             current->address += *IC + STARTING_ADDRESS;
         }
         current = current->next;
     }
 }
 
-Label *get_opernad_label() {
+Label *get_opernad_label()
+{
     Label *current = head;
 
-    while (current != NULL) {
-        if (current->type == OPERAND) {
-            return current;  /* Indicates an "operand" type label was found */
+    while (current != NULL)
+    {
+        if (current->type == OPERAND)
+        {
+            return current; /* Indicates an "operand" type label was found */
         }
         current = current->next;
     }
-    return NULL;  /* Indicates no "operand" type label was found */
+    return NULL; /* Indicates no "operand" type label was found */
 }
 
-int entry_exist() {
+int entry_exist()
+{
     Label *current = head;
 
-    while (current != NULL) {
-        if (current->type == ENTRY) {
-            return 1;  /* Indicates an "entry" type label was found */
+    while (current != NULL)
+    {
+        if (current->type == ENTRY)
+        {
+            return 1; /* Indicates an "entry" type label was found */
         }
         current = current->next;
     }
-    return 0;  /* Indicates no "entry" type label was found */
-
+    return 0; /* Indicates no "entry" type label was found */
 }
 
-int extern_exist() {
+int extern_exist()
+{
     Label *current = head;
 
-    while (current != NULL) {
-        if (current->type == EXTERN) {
-            return 1;  /* Indicates an "extern" type label was found */
+    while (current != NULL)
+    {
+        if (current->type == EXTERN)
+        {
+            return 1; /* Indicates an "extern" type label was found */
         }
         current = current->next;
     }
-    return 0;  /* Indicates no "extern" type label was found */
-
+    return 0; /* Indicates no "extern" type label was found */
 }
 
-Label *get_label_head() {
+Label *get_label_head()
+{
     return head;
 }
 
-Label *get_last_label() {
+Label *get_last_label()
+{
     Label *current;
 
     if (head == NULL)
-        return NULL;  /* Indicates list is empty */
+        return NULL; /* Indicates list is empty */
 
     current = head;
     while (current->next != NULL)
         current = current->next;
 
-    return current;  /* Returning the last label in the list */
+    return current; /* Returning the last label in the list */
 }
 
-void remove_last_label() {
+void remove_last_label()
+{
     Label *current;
 
-    if (head->next == NULL) {  /* Indicates only one label in the list */
+    if (head->next == NULL)
+    { /* Indicates only one label in the list */
         free(head->name);
         free(head);
         head = NULL;
@@ -171,44 +206,53 @@ void remove_last_label() {
     }
     current = head;
 
-    while (current->next->next != NULL) {   /* Skipping to the second-to-last label */
+    while (current->next->next != NULL)
+    { /* Skipping to the second-to-last label */
         current = current->next;
     }
     free(current->next->name);
     free(current->next);
 
-    current->next = NULL;  /* Updating the second-to-last label to be the new last */
+    current->next = NULL; /* Updating the second-to-last label to be the new last */
 }
 
-void remove_label(Label *label) {
+void remove_label(Label *label)
+{
     Label *current = head;
     Label *prev = NULL;
 
-    while (current != NULL) {
-        if (current == label) {
-            if (prev == NULL) {  /* Checking if "head" is the label to be removed */
+    while (current != NULL)
+    {
+        if (current == label)
+        {
+            if (prev == NULL)
+            { /* Checking if "head" is the label to be removed */
                 head = current->next;
-            } else {
+            }
+            else
+            {
                 prev->next = current->next;
             }
             free(current->name);
             free(current);
-            return;  /* Label found and removed */
+            return; /* Label found and removed */
         }
         prev = current;
         current = current->next;
     }
 }
 
-void free_labels() {
+void free_labels()
+{
     Label *current = head;
     Label *next;
 
-    while (current != NULL) {
-        next = current->next;  /* Updating the next pointer */
+    while (current != NULL)
+    {
+        next = current->next; /* Updating the next pointer */
 
-        free(current->name);  /* Freeing the dynamically allocated name */
-        free(current);  /* Freeing the macro node itself */
+        free(current->name); /* Freeing the dynamically allocated name */
+        free(current);       /* Freeing the macro node itself */
 
         current = next; /* Moving to the next node */
     }

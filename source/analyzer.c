@@ -266,63 +266,84 @@ int which_addressing_method(char *operand, Line *line, int *errors_found)
     char *endptr;
     long val;
 
+    /* Immediate addressing (#number) */
     if (operand[0] == HASH)
     {
         operand++;
-        /* Checking if no value was entered */
         if (*operand == NULL_TERMINATOR)
         {
             print_syntax_error(Error_60, line->file_am_name, line->line_num);
             *errors_found = 1;
-            return -1; /* Indicates faliure */
+            return -1;
         }
         val = strtol(operand, &endptr, DECIMAL_BASE);
-        /* Checking if the conversion was successful */
         if (*endptr != NULL_TERMINATOR || endptr == operand)
         {
             print_specific_error(Error_61, line->file_am_name, line->line_num, operand);
             *errors_found = 1;
-            return -1; /* Indicates faliure */
+            return -1;
         }
-        /* Checking if the number is in range */
         if (val < MIN_12BIT || val > MAX_12BIT)
         {
             print_specific_error(Error_62, line->file_am_name, line->line_num, operand);
             *errors_found = 1;
-            return -1; /* Indicates faliure */
+            return -1;
         }
-        return IMMEDIATE; /* Returning the matching addressing method */
+        return IMMEDIATE;
     }
+
+    /* Matrix addressing (LABEL[rX][rY]) */
     if (strchr(operand, '[') && strchr(operand, ']'))
     {
-        return MATRIX;
+        /* Quick validation: ensure there are two register references inside [] */
+        char label_name[31], row_reg[5], col_reg[5];
+        if (sscanf(operand, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg, col_reg) == 3)
+        {
+            /* Basic check: row and column must be registers */
+            if ((row_reg[0] == 'r' || row_reg[0] == 'R') &&
+                (col_reg[0] == 'r' || col_reg[0] == 'R'))
+            {
+                return MATRIX;
+            }
+            else
+            {
+                print_syntax_error(Error_75, line->file_am_name, line->line_num);
+                *errors_found = 1;
+                return -1;
+            }
+        }
+        print_syntax_error(Error_75, line->file_am_name, line->line_num);
+        *errors_found = 1;
+        return -1;
     }
+
+    /* Indirect register addressing (*rX) */
     if (operand[0] == ASTERISK)
     {
         operand++;
-        /* Checking if no value was entered */
         if (*operand == NULL_TERMINATOR)
         {
             print_syntax_error(Error_63, line->file_am_name, line->line_num);
             *errors_found = 1;
-            return -1; /* Indicates faliure */
+            return -1;
         }
         if (which_regis(operand) == -1)
         {
             print_specific_error(Error_64, line->file_am_name, line->line_num, operand);
             *errors_found = 1;
-            return -1; /* Indicates faliure */
+            return -1;
         }
-        return INDIRECT_REGISTER; /* Returning the matching addressing method */
+        return INDIRECT_REGISTER;
     }
-    if (which_regis(operand) != -1) /* Indicates opernad is a register */
-        return DIRECT_REGISTER;     /* Returning the matching addressing method */
 
-    /* If this line was reached then the opernad is a potential label - validating */
+    /* Direct register addressing (rX) */
+    if (which_regis(operand) != -1)
+        return DIRECT_REGISTER;
+
+    /* Potential label - validate */
     if (valid_label_name(operand, OPERAND, line, errors_found) != 0)
-        return -1; /* Indicates faliure */
+        return -1;
 
-    /* If the label is valid - returning the matching addressing method */
     return DIRECT;
 }
 
@@ -663,11 +684,18 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
     char values_copy[MAX_LINE_LENGTH];
 
     /* Skip whitespace */
-    while (*ptr && isspace(*ptr))
+    while (*ptr && isspace((unsigned char)*ptr))
         ptr++;
 
-    /* Parse rows */
-    if (!isdigit(*ptr))
+    /* Expect '[' then rows */
+    if (*ptr != '[')
+    {
+        print_syntax_error(Error_74, line->file_am_name, line->line_num);
+        *errors_found = 1;
+        return;
+    }
+    ptr++;
+    if (!isdigit((unsigned char)*ptr))
     {
         print_syntax_error(Error_74, line->file_am_name, line->line_num);
         *errors_found = 1;
@@ -675,10 +703,9 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
     }
     rows = atoi(ptr);
 
-    /* Find comma */
-    while (*ptr && *ptr != ',')
-        ptr++;
-    if (*ptr != ',')
+    /* Find closing bracket */
+    while (*ptr && *ptr != ']') ptr++;
+    if (*ptr != ']')
     {
         print_syntax_error(Error_74, line->file_am_name, line->line_num);
         *errors_found = 1;
@@ -686,10 +713,16 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
     }
     ptr++;
 
-    /* Parse cols */
-    while (*ptr && isspace(*ptr))
-        ptr++;
-    if (!isdigit(*ptr))
+    /* Expect '[' then cols */
+    while (*ptr && isspace((unsigned char)*ptr)) ptr++;
+    if (*ptr != '[')
+    {
+        print_syntax_error(Error_74, line->file_am_name, line->line_num);
+        *errors_found = 1;
+        return;
+    }
+    ptr++;
+    if (!isdigit((unsigned char)*ptr))
     {
         print_syntax_error(Error_74, line->file_am_name, line->line_num);
         *errors_found = 1;
@@ -697,11 +730,25 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
     }
     cols = atoi(ptr);
 
-    /* Move to values */
-    while (*ptr && *ptr != ' ')
-        ptr++;
-    while (*ptr && isspace(*ptr))
-        ptr++;
+    while (*ptr && *ptr != ']') ptr++;
+    if (*ptr != ']')
+    {
+        print_syntax_error(Error_74, line->file_am_name, line->line_num);
+        *errors_found = 1;
+        return;
+    }
+    ptr++;
+
+    /* Validate */
+    if (rows <= 0 || cols <= 0)
+    {
+        print_syntax_error(Error_74, line->file_am_name, line->line_num);
+        *errors_found = 1;
+        return;
+    }
+
+    /* Skip spaces to values */
+    while (*ptr && isspace((unsigned char)*ptr)) ptr++;
     values_part = ptr;
 
     /* Count values */
@@ -722,11 +769,11 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
         return;
     }
 
-    /* Store rows and cols first */
+    /* Store rows and cols */
     add_data_code(data, DC, rows);
     add_data_code(data, DC, cols);
 
-    /* Parse values */
+    /* Parse and store matrix values */
     token = strtok(values_part, ",");
     for (i = 0; i < rows * cols; i++)
     {
@@ -744,10 +791,11 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
         }
         else
         {
-            add_data_code(data, DC, 0);
+            add_data_code(data, DC, 0); /* fill missing */
         }
     }
 }
+
 
 void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char *ptr, int ind, int *errors_found)
 {
