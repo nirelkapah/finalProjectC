@@ -22,13 +22,16 @@
 #define SHIFT_OPCODE_POS 6
 #define SHIFT_SRC_OPERAND 4
 #define SHIFT_DST_OPERAND 2
+#define SHIFT_IMMEDIATE_VALUE 2 /* Bits 9-2 for immediate values */
 #define SHIFT_SRC_REGISTER 6
 #define SHIFT_DST_REGISTER 3
 #define BIT_MASK_EXTERNAL 1
 #define BIT_MASK_RELOCATABLE 2
 #define BIT_MASK_SIGNAL 3 /* Bits 0 for "External" and 1 for "Relocatable" to signal an uncoded label */
-#define BIT_ABSOLUTE_FLAG 4
+#define BIT_ABSOLUTE_FLAG 0 /* Absolute encoding: 00 */
 #define MASK_10BIT 0x3FF
+#define MASK_8BIT 0xFF
+#define MASK_4BIT 0xF
 #define MASK_12BIT 0xFFF
 #define MAX_10BIT 511     /* Max number for a 15 bit 2's complement representation */
 #define MIN_10BIT (-512)  /* Min number for a 15 bit 2's complement representation */

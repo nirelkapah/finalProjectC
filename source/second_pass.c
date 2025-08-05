@@ -107,8 +107,8 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
                 if (label != NULL)
                 {
                     /* First word: base address */
-                    word = (unsigned short)(label->address & MASK_10BIT);
-                    word <<= 2;                   /* bits 2–9 = address */
+                    word = (unsigned short)(label->address & MASK_8BIT); /* 8-bit address */
+                    word <<= SHIFT_IMMEDIATE_VALUE; /* bits 9-2 = address */
                     word |= BIT_MASK_RELOCATABLE; /* ARE = 10 */
                     code[j] = word;
 
@@ -129,8 +129,8 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
                     /* Second word: row/col registers */
                     if (j + 1 < *IC)
                     {
-                        word = ((row_reg & 0xF) << MATRIX_ROW_SHIFT) |
-                               ((col_reg & 0xF) << MATRIX_COL_SHIFT) |
+                        word = ((row_reg & MASK_4BIT) << MATRIX_ROW_SHIFT) |
+                               ((col_reg & MASK_4BIT) << MATRIX_COL_SHIFT) |
                                ARE_ABSOLUTE;
                         code[j + 1] = word;
                     }
@@ -155,8 +155,8 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
             label = is_label_defined(operand_name);
             if (label != NULL)
             {
-                word = (unsigned short)(label->address & MASK_10BIT);
-                word <<= 2;
+                word = (unsigned short)(label->address & MASK_8BIT); /* 8-bit address */
+                word <<= SHIFT_IMMEDIATE_VALUE; /* Bits 9-2 contain the memory address */
 
                 if (label->type == EXTERN)
                 {

@@ -49,8 +49,8 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
     case IMMEDIATE:
         operand++;
         word |= BIT_ABSOLUTE_FLAG;
-        temp = (unsigned short)(atoi(operand) & MASK_10BIT);
-        word |= (temp << SHIFT_DST_OPERAND);
+        temp = (unsigned short)(atoi(operand) & MASK_8BIT); /* 8-bit immediate value */
+        word |= (temp << SHIFT_IMMEDIATE_VALUE); /* Bits 9-2 contain the immediate value */
         add_instruction_code(code, Usage, IC, word, errors_found);
         return;
 
@@ -64,8 +64,8 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
             free_all_memory();
             exit(1);
         }
-        word |= BIT_MASK_SIGNAL;
-        word |= (line->line_num << BIT_MASK_SIGNAL);
+        /* Placeholder for second pass resolution - address will be filled in second pass */
+        word |= BIT_MASK_SIGNAL; /* Signal for second pass to resolve */
         add_instruction_code(code, Usage, IC, word, errors_found);
         return;
 
