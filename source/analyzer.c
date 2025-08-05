@@ -683,6 +683,16 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
     char *token;
     char values_copy[MAX_LINE_LENGTH];
 
+    /* Checking if there are no parameters */
+    if (*ptr == NULL_TERMINATOR)
+    {
+        if (line->label != NULL)
+            remove_last_label();
+        print_syntax_error(Error_74, line->file_am_name, line->line_num);
+        *errors_found = 1;
+        return;
+    }
+
     /* Skip whitespace */
     while (*ptr && isspace((unsigned char)*ptr))
         ptr++;
@@ -769,6 +779,13 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
         return;
     }
 
+    /* Updating label properties */
+    if (line->label != NULL)
+    {
+        line->label->address = *DC;
+        line->label->location = DATA;
+    }
+
     /* Store rows and cols */
     add_data_code(data, DC, rows);
     add_data_code(data, DC, cols);
@@ -777,6 +794,18 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
     token = strtok(values_part, ",");
     for (i = 0; i < rows * cols; i++)
     {
+        if (*Usage + 2 == CAPACITY)
+        { /* Checking if memory limit was reached (+2 for rows and cols) */
+            print_system_error(Error_73);
+            *errors_found = 1;
+            (*Usage)++; /* Incrementing usage count so the next iteration will not print another error message */
+            return;     /* Scanning line finished */
+        }
+        if (*Usage + 2 > CAPACITY)
+        {           /* Checking if memory limit was exceeded */
+            return; /* Scanning line finished */
+        }
+
         if (token != NULL)
         {
             num = atoi(token);
@@ -787,11 +816,13 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
                 num = 0;
             }
             add_data_code(data, DC, num);
+            *Usage += 1; /* Incrementing usage count */
             token = strtok(NULL, ",");
         }
         else
         {
             add_data_code(data, DC, 0); /* fill missing */
+            *Usage += 1; /* Incrementing usage count */
         }
     }
 }
