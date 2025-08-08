@@ -92,15 +92,12 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
 
     case MATRIX:
     {
-        char label_only[31];
-        if (sscanf(operand, "%30[^[]", label_only) == 1)
+        /* Store the full matrix expression for second pass parsing */
+        if (add_label(operand, *IC, OPERAND, TBD) == NULL)
         {
-            if (add_label(label_only, *IC, OPERAND, TBD) == NULL)
-            {
-                print_system_error(Error_1);
-                *errors_found = 1;
-                return;
-            }
+            print_system_error(Error_1);
+            *errors_found = 1;
+            return;
         }
         /* Matrix addressing: add placeholders for second pass resolution */
         add_instruction_code(code, Usage, IC, BIT_MASK_SIGNAL, errors_found); /* Base address placeholder */

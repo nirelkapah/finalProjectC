@@ -66,6 +66,8 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
     Label *label;
     unsigned short word;
     char *operand_name;
+    
+
 
     while (i < *IC)
     {
@@ -90,6 +92,8 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
         operand_name = operand_label->name;
         word = 0;
 
+
+
         /* ===================== MATRIX OPERAND ===================== */
         if (strchr(operand_name, '[') != NULL)
         {
@@ -103,11 +107,25 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
             parsed = sscanf(operand_name, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg_str, col_reg_str);
             if (parsed == 3)
             {
+
                 label = is_label_defined(label_name);
                 if (label != NULL)
                 {
                     /* First word: base address */
-                    word = (unsigned short)(label->address & MASK_8BIT); /* 8-bit address */
+                    /* Use the updated address for DATA labels */
+                    int final_address = label->address;
+                    if (label->location == DATA)
+                    {
+                        final_address = label->address; /* Already updated by update_data_labels */
+                    }
+                    else
+                    {
+                        final_address = label->address + STARTING_ADDRESS;
+                    }
+                    
+
+                    
+                    word = (unsigned short)(final_address & MASK_8BIT); /* 8-bit address */
                     word <<= SHIFT_IMMEDIATE_VALUE; /* bits 9-2 = address */
                     word |= BIT_MASK_RELOCATABLE; /* ARE = 10 */
                     code[j] = word;
@@ -155,12 +173,11 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
             label = is_label_defined(operand_name);
             if (label != NULL)
             {
-                word = (unsigned short)(label->address & MASK_8BIT); /* 8-bit address */
-                word <<= SHIFT_IMMEDIATE_VALUE; /* Bits 9-2 contain the memory address */
-
                 if (label->type == EXTERN)
                 {
-                    word |= BIT_MASK_EXTERNAL;
+                    /* For external labels, put zeros in bits 2-9 since we don't know the address yet */
+                    word = 0; /* Bits 9-2 = 0 */
+                    word |= BIT_MASK_EXTERNAL; /* ARE = 01 */
                     if (add_label(label->name,
                                   operand_label->address + STARTING_ADDRESS,
                                   EXTERN, CODE) == NULL)
@@ -172,7 +189,20 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
                 }
                 else
                 {
-                    word |= BIT_MASK_RELOCATABLE;
+                    /* Use the updated address for DATA labels */
+                    int final_address = label->address;
+                    if (label->location == DATA)
+                    {
+                        final_address = label->address; /* Already updated by update_data_labels */
+                    }
+                    else
+                    {
+                        final_address = label->address + STARTING_ADDRESS;
+                    }
+                    
+                    word = (unsigned short)(final_address & MASK_8BIT); /* 8-bit address */
+                    word <<= SHIFT_IMMEDIATE_VALUE; /* Bits 9-2 contain the memory address */
+                    word |= BIT_MASK_RELOCATABLE; /* ARE = 10 */
                 }
                 code[j] = word;
             }
