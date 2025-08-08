@@ -283,7 +283,7 @@ int which_addressing_method(char *operand, Line *line, int *errors_found)
             *errors_found = 1;
             return -1;
         }
-        if (val < MIN_12BIT || val > MAX_12BIT)
+        if (val < MIN_10BIT || val > MAX_10BIT)
         {
             print_specific_error(Error_62, line->file_am_name, line->line_num, operand);
             *errors_found = 1;
@@ -299,10 +299,21 @@ int which_addressing_method(char *operand, Line *line, int *errors_found)
         char label_name[31], row_reg[5], col_reg[5];
         if (sscanf(operand, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg, col_reg) == 3)
         {
-            /* Basic check: row and column must be registers */
+            int row_num, col_num;
+            /* Basic check: row and column must be valid registers */
             if ((row_reg[0] == 'r' || row_reg[0] == 'R') &&
                 (col_reg[0] == 'r' || col_reg[0] == 'R'))
             {
+                /* Check if registers are in valid range (0-7) */
+                row_num = row_reg[1] - '0';
+                col_num = col_reg[1] - '0';
+                if (row_num < MIN_REGISTER || row_num > MAX_REGISTER ||
+                    col_num < MIN_REGISTER || col_num > MAX_REGISTER)
+                {
+                    print_syntax_error(Error_75, line->file_am_name, line->line_num);
+                    *errors_found = 1;
+                    return -1;
+                }
                 return MATRIX;
             }
             else
@@ -459,6 +470,13 @@ int is_operation(unsigned short *code, int *Usage, int *IC, Line *line, char *pt
         if (line->label != NULL)
         {
             line->label->address = *IC + STARTING_ADDRESS;
+            /* Check if address exceeds memory capacity */
+            if (line->label->address >= CAPACITY)
+            {
+                print_system_error(Error_73);
+                *errors_found = 1;
+                return 1;
+            }
             line->label->location = CODE;
         }
         ptr += curr_word_len; /* Skipping the first word */

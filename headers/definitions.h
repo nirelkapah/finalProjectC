@@ -14,7 +14,7 @@
 #define INSTRUCTIONS_COUNT 5
 #define MACR_LENGTH 4
 #define ENDMACR_LENGTH 7
-#define CAPACITY 4096
+#define CAPACITY 256
 #define STARTING_ADDRESS 100
 #define DECIMAL_BASE 10
 #define BIT_MASK 1
@@ -33,10 +33,16 @@
 #define MASK_8BIT 0xFF
 #define MASK_4BIT 0xF
 #define MASK_12BIT 0xFFF
-#define MAX_10BIT 511     /* Max number for a 15 bit 2's complement representation */
-#define MIN_10BIT (-512)  /* Min number for a 15 bit 2's complement representation */
+#define MAX_10BIT 511     /* Max number for a 10 bit 2's complement representation */
+#define MIN_10BIT (-512)  /* Min number for a 10 bit 2's complement representation */
 #define MAX_12BIT 2047    /* Max number for a 12 bit 2's complement representation */
 #define MIN_12BIT (-2048) /* Min number for a 12 bit 2's complement representation */
+
+/* Address and register limits (positive only) */
+#define MAX_ADDRESS 255   /* Max memory address (0-255) */
+#define MIN_ADDRESS 0     /* Min memory address */
+#define MAX_REGISTER 7    /* Max register number (r0-r7) */
+#define MIN_REGISTER 0    /* Min register number */
 #define BUFFER_SIZE 20    /* Sufficient size to temporarily store the string representation of an integer */
 #define MAX_DATA_NUM 38   /* The max amount of numbers possible for a line of ".data" instruction, considering commas and max characters per line */
 #define DOT '.'

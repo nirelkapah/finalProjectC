@@ -47,12 +47,23 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
     switch (method)
     {
     case IMMEDIATE:
+    {
+        int immediate_val;
         operand++;
+        /* Check immediate value range (can be negative) */
+        immediate_val = atoi(operand);
+        if (immediate_val < MIN_10BIT || immediate_val > MAX_10BIT)
+        {
+            print_syntax_error(Error_62, line->file_am_name, line->line_num);
+            *errors_found = 1;
+            return;
+        }
         word |= BIT_ABSOLUTE_FLAG;
-        temp = (unsigned short)(atoi(operand) & MASK_8BIT); /* 8-bit immediate value */
+        temp = (unsigned short)(immediate_val & MASK_8BIT); /* 8-bit immediate value */
         word |= (temp << SHIFT_IMMEDIATE_VALUE); /* Bits 9-2 contain the immediate value */
         add_instruction_code(code, Usage, IC, word, errors_found);
         return;
+    }
 
     case DIRECT:
         if (add_label(operand, *IC, OPERAND, TBD) == NULL)
