@@ -67,8 +67,8 @@ Error errors[] = {
         {Error_60, "This operation has an operand that uses an 'IMMEDIATE' method type but has no value"},
         {Error_61, "This opernad is invalid for an 'IMMEDIATE' method type, only integers allowed"},
         {Error_62, "This opernad is out of range for an 'IMMEDIATE' method type"},
-        {Error_63, "This operation has an opernad that uses an 'INDIRECT_REGISTER' method type but has no value"},
-        {Error_64, "This opernad is not a valid register for an 'INDIRECT_REGISTER' method type"},
+        {Error_63, "This operation has an opernad that uses a 'REGISTER' method type but has no value"},
+        {Error_64, "This opernad is not a valid register for a 'REGISTER' method type"},
         {Error_65, "Unrecognized command, note that label declarations must have a space after the colon (:)"},  /* Example: "LABEL:mov..." */
         {Error_66, "Unrecognized command, note that label declarations must have the colon (:) attached to the label name"},  /* Example: "LABEL : mov..." */
         {Error_67, "Unrecognized command, note that an instruction must start with a dot (.)"},  /* Example: "entry LABEL" */

@@ -345,19 +345,18 @@ void free_line(Line *line) {
     free(line);
 }
 
-/* Convert a 10-bit value to a 5-digit base-4 string */
-void convert_to_base4(unsigned short value, char *output) {
+/* Convert a 10-bit value to a 10-bit binary string */
+void convert_to_binary10(unsigned short value, char *output) {
     int i;
-    for (i = 4; i >= 0; i--) {
-        output[i] = (value % 4) + '0';
-        value /= 4;
+    for (i = 9; i >= 0; i--) {
+        output[9-i] = ((value >> i) & 1) + '0';
     }
-    output[5] = '\0';
+    output[10] = '\0';
 }
 
 void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *data, int *IC, int *DC) {
     FILE *file_ob = fopen(file_ob_name, "w");
-    char base4[6]; /* 5 digits + null terminator */
+    char binary10[11]; /* 10 bits + null terminator */
     int i = 0, j = 0;
 
     if (file_ob == NULL) {  /* Failed to open file for writing */
@@ -370,16 +369,16 @@ void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *da
     /* Write header line: instruction count and data count */
     fprintf(file_ob, "  %d %d\n", *IC, *DC);
 
-    /* Write code section in base-4 */
+    /* Write code section in 10-bit binary */
     for (i = 0; i < *IC; i++) {
-        convert_to_base4(code[i] & MASK_10BIT, base4);
-        fprintf(file_ob, "%04d %s\n", i + STARTING_ADDRESS, base4);
+        convert_to_binary10(code[i] & MASK_10BIT, binary10);
+        fprintf(file_ob, "%04d %s\n", i + STARTING_ADDRESS, binary10);
     }
 
-    /* Write data section in base-4 */
+    /* Write data section in 10-bit binary */
     for (j = 0; j < *DC; j++) {
-        convert_to_base4(data[j] & MASK_10BIT, base4);
-        fprintf(file_ob, "%04d %s\n", j + i + STARTING_ADDRESS, base4);
+        convert_to_binary10(data[j] & MASK_10BIT, binary10);
+        fprintf(file_ob, "%04d %s\n", j + i + STARTING_ADDRESS, binary10);
     }
 
     fclose(file_ob);

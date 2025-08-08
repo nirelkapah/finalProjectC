@@ -69,14 +69,11 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
         add_instruction_code(code, Usage, IC, word, errors_found);
         return;
 
-    case INDIRECT_REGISTER:
-        operand++;
-        word |= BIT_ABSOLUTE_FLAG;
-        word |= (which_regis(operand) << (operands_num == 1 ? SHIFT_DST_REGISTER : SHIFT_SRC_REGISTER));
-        add_instruction_code(code, Usage, IC, word, errors_found);
-        return;
-
     case DIRECT_REGISTER:
+        /* Handle both direct and indirect register addressing */
+        if (operand[0] == ASTERISK) {
+            operand++; /* Skip the '*' for indirect addressing */
+        }
         word |= BIT_ABSOLUTE_FLAG;
         word |= (which_regis(operand) << (operands_num == 1 ? SHIFT_DST_REGISTER : SHIFT_SRC_REGISTER));
         add_instruction_code(code, Usage, IC, word, errors_found);
@@ -94,9 +91,9 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
                 return;
             }
         }
-        /* Add placeholder for resolution in second pass */
-        add_instruction_code(code, Usage, IC, BIT_MASK_SIGNAL, errors_found);
-        add_instruction_code(code, Usage, IC, 0, errors_found); /* second word placeholder */
+        /* Matrix addressing: add placeholders for second pass resolution */
+        add_instruction_code(code, Usage, IC, BIT_MASK_SIGNAL, errors_found); /* Base address placeholder */
+        add_instruction_code(code, Usage, IC, 0, errors_found); /* Register combination placeholder */
         return;
     }
 
@@ -112,9 +109,12 @@ void handle_one_operand(unsigned short *code, int *Usage, int *IC, Line *line, i
 {
     unsigned short word = 0;
     Op_Code *opcodes = get_opcodes();
+    int dst_encoding;
 
     word |= (ind << SHIFT_OPCODE_POS) | BIT_ABSOLUTE_FLAG;
-    word |= (BIT_MASK << (method + SHIFT_DST_OPERAND));
+    /* Addressing method is already in correct 2-bit format */
+    dst_encoding = method;
+    word |= (dst_encoding << SHIFT_DST_OPERAND);
     add_instruction_code(code, Usage, IC, word, errors_found);
 
     process_operation_code(code, Usage, IC, line, method, operand, opcodes[ind].operands_num, errors_found);
@@ -125,22 +125,27 @@ void handle_two_operands(unsigned short *code, int *Usage, int *IC, Line *line, 
     unsigned short word = 0, second_word = 0;
     Op_Code *opcodes = get_opcodes();
     int method, method_2;
+    int dst_encoding, src_encoding;
 
     method = which_addressing_method(operand, line, errors_found);
     method_2 = which_addressing_method(second_operand, line, errors_found);
 
     word |= (ind << SHIFT_OPCODE_POS) | BIT_ABSOLUTE_FLAG;
-    word |= (BIT_MASK << (method_2 + SHIFT_DST_OPERAND));
-    word |= (BIT_MASK << (method + SHIFT_SRC_OPERAND));
+    /* Addressing methods are already in correct 2-bit format */
+    dst_encoding = method_2;
+    src_encoding = method;
+    
+    word |= (dst_encoding << SHIFT_DST_OPERAND);
+    word |= (src_encoding << SHIFT_SRC_OPERAND);
     add_instruction_code(code, Usage, IC, word, errors_found);
 
     /* Combine if both operands are registers */
-    if ((method == INDIRECT_REGISTER || method == DIRECT_REGISTER) &&
-        (method_2 == INDIRECT_REGISTER || method_2 == DIRECT_REGISTER))
+    if (method == DIRECT_REGISTER && method_2 == DIRECT_REGISTER)
     {
-        if (method == INDIRECT_REGISTER)
+        /* Handle indirect addressing by skipping '*' if present */
+        if (operand[0] == ASTERISK)
             operand++;
-        if (method_2 == INDIRECT_REGISTER)
+        if (second_operand[0] == ASTERISK)
             second_operand++;
 
         second_word |= BIT_ABSOLUTE_FLAG;

@@ -317,7 +317,7 @@ int which_addressing_method(char *operand, Line *line, int *errors_found)
         return -1;
     }
 
-    /* Indirect register addressing (*rX) */
+    /* Register addressing (rX or *rX) */
     if (operand[0] == ASTERISK)
     {
         operand++;
@@ -333,7 +333,7 @@ int which_addressing_method(char *operand, Line *line, int *errors_found)
             *errors_found = 1;
             return -1;
         }
-        return INDIRECT_REGISTER;
+        return DIRECT_REGISTER;
     }
 
     /* Direct register addressing (rX) */

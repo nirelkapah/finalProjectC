@@ -8,9 +8,8 @@
 typedef enum Addressing_Method {
     IMMEDIATE = 0,
     DIRECT = 1,
-    INDIRECT_REGISTER = 2,
-    DIRECT_REGISTER= 3,
-    MATRIX = 4
+    MATRIX = 2,
+    DIRECT_REGISTER = 3
 } Addressing_Method;
 
 typedef enum valid_methods {
