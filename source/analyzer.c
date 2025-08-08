@@ -194,11 +194,10 @@ int valid_label_name(char *label_name, Type type, Line *line, int *errors_found)
             *errors_found = 1;
             return 1; /* Indicates label name is not valid */
         }
-        if (label->type == ENTRY && label->location != TBD)
+        if (label->type == ENTRY && label->location == TBD)
         {
-            print_specific_error(Error_27, line->file_am_name, line->line_num, label_name);
-            *errors_found = 1;
-            return 1; /* Indicates label name is not valid */
+            /* Entry label found but not yet defined - this is allowed */
+            return -1; /* Signal to update the existing entry label */
         }
         if (label->type == OPERAND)
         {

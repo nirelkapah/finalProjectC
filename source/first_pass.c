@@ -116,11 +116,24 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     if (current_word[curr_word_len - 1] == COLON)
     {
         res = valid_label_name(current_word, REGULAR, line, errors_found);
-        if (res == 0 || res == -1)  /* Both new labels and existing ENTRY labels should be REGULAR */
+        if (res == 0)  /* New label */
         {
-
             label = add_label(current_word, 0, REGULAR, TBD);
             line->label = label;
+        }
+        else if (res == -1)  /* Existing entry label - find and update it */
+        {
+            label = is_label_name(current_word);
+            if (label != NULL && label->type == ENTRY)
+            {
+                line->label = label;
+                /* The address and location will be set later in the code */
+            }
+            else
+            {
+                deallocate_memory(current_word);
+                return;
+            }
         }
         else
         {
