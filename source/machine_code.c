@@ -43,6 +43,7 @@ void add_instruction_code(unsigned short *code, int *Usage, int *IC, unsigned sh
 void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *line, int method, char *operand, int operands_num, int *errors_found)
 {
     unsigned short word = 0, temp = 0;
+    Label *added_label;
 
     switch (method)
     {
@@ -66,7 +67,9 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
     }
 
     case DIRECT:
-        if (add_label(operand, *IC, OPERAND, TBD) == NULL)
+        /* Store the operand label for second pass resolution */
+        added_label = add_label(operand, *IC, OPERAND, TBD);
+        if (added_label == NULL)
         {
             fclose(line->file);
             free_line(line);
@@ -157,8 +160,8 @@ void handle_two_operands(unsigned short *code, int *Usage, int *IC, Line *line, 
             second_operand++;
 
         second_word |= BIT_ABSOLUTE_FLAG;
-        second_word |= (which_regis(operand) << SHIFT_SRC_REGISTER);
-        second_word |= (which_regis(second_operand) << SHIFT_DST_REGISTER);
+        second_word |= (which_regis(operand) << SHIFT_SRC_REGISTER);        /* First operand (r1) is source */
+        second_word |= (which_regis(second_operand) << SHIFT_DST_REGISTER); /* Second operand (r4) is destination */
         add_instruction_code(code, Usage, IC, second_word, errors_found);
         return;
     }

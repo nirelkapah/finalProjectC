@@ -39,6 +39,8 @@ Label *add_label(char *name, int address, Type type, Location location)
     }
     strcpy(new_label->name, name);
 
+
+
     /* Setting the address, type, location and next pointer */
     new_label->address = address;
     new_label->type = type;

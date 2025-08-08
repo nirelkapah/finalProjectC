@@ -89,6 +89,8 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
             return errors_found; /* No more operand labels */
         }
 
+
+
         operand_name = operand_label->name;
         word = 0;
 
@@ -170,9 +172,18 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
         /* ===================== DIRECT OPERAND ===================== */
         else
         {
+            /* First try to find a defined label with this name */
             label = is_label_defined(operand_name);
+            if (label == NULL)
+            {
+                /* If not found as defined, try to find any label with this name */
+                label = is_label_name(operand_name);
+            }
+
+            
             if (label != NULL)
             {
+
                 if (label->type == EXTERN)
                 {
                     /* For external labels, put zeros in bits 2-9 since we don't know the address yet */

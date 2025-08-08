@@ -200,6 +200,12 @@ int valid_label_name(char *label_name, Type type, Line *line, int *errors_found)
             *errors_found = 1;
             return 1; /* Indicates label name is not valid */
         }
+        if (label->type == OPERAND)
+        {
+            /* Don't remove operand labels - allow creating regular labels with same name */
+            return 0; /* Allow creating the regular label */
+        }
+
         remove_label(label);
         return -1; /* Special case - signaling to create a new label of type "entry" */
     }

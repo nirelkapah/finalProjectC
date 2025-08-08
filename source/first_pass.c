@@ -116,13 +116,11 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     if (current_word[curr_word_len - 1] == COLON)
     {
         res = valid_label_name(current_word, REGULAR, line, errors_found);
-        if (res == 0)
+        if (res == 0 || res == -1)  /* Both new labels and existing ENTRY labels should be REGULAR */
         {
+
             label = add_label(current_word, 0, REGULAR, TBD);
-        }
-        else if (res == -1)
-        {
-            label = add_label(current_word, 0, ENTRY, TBD);
+            line->label = label;
         }
         else
         {
