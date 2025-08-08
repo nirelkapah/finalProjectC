@@ -24,7 +24,7 @@
 #define SHIFT_DST_OPERAND 2
 #define SHIFT_IMMEDIATE_VALUE 2 /* Bits 9-2 for immediate values */
 #define SHIFT_SRC_REGISTER 6
-#define SHIFT_DST_REGISTER 3
+#define SHIFT_DST_REGISTER 2
 #define BIT_MASK_EXTERNAL 1
 #define BIT_MASK_RELOCATABLE 2
 #define BIT_MASK_SIGNAL 3 /* Bits 0 for "External" and 1 for "Relocatable" to signal an uncoded label */

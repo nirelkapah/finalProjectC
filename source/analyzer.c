@@ -810,22 +810,18 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
         line->label->location = DATA;
     }
 
-    /* Store rows and cols */
-    add_data_code(data, DC, rows);
-    add_data_code(data, DC, cols);
-
     /* Parse and store matrix values */
     token = strtok(values_part, ",");
     for (i = 0; i < rows * cols; i++)
     {
-        if (*Usage + 2 == CAPACITY)
-        { /* Checking if memory limit was reached (+2 for rows and cols) */
+        if (*Usage == CAPACITY)
+        { /* Checking if memory limit was reached */
             print_system_error(Error_73);
             *errors_found = 1;
             (*Usage)++; /* Incrementing usage count so the next iteration will not print another error message */
             return;     /* Scanning line finished */
         }
-        if (*Usage + 2 > CAPACITY)
+        if (*Usage > CAPACITY)
         {           /* Checking if memory limit was exceeded */
             return; /* Scanning line finished */
         }
