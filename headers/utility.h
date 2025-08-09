@@ -142,6 +142,26 @@ Line *create_line(FILE *file,char *file_am_name,char *content,int line_num);
  */
 void free_line(Line *line);
 
+/**
+ * Converts a 10-bit value to a 10-bit binary string.
+ * @param value The 10-bit value to convert.
+ * @param output Buffer to store the binary string representation.
+ */
+void convert_to_binary10(unsigned short value, char *output);
+
+/**
+ * Converts a decimal number to base 4 string representation using letters (a=0, b=1, c=2, d=3).
+ * @param decimal_num The decimal number to convert.
+ * @param output Buffer to store the base 4 string representation.
+ */
+void convert_to_base4(int decimal_num, char *output);
+
+/**
+ * Converts a decimal number to base 4 string representation with exactly 5 digits using letters (a=0, b=1, c=2, d=3).
+ * @param decimal_num The decimal number to convert.
+ * @param output Buffer to store the base 4 string representation (padded to 5 digits).
+ */
+void convert_to_base4_5digits(int decimal_num, char *output);
 
 /**
  * Creates an object file (.ob) with machine code.

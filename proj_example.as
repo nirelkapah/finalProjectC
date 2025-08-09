@@ -1,6 +1,7 @@
 ; file ps.as
 .entry LIST
 .extern fn1
+.extern L3
 MAIN: add r3, LIST
 jsr fn1
 LOOP: prn #48
@@ -20,4 +21,3 @@ STR: .string "abcd"
 LIST: .data 6, -9
  .data -100
 K: .data 31
-.extern L3

@@ -354,9 +354,70 @@ void convert_to_binary10(unsigned short value, char *output) {
     output[10] = '\0';
 }
 
+/* Convert a decimal number to base 4 string representation using letters */
+void convert_to_base4(int decimal_num, char *output) {
+    int i = 0, j = 0;
+    char temp[32]; /* Temporary buffer for reversed digits */
+    
+    if (decimal_num == 0) {
+        strcpy(output, "a");
+        return;
+    }
+    
+    /* Convert to base 4 by repeatedly dividing by 4 */
+    while (decimal_num > 0) {
+        temp[i++] = 'a' + (decimal_num % 4); /* a=0, b=1, c=2, d=3 */
+        decimal_num /= 4;
+    }
+    
+    /* Reverse the digits to get correct order */
+    while (i > 0) {
+        output[j++] = temp[--i];
+    }
+    output[j] = '\0';
+}
+
+
+
+/* Convert a decimal number to base 4 string representation with exactly 5 digits using letters */
+void convert_to_base4_5digits(int decimal_num, char *output) {
+    int i = 0, j = 0;
+    int current_len;
+    char temp[32]; /* Temporary buffer for reversed digits */
+    
+    if (decimal_num == 0) {
+        strcpy(output, "aaaaa");
+        return;
+    }
+    
+    /* Convert to base 4 by repeatedly dividing by 4 */
+    while (decimal_num > 0) {
+        temp[i++] = 'a' + (decimal_num % 4); /* a=0, b=1, c=2, d=3 */
+        decimal_num /= 4;
+    }
+    
+    /* Reverse the digits to get correct order */
+    while (i > 0) {
+        output[j++] = temp[--i];
+    }
+    output[j] = '\0';
+    
+    /* Pad with leading 'a's to ensure exactly 5 digits */
+    current_len = strlen(output);
+    if (current_len < 5) {
+        /* Move existing digits to the right */
+        memmove(output + (5 - current_len), output, current_len + 1);
+        /* Fill leading positions with 'a's */
+        for (i = 0; i < (5 - current_len); i++) {
+            output[i] = 'a';
+        }
+    }
+}
+
 void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *data, int *IC, int *DC) {
     FILE *file_ob = fopen(file_ob_name, "w");
-    char binary10[11]; /* 10 bits + null terminator */
+    char base4_value[32]; /* Buffer for base 4 value */
+    char base4_addr[32]; /* Buffer for base 4 address */
     int i = 0, j = 0;
 
     if (file_ob == NULL) {  /* Failed to open file for writing */
@@ -366,19 +427,24 @@ void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *da
         exit(1);  /* Exiting program */
     }
 
-    /* Write header line: instruction count and data count */
-    fprintf(file_ob, "  %d %d\n", *IC, *DC);
+    /* Write header line: instruction count and data count in base 4 */
+    convert_to_base4(*IC, base4_addr);
+    fprintf(file_ob, "  %s ", base4_addr);
+    convert_to_base4(*DC, base4_addr);
+    fprintf(file_ob, "%s\n", base4_addr);
 
-    /* Write code section in 10-bit binary */
+    /* Write code section in base 4 with base 4 addresses */
     for (i = 0; i < *IC; i++) {
-        convert_to_binary10(code[i] & MASK_10BIT, binary10);
-        fprintf(file_ob, "%04d %s\n", i + STARTING_ADDRESS, binary10);
+        convert_to_base4(i + STARTING_ADDRESS, base4_addr);
+        convert_to_base4_5digits(code[i] & MASK_10BIT, base4_value);
+        fprintf(file_ob, "%s %s\n", base4_addr, base4_value);
     }
 
-    /* Write data section in 10-bit binary */
+    /* Write data section in base 4 with base 4 addresses */
     for (j = 0; j < *DC; j++) {
-        convert_to_binary10(data[j] & MASK_10BIT, binary10);
-        fprintf(file_ob, "%04d %s\n", j + i + STARTING_ADDRESS, binary10);
+        convert_to_base4(j + i + STARTING_ADDRESS, base4_addr);
+        convert_to_base4_5digits(data[j] & MASK_10BIT, base4_value);
+        fprintf(file_ob, "%s %s\n", base4_addr, base4_value);
     }
 
     fclose(file_ob);
@@ -388,6 +454,7 @@ void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *da
 void create_ent_file(char *file_ent_name) {
     FILE *file_ent = fopen(file_ent_name,"w");
     Label *current;
+    char base4_addr[32]; /* Buffer for base 4 address */
 
     if (file_ent == NULL) {  /* Failed to open file for writing */
         print_system_error(Error_6);
@@ -399,7 +466,8 @@ void create_ent_file(char *file_ent_name) {
     current = get_label_head();
     while (current != NULL) {
         if (current->type == ENTRY) {
-            fprintf(file_ent,"%s %04d\n",current->name,current->address);
+            convert_to_base4(current->address, base4_addr);
+            fprintf(file_ent,"%s %s\n",current->name,base4_addr);
         }
         current = current->next;
     }
@@ -409,6 +477,7 @@ void create_ent_file(char *file_ent_name) {
 void create_ext_file(char *file_ext_name) {
     FILE *file_ext = fopen(file_ext_name,"w");
     Label *current;
+    char base4_addr[32]; /* Buffer for base 4 address */
 
     if (file_ext == NULL) {  /* Failed to open file for writing */
         print_system_error(Error_6);
@@ -420,7 +489,8 @@ void create_ext_file(char *file_ext_name) {
     current = get_label_head();
     while (current != NULL) {
         if (current->type == EXTERN && current->location == CODE) {
-            fprintf(file_ext,"%s %04d\n",current->name,current->address);
+            convert_to_base4(current->address, base4_addr);
+            fprintf(file_ext,"%s %s\n",current->name,base4_addr);
         }
         current = current->next;
     }
