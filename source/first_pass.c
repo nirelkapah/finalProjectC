@@ -1,0 +1,266 @@
+/**
+ * This is the first pass file, which is the first step in the assembler analysis process.
+ * This file handles the scanning and storing of instructions, operations, and labels,
+ * converting them into machine code while handling all types off potential errors.
+ * If no errors are detected, it proceeds with the second pass.
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include "first_pass.h"
+#include "analyzer.h"
+#include "errors.h"
+#include "macros.h"
+#include "labels.h"
+#include "utility.h"
+#include "second_pass.h"
+#include "definitions.h"
+
+int first_pass(char *file_name)
+{
+    unsigned short code[CAPACITY] = {0}, data[CAPACITY] = {0}; /* Initializing machine code arrays */
+    int IC = 0, DC = 0;
+
+    /* Getting the new file name */
+    char *file_am_name = change_extension(file_name, ".am");
+
+    /* Scanning the file */
+    if (scan_text(file_am_name, code, data, &IC, &DC) != 0)
+    {
+        free_labels();
+        free_macros();
+        free_all_memory();
+        return 1; /* Indicates faliure */
+    }
+    free_macros(); /* Macros are no longer needed */
+
+    printf("* First pass was successful\n");
+
+    /* Starting second pass */
+    if (second_pass(file_am_name, code, data, &IC, &DC) != 0)
+    {
+        free_labels();
+        free_all_memory();
+        return 1; /* Indicates faliure */
+    }
+    deallocate_memory(file_am_name);
+    return 0; /* Indicates success */
+}
+
+int scan_text(char *file_am_name, unsigned short *code, unsigned short *data, int *IC, int *DC)
+{
+    char temp[MAX_LINE_LENGTH + 1]; /* +1 to accommodate '\0' */
+    int Usage = 0, errors_found = 0, line_count = 0;
+    char *trimmed_line;
+    Line *line;
+
+    FILE *file_am = fopen(file_am_name, "r");
+    if (file_am == NULL)
+    { /* Failed to open file for reading */
+        print_system_error(Error_5);
+        free_macros();
+        free_all_memory();
+        exit(1); /* Exiting program */
+    }
+    /* Reading line by line */
+    while (fgets(temp, MAX_LINE_LENGTH + 1, file_am))
+    {
+        line_count++;
+
+        /* Checking if the current line a comment */
+        if (temp[0] == COMMENT)
+            continue; /* Skipping to the next line */
+
+        /* Trimming leading and trailing whitespace characters */
+        trimmed_line = trim_whitespace(temp);
+
+        /* Checking if the current line is a empty */
+        if (strlen(trimmed_line) == 0)
+            continue; /* Skipping to the next line */
+
+        line = create_line(file_am, file_am_name, trimmed_line, line_count);
+        if (line == NULL)
+        {
+            fclose(file_am);
+            free_labels();
+            free_macros();
+            free_all_memory();
+            exit(1); /* Exiting program */
+        }
+        scan_word(code, data, &Usage, IC, DC, line, &errors_found);
+        free_line(line);
+    }
+    fclose(file_am);
+    return errors_found;
+}
+
+void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, int *DC, Line *line, int *errors_found)
+{
+    char *ptr = line->content;
+    char *current_word, *temp;
+    int curr_word_len, len, res;
+    Label *label;
+
+    /* Getting the first word */
+    current_word = get_first_word(line->content);
+    if (current_word == NULL)
+    {
+        fclose(line->file);
+        free_line(line);
+        exit(1);
+    }
+    curr_word_len = strlen(current_word);
+
+    /* Checking for a potential label definition */
+    if (current_word[curr_word_len - 1] == COLON)
+    {
+        res = valid_label_name(current_word, REGULAR, line, errors_found);
+        if (res == 0)  /* New label */
+        {
+            label = add_label(current_word, 0, REGULAR, TBD);
+            line->label = label;
+        }
+        else if (res == -1)  /* Existing entry label - find and update it */
+        {
+            label = is_label_name(current_word);
+            if (label != NULL && label->type == ENTRY)
+            {
+                line->label = label;
+                /* The address and location will be set later in the code */
+            }
+            else
+            {
+                deallocate_memory(current_word);
+                return;
+            }
+        }
+        else
+        {
+            deallocate_memory(current_word);
+            return;
+        }
+        if (label == NULL)
+        {
+            fclose(line->file);
+            free_line(line);
+            free_labels();
+            free_macros();
+            free_all_memory();
+            exit(1);
+        }
+        line->label = label;
+        deallocate_memory(current_word);
+    }
+
+    /* Scanning the next word */
+    if (line->label != NULL)
+    {
+        if (contains_whitespace(ptr))
+        {
+            while (*ptr != NULL_TERMINATOR && !isspace(*ptr))
+                ptr++;
+            while (*ptr != NULL_TERMINATOR && isspace(*ptr))
+                ptr++;
+            current_word = get_first_word(ptr);
+            if (current_word == NULL)
+            {
+                fclose(line->file);
+                free_line(line);
+                exit(1);
+            }
+
+            /* ✅ NEW: Assign label address for .data, .string, .mat */
+            if (which_instr(current_word) == 0 || /* .data */
+                which_instr(current_word) == 1 || /* .string */
+                which_instr(current_word) == 4)   /* .mat */
+            {
+                line->label->address = *DC;
+                line->label->location = DATA;
+            }
+            else
+            {
+                line->label->address = *IC;
+                line->label->location = CODE;
+            }
+        }
+        else
+        {
+            ptr[strlen(ptr) - 1] = NULL_TERMINATOR;
+            print_syntax_error(Error_22, line->file_am_name, line->line_num);
+            *errors_found = 1;
+            return;
+        }
+    }
+
+    /* Checking for a potential instruction */
+    if (is_instruction(data, Usage, DC, line, ptr, current_word, errors_found) != 0)
+    {
+        deallocate_memory(current_word);
+        return;
+    }
+
+    /* Checking for a potential operation */
+    if (is_operation(code, Usage, IC, line, ptr, current_word, errors_found) != 0)
+    {
+        deallocate_memory(current_word);
+        return;
+    }
+
+    /* Handling special cases */
+    if (is_macro_name(current_word) != NULL)
+    {
+        print_specific_error(Error_33, line->file_am_name, line->line_num, current_word);
+        *errors_found = 1;
+        deallocate_memory(current_word);
+        return;
+    }
+    if (strchr(current_word + 1, COLON) != NULL)
+    {
+        print_specific_error(Error_65, line->file_am_name, line->line_num, current_word);
+        *errors_found = 1;
+        deallocate_memory(current_word);
+        return;
+    }
+    while (ptr && !isspace(*ptr))
+        ptr++;
+    while (ptr && isspace(*ptr))
+        ptr++;
+    if (ptr && *ptr == COLON)
+    {
+        print_specific_error(Error_66, line->file_am_name, line->line_num, current_word);
+        *errors_found = 1;
+        deallocate_memory(current_word);
+        return;
+    }
+    if (is_label_name(current_word) != NULL)
+    {
+        print_specific_error(Error_71, line->file_am_name, line->line_num, current_word);
+        *errors_found = 1;
+        deallocate_memory(current_word);
+        return;
+    }
+    len = strlen(current_word) + TWO;
+    temp = (char *)allocate_memory(len);
+    if (temp == NULL)
+    {
+        fclose(line->file);
+        free_line(line);
+        exit(1);
+    }
+    temp[0] = DOT;
+    strcpy(temp + 1, current_word);
+    if (which_instr(temp) != -1)
+    {
+        print_specific_error(Error_67, line->file_am_name, line->line_num, current_word);
+        *errors_found = 1;
+        deallocate_memory(temp);
+        deallocate_memory(current_word);
+        return;
+    }
+    deallocate_memory(temp);
+    print_specific_error(Error_68, line->file_am_name, line->line_num, current_word);
+    *errors_found = 1;
+    deallocate_memory(temp);
+    deallocate_memory(current_word);
+}
