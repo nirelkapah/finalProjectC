@@ -151,7 +151,7 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
                     {
                         word = ((row_reg & MASK_4BIT) << MATRIX_ROW_SHIFT) |
                                ((col_reg & MASK_4BIT) << MATRIX_COL_SHIFT) |
-                               ARE_ABSOLUTE;
+                               BIT_MASK_ABSOLUTE;
                         code[j + 1] = word;
                     }
                 }

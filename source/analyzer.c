@@ -852,7 +852,7 @@ void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char
     char *opernad, *second_operand, *comma_pos;
     int operands_num = OPCODES[ind].operands_num, length, method, method_2;
     unsigned short word = 0;
-    word |= (ind << SHIFT_OPCODE_POS) | BIT_ABSOLUTE_FLAG;
+            word |= (ind << SHIFT_OPCODE_POS) | BIT_MASK_ABSOLUTE;
 
     /* Analyzing opernads */
     switch (operands_num)

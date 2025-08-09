@@ -59,7 +59,7 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
             *errors_found = 1;
             return;
         }
-        word |= BIT_ABSOLUTE_FLAG;
+        word |= BIT_MASK_ABSOLUTE;
         temp = (unsigned short)(immediate_val & MASK_8BIT); /* 8-bit immediate value */
         word |= (temp << SHIFT_IMMEDIATE_VALUE); /* Bits 9-2 contain the immediate value */
         add_instruction_code(code, Usage, IC, word, errors_found);
@@ -88,7 +88,7 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
         if (operand[0] == ASTERISK) {
             operand++; /* Skip the '*' for indirect addressing */
         }
-        word |= BIT_ABSOLUTE_FLAG;
+        word |= BIT_MASK_ABSOLUTE;
         word |= (which_regis(operand) << (operands_num == 1 ? SHIFT_DST_REGISTER : SHIFT_SRC_REGISTER));
         add_instruction_code(code, Usage, IC, word, errors_found);
         return;
@@ -122,7 +122,7 @@ void handle_one_operand(unsigned short *code, int *Usage, int *IC, Line *line, i
     Op_Code *opcodes = get_opcodes();
     int dst_encoding;
 
-    word |= (ind << SHIFT_OPCODE_POS) | BIT_ABSOLUTE_FLAG;
+    word |= (ind << SHIFT_OPCODE_POS) | BIT_MASK_ABSOLUTE;
     /* Addressing method is already in correct 2-bit format */
     dst_encoding = method;
     word |= (dst_encoding << SHIFT_DST_OPERAND);
@@ -141,7 +141,7 @@ void handle_two_operands(unsigned short *code, int *Usage, int *IC, Line *line, 
     method = which_addressing_method(operand, line, errors_found);
     method_2 = which_addressing_method(second_operand, line, errors_found);
 
-    word |= (ind << SHIFT_OPCODE_POS) | BIT_ABSOLUTE_FLAG;
+    word |= (ind << SHIFT_OPCODE_POS) | BIT_MASK_ABSOLUTE;
     /* Addressing methods are already in correct 2-bit format */
     dst_encoding = method_2;
     src_encoding = method;
@@ -159,7 +159,7 @@ void handle_two_operands(unsigned short *code, int *Usage, int *IC, Line *line, 
         if (second_operand[0] == ASTERISK)
             second_operand++;
 
-        second_word |= BIT_ABSOLUTE_FLAG;
+        second_word |= BIT_MASK_ABSOLUTE;
         second_word |= (which_regis(operand) << SHIFT_SRC_REGISTER);        /* First operand (r1) is source */
         second_word |= (which_regis(second_operand) << SHIFT_DST_REGISTER); /* Second operand (r4) is destination */
         add_instruction_code(code, Usage, IC, second_word, errors_found);
