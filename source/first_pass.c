@@ -19,7 +19,7 @@
 
 int first_pass(char *file_name)
 {
-    unsigned short code[CAPACITY] = {0}, data[CAPACITY] = {0}; /* Initializing machine code arrays */
+    unsigned short code[MAX_ARRAY_CAPACITY] = {0}, data[MAX_ARRAY_CAPACITY] = {0}; /* Initializing machine code arrays */
     int IC = 0, DC = 0;
 
     /* Getting the new file name */
@@ -50,7 +50,7 @@ int first_pass(char *file_name)
 
 int scan_text(char *file_am_name, unsigned short *code, unsigned short *data, int *IC, int *DC)
 {
-    char temp[MAX_LINE_LENGTH + 1]; /* +1 to accommodate '\0' */
+    char temp[MAX_SOURCE_LINE_LENGTH + 1]; /* +1 to accommodate '\0' */
     int Usage = 0, errors_found = 0, line_count = 0;
     char *trimmed_line;
     Line *line;
@@ -64,12 +64,12 @@ int scan_text(char *file_am_name, unsigned short *code, unsigned short *data, in
         exit(1); /* Exiting program */
     }
     /* Reading line by line */
-    while (fgets(temp, MAX_LINE_LENGTH + 1, file_am))
+    while (fgets(temp, MAX_SOURCE_LINE_LENGTH + 1, file_am))
     {
         line_count++;
 
         /* Checking if the current line a comment */
-        if (temp[0] == COMMENT)
+        if (temp[0] == SEMICOLON)
             continue; /* Skipping to the next line */
 
         /* Trimming leading and trailing whitespace characters */
@@ -113,7 +113,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     curr_word_len = strlen(current_word);
 
     /* Checking for a potential label definition */
-    if (current_word[curr_word_len - 1] == COLON)
+    if (current_word[curr_word_len - 1] == COLON_SIGN)
     {
         res = valid_label_name(current_word, REGULAR, line, errors_found);
         if (res == 0)  /* New label */
@@ -158,9 +158,9 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     {
         if (contains_whitespace(ptr))
         {
-            while (*ptr != NULL_TERMINATOR && !isspace(*ptr))
+            while (*ptr != STRING_TERMINATOR && !isspace(*ptr))
                 ptr++;
-            while (*ptr != NULL_TERMINATOR && isspace(*ptr))
+            while (*ptr != STRING_TERMINATOR && isspace(*ptr))
                 ptr++;
             current_word = get_first_word(ptr);
             if (current_word == NULL)
@@ -186,7 +186,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
         }
         else
         {
-            ptr[strlen(ptr) - 1] = NULL_TERMINATOR;
+            ptr[strlen(ptr) - 1] = STRING_TERMINATOR;
             print_syntax_error(Error_22, line->file_am_name, line->line_num);
             *errors_found = 1;
             return;
@@ -215,7 +215,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
         deallocate_memory(current_word);
         return;
     }
-    if (strchr(current_word + 1, COLON) != NULL)
+    if (strchr(current_word + 1, COLON_SIGN) != NULL)
     {
         print_specific_error(Error_65, line->file_am_name, line->line_num, current_word);
         *errors_found = 1;
@@ -226,7 +226,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
         ptr++;
     while (ptr && isspace(*ptr))
         ptr++;
-    if (ptr && *ptr == COLON)
+    if (ptr && *ptr == COLON_SIGN)
     {
         print_specific_error(Error_66, line->file_am_name, line->line_num, current_word);
         *errors_found = 1;
@@ -240,7 +240,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
         deallocate_memory(current_word);
         return;
     }
-    len = strlen(current_word) + TWO;
+            len = strlen(current_word) + BINARY_BASE;
     temp = (char *)allocate_memory(len);
     if (temp == NULL)
     {
@@ -248,7 +248,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
         free_line(line);
         exit(1);
     }
-    temp[0] = DOT;
+    temp[0] = PERIOD;
     strcpy(temp + 1, current_word);
     if (which_instr(temp) != -1)
     {

@@ -125,7 +125,7 @@ void update_data_labels(int *IC)
     {
         if (current->location == DATA)
         {
-            current->address += *IC + STARTING_ADDRESS;
+            current->address += *IC + MEMORY_START_ADDRESS;
         }
         current = current->next;
     }

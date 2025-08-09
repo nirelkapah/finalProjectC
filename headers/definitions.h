@@ -5,70 +5,70 @@
 #define DEFINITIONS_H
 
 /* File and line constraints */
-#define EXTENSION_LEN 3
-#define MAX_LINE_LENGTH 81
-#define MAX_MACRO_LENGTH 31
-#define MAX_LABEL_LENGTH 31
+#define FILE_EXTENSION_LENGTH 3
+#define MAX_SOURCE_LINE_LENGTH 81
+#define MAX_MACRO_NAME_LENGTH 31
+#define MAX_LABEL_NAME_LENGTH 31
 
 /* Counts and capacities */
-#define OPCODES_COUNT 16
-#define REGISTERS_COUNT 8
-#define INSTRUCTIONS_COUNT 5
-#define CAPACITY 256
+#define TOTAL_OPCODES 16
+#define TOTAL_REGISTERS 8
+#define TOTAL_INSTRUCTION_TYPES 5
+#define MAX_ARRAY_CAPACITY 256
 
 /* Address and numeric constants */
-#define STARTING_ADDRESS 100
-#define DECIMAL_BASE 10
-#define TWO 2
+#define MEMORY_START_ADDRESS 100
+#define BASE_10 10
+#define BINARY_BASE 2
 
 /* Bit manipulation and masks */
-#define BIT_MASK 1
-#define MASK_10BIT 0x3FF
-#define MASK_8BIT 0xFF
-#define MASK_4BIT 0xF
+#define SINGLE_BIT_MASK 1
+#define MASK_10_BITS 0x3FF
+#define MASK_8_BITS 0xFF
+#define MASK_4_BITS 0xF
 
-/* Bit shift positions */
-#define SHIFT_OPCODE_POS 6
-#define SHIFT_SRC_OPERAND 4
-#define SHIFT_DST_OPERAND 2
-#define SHIFT_IMMEDIATE_VALUE 2
-#define SHIFT_SRC_REGISTER 6
-#define SHIFT_DST_REGISTER 2
+/* Bit shift positions for instruction encoding */
+#define OPCODE_SHIFT_POSITION 6
+#define SOURCE_OPERAND_SHIFT_POSITION 4
+#define DESTINATION_OPERAND_SHIFT_POSITION 2
+#define IMMEDIATE_VALUE_SHIFT_POSITION 2
+#define SOURCE_REGISTER_SHIFT_POSITION 6
+#define DESTINATION_REGISTER_SHIFT_POSITION 2
 
-/* ARE encoding values */
-#define BIT_MASK_EXTERNAL 1
-#define BIT_MASK_RELOCATABLE 2
-#define BIT_MASK_SIGNAL 3
-#define BIT_MASK_ABSOLUTE 0
+/* Address Relocation Encoding (ARE) values */
+#define ARE_EXTERNAL 1
+#define ARE_RELOCATABLE 2
+#define ARE_PLACEHOLDER_SIGNAL 3
+#define ARE_ABSOLUTE 0
 
 /* Numeric range limits */
-#define MAX_10BIT 511
-#define MIN_10BIT (-512)
-#define MAX_REGISTER 7
-#define MIN_REGISTER 0
+#define MAX_10_BIT_SIGNED_VALUE 511
+#define MIN_10_BIT_SIGNED_VALUE (-512)
+#define MAX_REGISTER_NUMBER 7
+#define MIN_REGISTER_NUMBER 0
 
 /* Buffer and data constraints */
-#define BUFFER_SIZE 20
-#define MAX_DATA_NUM 38
+#define INTEGER_STRING_BUFFER_SIZE 20
+#define MAX_DATA_VALUES_PER_LINE 38
 
 /* Macro processing */
-#define MACR_LENGTH 4
-#define ENDMACR_LENGTH 7
+#define MACRO_START_LENGTH 4
+#define MACRO_END_LENGTH 7
 
 /* Matrix encoding */
-#define MATRIX_ROW_SHIFT 6
-#define MATRIX_COL_SHIFT 2
+#define MATRIX_ROW_REGISTER_SHIFT 6
+#define MATRIX_COLUMN_REGISTER_SHIFT 2
 
 /* Character constants */
-#define DOT '.'
-#define HASH '#'
-#define PLUS '+'
-#define MINUS '-'
-#define COLON ':'
-#define COMMA ','
-#define COMMENT ';'
-#define ASTERISK '*'
-#define DOUBLE_QUOTE '\"'
-#define NULL_TERMINATOR '\0'
+#define PERIOD '.'
+#define POUND_SIGN '#'
+#define PLUS_SIGN '+'
+#define MINUS_SIGN '-'
+#define COLON_SIGN ':'
+#define COMMA_SIGN ','
+#define SEMICOLON ';'
+#define ASTERISK_SIGN '*'
+#define QUOTATION_MARK '\"'
+#define STRING_TERMINATOR '\0'
 
 #endif

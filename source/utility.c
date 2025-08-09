@@ -123,7 +123,7 @@ char *add_extension(char *filename, char *extension) {
 
 char *change_extension(char *file_name, char *new_extension) {
     /* Finding the last occurrence of the '.' character */
-    char *dot = strrchr(file_name,DOT);
+    char *dot = strrchr(file_name,PERIOD);
 
     /* Calculating the length for the filename with the new extension */
     int base_length = dot - file_name;
@@ -137,7 +137,7 @@ char *change_extension(char *file_name, char *new_extension) {
 
     /* Copying the base part of the original filename */
     strncpy(new_filename, file_name, base_length);
-    new_filename[base_length] = NULL_TERMINATOR;  /* Null-terminating the base part */
+            new_filename[base_length] = STRING_TERMINATOR;  /* Null-terminating the base part */
 
     /* Appending the new extension */
     strcat(new_filename, new_extension);
@@ -150,7 +150,7 @@ char *trim_whitespace(char *str) {
     while (*str && isspace(*str))  /* Incrementing the pointer 'str' while the current character is a whitespace */
         str++;
 
-    if (*str == NULL_TERMINATOR)  /* If the string is all whitespaces or empty, returning the original string */
+    if (*str == STRING_TERMINATOR)  /* If the string is all whitespaces or empty, returning the original string */
         return str;
 
     end = str + strlen(str) - 1;  /* Setting 'end' to point to the last character */
@@ -159,13 +159,13 @@ char *trim_whitespace(char *str) {
     while (end > str && isspace(*end))
         end--;
 
-    *(end + 1) = NULL_TERMINATOR;  /* Null-terminating the string */
+    *(end + 1) = STRING_TERMINATOR;  /* Null-terminating the string */
 
     return str;
 }
 
 int contains_whitespace(char *str) {
-    while (*str != NULL_TERMINATOR) {
+    while (*str != STRING_TERMINATOR) {
         if (isspace(*str)) {
             return 1;  /* Indicates whitespace character found */
         }
@@ -176,16 +176,16 @@ int contains_whitespace(char *str) {
 
 int *get_numbers(Line *line, char *ptr, int *num_count, int *errors_found) {
     int *result;
-    char buffer[BUFFER_SIZE];
-    int numbers[MAX_DATA_NUM];
+    char buffer[INTEGER_STRING_BUFFER_SIZE];
+    int numbers[MAX_DATA_VALUES_PER_LINE];
     int temp_count = 0, i = 0, last_was_comma = 0, length = strlen(ptr), num, j;
 
     while (i < length && isspace(ptr[i]))  /* Skipping leading whitespace */
         i++;
 
-    if (!isdigit(ptr[i]) && ptr[i] != MINUS && ptr[i] != PLUS) {  /* Checking for an invalid character */
+            if (!isdigit(ptr[i]) && ptr[i] != MINUS_SIGN && ptr[i] != PLUS_SIGN) {  /* Checking for an invalid character */
         *errors_found = 1;
-        if (ptr[i] == COMMA) {
+        if (ptr[i] == COMMA_SIGN) {
             print_syntax_error(Error_34,line->file_am_name,line->line_num);
       	    return NULL;
       	}
@@ -198,26 +198,26 @@ int *get_numbers(Line *line, char *ptr, int *num_count, int *errors_found) {
         if (i >= length)
             break;
         /* Checking for a number with an optional sign */
-        if (isdigit(ptr[i]) || ((ptr[i] == MINUS || ptr[i] == PLUS) && isdigit(ptr[i + 1]))) {
+        if (isdigit(ptr[i]) || ((ptr[i] == MINUS_SIGN || ptr[i] == PLUS_SIGN) && isdigit(ptr[i + 1]))) {
             last_was_comma = 0;
             j = 0;
 
-            if (ptr[i] == MINUS || ptr[i] == PLUS)  /* Handling optional sign */
+            if (ptr[i] == MINUS_SIGN || ptr[i] == PLUS_SIGN)  /* Handling optional sign */
                 buffer[j++] = ptr[i++];
             while (i < length && isdigit(ptr[i]))  /* Getting the number */
                 buffer[j++] = ptr[i++];
 
             /* Checking for an invalid character after the number */
-            if (i < length && !isspace(ptr[i]) && ptr[i] != COMMA && ptr[i] != MINUS && ptr[i] != PLUS) {
+            if (i < length && !isspace(ptr[i]) && ptr[i] != COMMA_SIGN && ptr[i] != MINUS_SIGN && ptr[i] != PLUS_SIGN) {
                 print_syntax_error(Error_35,line->file_am_name,line->line_num);
                 *errors_found = 1;
                 return NULL;
             }
-            buffer[j] = NULL_TERMINATOR;
+            buffer[j] = STRING_TERMINATOR;
             num = atoi(buffer);
 
             /* Checking if the number is in range */
-            if (num < MIN_10BIT || num > MAX_10BIT) {
+            if (num < MIN_10_BIT_SIGNED_VALUE || num > MAX_10_BIT_SIGNED_VALUE) {
                 print_syntax_error(Error_39,line->file_am_name,line->line_num);
                 *errors_found = 1;
                 return NULL;
@@ -229,10 +229,10 @@ int *get_numbers(Line *line, char *ptr, int *num_count, int *errors_found) {
             while (i < length && isspace(ptr[i]))  /* Skipping whitespace characters after the number */
                 i++;
 
-            if (i < length && ptr[i] == COMMA) {  /* Checking for a comma after the number */
+            if (i < length && ptr[i] == COMMA_SIGN) {  /* Checking for a comma after the number */
                 last_was_comma = 1;
                 i++;
-            } else if (i < length && ptr[i] != COMMA) {
+            } else if (i < length && ptr[i] != COMMA_SIGN) {
                 print_syntax_error(Error_36,line->file_am_name,line->line_num);
                 *errors_found = 1;
                 return NULL;
@@ -247,7 +247,7 @@ int *get_numbers(Line *line, char *ptr, int *num_count, int *errors_found) {
             while (i < length && isspace(ptr[i]))
                 i++;
 
-            if (i < length && ptr[i] == COMMA) {
+            if (i < length && ptr[i] == COMMA_SIGN) {
                 print_syntax_error(Error_37,line->file_am_name,line->line_num);
                 *errors_found = 1;
                 return NULL;
@@ -275,7 +275,7 @@ char *get_first_word(char *str) {
     char *first_word;
     /* Finding the length of the first word */
     int length = 0;
-    while (str[length] != NULL_TERMINATOR && !isspace(str[length])) {
+    while (str[length] != STRING_TERMINATOR && !isspace(str[length])) {
         length++;
     }
     /* Allocating memory for the first word */
@@ -284,7 +284,7 @@ char *get_first_word(char *str) {
         return NULL;  /* Indicates memory allocation failed */
 
     strncpy(first_word, str, length);   /* Copying the first word to the allocated memory */
-    first_word[length] = NULL_TERMINATOR;  /* Null-terminating the string */
+    first_word[length] = STRING_TERMINATOR;  /* Null-terminating the string */
 
     return first_word;
 }
@@ -435,15 +435,15 @@ void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *da
 
     /* Write code section in base 4 with base 4 addresses */
     for (i = 0; i < *IC; i++) {
-        convert_to_base4(i + STARTING_ADDRESS, base4_addr);
-        convert_to_base4_5digits(code[i] & MASK_10BIT, base4_value);
+        convert_to_base4(i + MEMORY_START_ADDRESS, base4_addr);
+        convert_to_base4_5digits(code[i] & MASK_10_BITS, base4_value);
         fprintf(file_ob, "%s %s\n", base4_addr, base4_value);
     }
 
     /* Write data section in base 4 with base 4 addresses */
     for (j = 0; j < *DC; j++) {
-        convert_to_base4(j + i + STARTING_ADDRESS, base4_addr);
-        convert_to_base4_5digits(data[j] & MASK_10BIT, base4_value);
+        convert_to_base4(j + i + MEMORY_START_ADDRESS, base4_addr);
+        convert_to_base4_5digits(data[j] & MASK_10_BITS, base4_value);
         fprintf(file_ob, "%s %s\n", base4_addr, base4_value);
     }
 

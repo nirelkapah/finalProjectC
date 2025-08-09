@@ -32,7 +32,7 @@ int pre_processing(char *file_name) {
 
 int handle_macros(char *file_name, char *file_am_name) {
     char *macro_name, *trimmed_line;
-    char line[MAX_LINE_LENGTH+1], copy[MAX_LINE_LENGTH+1];  /* +1 to accommodate '\0' */
+    char line[MAX_SOURCE_LINE_LENGTH+1], copy[MAX_SOURCE_LINE_LENGTH+1];  /* +1 to accommodate '\0' */
     int errors_found = 0 , macro_found = 0, line_count = 0, name_is_valid = 0, decl_line, line_length, ch;
     FILE *file, *file_am;
     Macro *macro_ptr;
@@ -51,12 +51,12 @@ int handle_macros(char *file_name, char *file_am_name) {
         exit(1);  /* Exiting program */
     }
     /* Reading line by line */
-    while (fgets(line,MAX_LINE_LENGTH+1,file)) {
+    while (fgets(line,MAX_SOURCE_LINE_LENGTH+1,file)) {
         line_count++;
         line_length = strlen(line);
 
         /* Validating line length */
-        if (line_length == MAX_LINE_LENGTH && line[MAX_LINE_LENGTH-1] != '\n') {
+        if (line_length == MAX_SOURCE_LINE_LENGTH && line[MAX_SOURCE_LINE_LENGTH-1] != '\n') {
             if (is_standalone_word(line,"macr") != 0) {
                 if (macro_found == 0) {
                     macro_found = 1;
@@ -70,7 +70,7 @@ int handle_macros(char *file_name, char *file_am_name) {
             continue;  /* Skipping to the next line */
         }
         /* Skipping to the next line if the current line is a comment */
-        if (*line == COMMENT) {
+        if (*line == SEMICOLON) {
             if (errors_found == 0)
                 fputs(line,file_am);  /* Copying line into "file.am" */
             continue;  /* Skipping to the next line */
@@ -78,7 +78,7 @@ int handle_macros(char *file_name, char *file_am_name) {
         strcpy(copy,line);
         trimmed_line = trim_whitespace(line);  /* Trimming leading and trailing whitespace characters */
 
-        if (*trimmed_line == COMMENT) {  /* Checking for an illegal comment */
+        if (*trimmed_line == SEMICOLON) {  /* Checking for an illegal comment */
             print_syntax_error(Error_3,file_name,line_count);
             errors_found = 1;
             continue;  /* Skipping to the next line */
@@ -105,7 +105,7 @@ int handle_macros(char *file_name, char *file_am_name) {
                 continue;  /* Skipping to the next line */
             }
             /* Handling -endmacr- command potential errors */
-            if (strlen(trimmed_line) > ENDMACR_LENGTH) {
+            if (strlen(trimmed_line) > MACRO_END_LENGTH) {
                 print_syntax_error(Error_15,file_name,line_count);
                 if (name_is_valid == 1)
                     remove_last_macro();
@@ -136,7 +136,7 @@ int handle_macros(char *file_name, char *file_am_name) {
         decl_line = line_count;
 
         /* Validating the macro declaration */
-        if (strlen(trimmed_line) > MACR_LENGTH) {
+        if (strlen(trimmed_line) > MACRO_START_LENGTH) {
             macro_name = valid_macro_decl(file_name,trimmed_line,line_count);
             if (macro_name) {
                 if (is_macro_name(macro_name) != NULL) {  /* Checking if the name had already been defined */
@@ -178,8 +178,8 @@ char *valid_macro_decl(char *file_name, char *decl, int line_count) {
     char *macro_name;
 
     /* Checking if the first word is "macr" */
-    if (strncmp(decl,"macr",MACR_LENGTH) == 0 && isspace(decl[MACR_LENGTH])) {
-        decl += MACR_LENGTH;  /* Move the pointer to the next word */
+            if (strncmp(decl,"macr",MACRO_START_LENGTH) == 0 && isspace(decl[MACRO_START_LENGTH])) {
+            decl += MACRO_START_LENGTH;  /* Move the pointer to the next word */
         macro_name = trim_whitespace(decl);
 
         if(valid_macro_name(file_name,macro_name,line_count) != 0)  /* Validating macro name */

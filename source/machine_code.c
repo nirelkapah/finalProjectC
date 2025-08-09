@@ -17,7 +17,7 @@
 void add_data_code(unsigned short *data, int *DC, int number)
 {
     /* Store as 10-bit 2's complement */
-    unsigned short word = (unsigned short)(number & MASK_10BIT);
+    unsigned short word = (unsigned short)(number & MASK_10_BITS);
 
     data[*DC] = word;
     (*DC)++;
@@ -25,17 +25,17 @@ void add_data_code(unsigned short *data, int *DC, int number)
 
 void add_instruction_code(unsigned short *code, int *Usage, int *IC, unsigned short word, int *errors_found)
 {
-    if (*Usage == CAPACITY)
+    if (*Usage == MAX_ARRAY_CAPACITY)
     {
         print_system_error(Error_73);
         *errors_found = 1;
         (*Usage)++;
         return;
     }
-    if (*Usage > CAPACITY)
+    if (*Usage > MAX_ARRAY_CAPACITY)
         return;
 
-    code[*IC] = (word & MASK_10BIT);
+    code[*IC] = (word & MASK_10_BITS);
     (*IC)++;
     *Usage += 1;
 }
@@ -53,15 +53,15 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
         operand++;
         /* Check immediate value range (can be negative) */
         immediate_val = atoi(operand);
-        if (immediate_val < MIN_10BIT || immediate_val > MAX_10BIT)
+        if (immediate_val < MIN_10_BIT_SIGNED_VALUE || immediate_val > MAX_10_BIT_SIGNED_VALUE)
         {
             print_syntax_error(Error_62, line->file_am_name, line->line_num);
             *errors_found = 1;
             return;
         }
-        word |= BIT_MASK_ABSOLUTE;
-        temp = (unsigned short)(immediate_val & MASK_8BIT); /* 8-bit immediate value */
-        word |= (temp << SHIFT_IMMEDIATE_VALUE); /* Bits 9-2 contain the immediate value */
+        word |= ARE_ABSOLUTE;
+        temp = (unsigned short)(immediate_val & MASK_8_BITS); /* 8-bit immediate value */
+        word |= (temp << IMMEDIATE_VALUE_SHIFT_POSITION); /* Bits 9-2 contain the immediate value */
         add_instruction_code(code, Usage, IC, word, errors_found);
         return;
     }
@@ -79,17 +79,17 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
             exit(1);
         }
         /* Placeholder for second pass resolution - address will be filled in second pass */
-        word |= BIT_MASK_SIGNAL; /* Signal for second pass to resolve */
+        word |= ARE_PLACEHOLDER_SIGNAL; /* Signal for second pass to resolve */
         add_instruction_code(code, Usage, IC, word, errors_found);
         return;
 
     case DIRECT_REGISTER:
         /* Handle both direct and indirect register addressing */
-        if (operand[0] == ASTERISK) {
+        if (operand[0] == ASTERISK_SIGN) {
             operand++; /* Skip the '*' for indirect addressing */
         }
-        word |= BIT_MASK_ABSOLUTE;
-        word |= (which_regis(operand) << (operands_num == 1 ? SHIFT_DST_REGISTER : SHIFT_SRC_REGISTER));
+        word |= ARE_ABSOLUTE;
+        word |= (which_regis(operand) << (operands_num == 1 ? DESTINATION_REGISTER_SHIFT_POSITION : SOURCE_REGISTER_SHIFT_POSITION));
         add_instruction_code(code, Usage, IC, word, errors_found);
         return;
 
@@ -103,7 +103,7 @@ void process_operation_code(unsigned short *code, int *Usage, int *IC, Line *lin
             return;
         }
         /* Matrix addressing: add placeholders for second pass resolution */
-        add_instruction_code(code, Usage, IC, BIT_MASK_SIGNAL, errors_found); /* Base address placeholder */
+        add_instruction_code(code, Usage, IC, ARE_PLACEHOLDER_SIGNAL, errors_found); /* Base address placeholder */
         add_instruction_code(code, Usage, IC, 0, errors_found); /* Register combination placeholder */
         return;
     }
@@ -122,10 +122,10 @@ void handle_one_operand(unsigned short *code, int *Usage, int *IC, Line *line, i
     Op_Code *opcodes = get_opcodes();
     int dst_encoding;
 
-    word |= (ind << SHIFT_OPCODE_POS) | BIT_MASK_ABSOLUTE;
+    word |= (ind << OPCODE_SHIFT_POSITION) | ARE_ABSOLUTE;
     /* Addressing method is already in correct 2-bit format */
     dst_encoding = method;
-    word |= (dst_encoding << SHIFT_DST_OPERAND);
+    word |= (dst_encoding << DESTINATION_OPERAND_SHIFT_POSITION);
     add_instruction_code(code, Usage, IC, word, errors_found);
 
     process_operation_code(code, Usage, IC, line, method, operand, opcodes[ind].operands_num, errors_found);
@@ -141,27 +141,27 @@ void handle_two_operands(unsigned short *code, int *Usage, int *IC, Line *line, 
     method = which_addressing_method(operand, line, errors_found);
     method_2 = which_addressing_method(second_operand, line, errors_found);
 
-    word |= (ind << SHIFT_OPCODE_POS) | BIT_MASK_ABSOLUTE;
+    word |= (ind << OPCODE_SHIFT_POSITION) | ARE_ABSOLUTE;
     /* Addressing methods are already in correct 2-bit format */
     dst_encoding = method_2;
     src_encoding = method;
     
-    word |= (dst_encoding << SHIFT_DST_OPERAND);
-    word |= (src_encoding << SHIFT_SRC_OPERAND);
+    word |= (dst_encoding << DESTINATION_OPERAND_SHIFT_POSITION);
+    word |= (src_encoding << SOURCE_OPERAND_SHIFT_POSITION);
     add_instruction_code(code, Usage, IC, word, errors_found);
 
     /* Combine if both operands are registers */
     if (method == DIRECT_REGISTER && method_2 == DIRECT_REGISTER)
     {
         /* Handle indirect addressing by skipping '*' if present */
-        if (operand[0] == ASTERISK)
+        if (operand[0] == ASTERISK_SIGN)
             operand++;
-        if (second_operand[0] == ASTERISK)
+        if (second_operand[0] == ASTERISK_SIGN)
             second_operand++;
 
-        second_word |= BIT_MASK_ABSOLUTE;
-        second_word |= (which_regis(operand) << SHIFT_SRC_REGISTER);        /* First operand (r1) is source */
-        second_word |= (which_regis(second_operand) << SHIFT_DST_REGISTER); /* Second operand (r4) is destination */
+        second_word |= ARE_ABSOLUTE;
+        second_word |= (which_regis(operand) << SOURCE_REGISTER_SHIFT_POSITION);        /* First operand (r1) is source */
+        second_word |= (which_regis(second_operand) << DESTINATION_REGISTER_SHIFT_POSITION); /* Second operand (r4) is destination */
         add_instruction_code(code, Usage, IC, second_word, errors_found);
         return;
     }

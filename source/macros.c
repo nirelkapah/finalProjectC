@@ -88,7 +88,7 @@ int append_macro_content(char *new_content) {
     current->content = new_memory;
 
     if (current_length == 0) {  /* If the current content is NULL, initializing it as an empty string */
-        current->content[0] = NULL_TERMINATOR;
+        current->content[0] = STRING_TERMINATOR;
     }
 
     strcat(current->content,new_content);  /* Appending the new content to the existing content */

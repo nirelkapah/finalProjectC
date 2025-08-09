@@ -57,7 +57,7 @@ int valid_macro_name(char *file_name, char *macro_name, int line_count)
         return 1; /* Indicates faliure */
     }
     /* Checking if macro length is valid */
-    if (strlen(macro_name) > MAX_MACRO_LENGTH)
+    if (strlen(macro_name) > MAX_MACRO_NAME_LENGTH)
     {
         print_syntax_error(Error_16, file_name, line_count);
         return 1; /* Indicates failure */
@@ -80,11 +80,11 @@ int valid_label_name(char *label_name, Type type, Line *line, int *errors_found)
     /* Checking if the current line is not an entry/extern instruction line */
     if (type == REGULAR)
     {
-        label_name[label_name_len - 1] = NULL_TERMINATOR; /* Getting the label name without ':' */
+        label_name[label_name_len - 1] = STRING_TERMINATOR; /* Getting the label name without ':' */
         label_name_len -= 1;
     }
     /* Checking if the name is empty */
-    if (*label_name == NULL_TERMINATOR)
+            if (*label_name == STRING_TERMINATOR)
     {
         print_syntax_error(type == REGULAR ? Error_28 : type == OPERAND ? Error_59
                                                                         : Error_43,
@@ -108,7 +108,7 @@ int valid_label_name(char *label_name, Type type, Line *line, int *errors_found)
         return 1; /* Indicates label name is not valid */
     }
     /* Checking if the label name length is valid */
-    if (label_name_len > MAX_LABEL_LENGTH)
+    if (label_name_len > MAX_LABEL_NAME_LENGTH)
     {
         print_specific_error(type == REGULAR ? Error_20 : type == OPERAND ? Error_59
                                                                           : Error_45,
@@ -117,7 +117,7 @@ int valid_label_name(char *label_name, Type type, Line *line, int *errors_found)
         return 1; /* Indicates label name is not valid */
     }
     /* Checking if the label name only contains alphabetic or numeric characters */
-    for (i = 0; label_name[i] != NULL_TERMINATOR; i++)
+    for (i = 0; label_name[i] != STRING_TERMINATOR; i++)
     {
         if (!isalnum(label_name[i]))
         {
@@ -219,7 +219,7 @@ int which_opcode(char *str)
         return -1;
 
     /* Comparing the string with each of the system opcodes */
-    for (i = 0; i < OPCODES_COUNT; i++)
+    for (i = 0; i < TOTAL_OPCODES; i++)
     {
         if (strcmp(str, OPCODES[i].operation) == 0)
         {
@@ -237,7 +237,7 @@ int which_regis(char *str)
         return -1;
 
     /* Comparing the string with each of the system registers */
-    for (i = 0; i < REGISTERS_COUNT; i++)
+    for (i = 0; i < TOTAL_REGISTERS; i++)
     {
         if (strcmp(str, REGISTERS[i]) == 0)
         {
@@ -255,7 +255,7 @@ int which_instr(char *str)
         return -1;
 
     /* Comparing the string with each of the system instructions */
-    for (i = 0; i < INSTRUCTIONS_COUNT; i++)
+    for (i = 0; i < TOTAL_INSTRUCTION_TYPES; i++)
     {
         if (strcmp(str, INSTRUCTIONS[i]) == 0)
         {
@@ -272,23 +272,23 @@ int which_addressing_method(char *operand, Line *line, int *errors_found)
     long val;
 
     /* Immediate addressing (#number) */
-    if (operand[0] == HASH)
+    if (operand[0] == POUND_SIGN)
     {
         operand++;
-        if (*operand == NULL_TERMINATOR)
+        if (*operand == STRING_TERMINATOR)
         {
             print_syntax_error(Error_60, line->file_am_name, line->line_num);
             *errors_found = 1;
             return -1;
         }
-        val = strtol(operand, &endptr, DECIMAL_BASE);
-        if (*endptr != NULL_TERMINATOR || endptr == operand)
+        val = strtol(operand, &endptr, BASE_10);
+        if (*endptr != STRING_TERMINATOR || endptr == operand)
         {
             print_specific_error(Error_61, line->file_am_name, line->line_num, operand);
             *errors_found = 1;
             return -1;
         }
-        if (val < MIN_10BIT || val > MAX_10BIT)
+        if (val < MIN_10_BIT_SIGNED_VALUE || val > MAX_10_BIT_SIGNED_VALUE)
         {
             print_specific_error(Error_62, line->file_am_name, line->line_num, operand);
             *errors_found = 1;
@@ -312,8 +312,8 @@ int which_addressing_method(char *operand, Line *line, int *errors_found)
                 /* Check if registers are in valid range (0-7) */
                 row_num = row_reg[1] - '0';
                 col_num = col_reg[1] - '0';
-                if (row_num < MIN_REGISTER || row_num > MAX_REGISTER ||
-                    col_num < MIN_REGISTER || col_num > MAX_REGISTER)
+                if (row_num < MIN_REGISTER_NUMBER || row_num > MAX_REGISTER_NUMBER ||
+                    col_num < MIN_REGISTER_NUMBER || col_num > MAX_REGISTER_NUMBER)
                 {
                     print_syntax_error(Error_75, line->file_am_name, line->line_num);
                     *errors_found = 1;
@@ -334,10 +334,10 @@ int which_addressing_method(char *operand, Line *line, int *errors_found)
     }
 
     /* Register addressing (rX or *rX) */
-    if (operand[0] == ASTERISK)
+    if (operand[0] == ASTERISK_SIGN)
     {
         operand++;
-        if (*operand == NULL_TERMINATOR)
+        if (*operand == STRING_TERMINATOR)
         {
             print_syntax_error(Error_63, line->file_am_name, line->line_num);
             *errors_found = 1;
@@ -370,7 +370,7 @@ int is_reserved_word(char *file_name, char *str, int line_count, Type type)
     /* Comparing the string with each of the system's reserved words and determining the error message */
     if (which_opcode(str) != -1)
     { /* Function returns the index of the matching word or -1 if no word matched */
-        if (strcmp(&file_name[len - EXTENSION_LEN], ".as") == 0 && type != OPERAND)
+        if (strcmp(&file_name[len - FILE_EXTENSION_LENGTH], ".as") == 0 && type != OPERAND)
         { /* Indicates this is a macro name validation */
             print_syntax_error(Error_10, file_name, line_count);
             return 1; /* Indicates the name is invalid */
@@ -382,7 +382,7 @@ int is_reserved_word(char *file_name, char *str, int line_count, Type type)
     }
     if (which_regis(str) != -1)
     {
-        if (strcmp(&file_name[len - EXTENSION_LEN], ".as") == 0 && type != OPERAND)
+        if (strcmp(&file_name[len - FILE_EXTENSION_LENGTH], ".as") == 0 && type != OPERAND)
         { /* Indicates this is a macro name validation */
             print_syntax_error(Error_11, file_name, line_count);
             return 1; /* Indicates the name is invalid */
@@ -394,7 +394,7 @@ int is_reserved_word(char *file_name, char *str, int line_count, Type type)
     }
     if (which_instr(str) != -1)
     {
-        if (strcmp(&file_name[len - EXTENSION_LEN], ".as") == 0 && type != OPERAND)
+        if (strcmp(&file_name[len - FILE_EXTENSION_LENGTH], ".as") == 0 && type != OPERAND)
         { /* Indicates this is a macro name validation */
             print_syntax_error(Error_12, file_name, line_count);
             return 1; /* Indicates the name is invalid */
@@ -406,7 +406,7 @@ int is_reserved_word(char *file_name, char *str, int line_count, Type type)
     }
     if (strcmp(str, "macr") == 0)
     {
-        if (strcmp(&file_name[len - EXTENSION_LEN], ".as") == 0 && type != OPERAND)
+        if (strcmp(&file_name[len - FILE_EXTENSION_LENGTH], ".as") == 0 && type != OPERAND)
         { /* Indicates this is a macro name validation */
             print_syntax_error(Error_18, file_name, line_count);
             return 1; /* Indicates the name is invalid */
@@ -418,7 +418,7 @@ int is_reserved_word(char *file_name, char *str, int line_count, Type type)
     }
     if (strcmp(str, "endmacr") == 0)
     {
-        if (strcmp(&file_name[len - EXTENSION_LEN], ".as") == 0 && type != OPERAND)
+        if (strcmp(&file_name[len - FILE_EXTENSION_LENGTH], ".as") == 0 && type != OPERAND)
         { /* Indicates this is a macro name validation */
             print_syntax_error(Error_19, file_name, line_count);
             return 1; /* Indicates the name is invalid */
@@ -474,9 +474,9 @@ int is_operation(unsigned short *code, int *Usage, int *IC, Line *line, char *pt
         /* Updating label properties */
         if (line->label != NULL)
         {
-            line->label->address = *IC + STARTING_ADDRESS;
+            line->label->address = *IC + MEMORY_START_ADDRESS;
             /* Check if address exceeds memory capacity */
-            if (line->label->address >= CAPACITY)
+            if (line->label->address >= MAX_ARRAY_CAPACITY)
             {
                 print_system_error(Error_73);
                 *errors_found = 1;
@@ -534,7 +534,7 @@ int is_method_legal(Line *line, int method, int ind, int operands_num, int *erro
 void data_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr, int *errors_found)
 {
     /* Checking if there are no parameters */
-    if (*ptr == NULL_TERMINATOR)
+    if (*ptr == STRING_TERMINATOR)
     {
         if (line->label != NULL)
             remove_last_label();
@@ -552,7 +552,7 @@ void string_found(unsigned short *data, int *Usage, int *DC, Line *line, char *p
     int trimmed_line_len, i;
 
     /* Checking for a parameter */
-    if (*ptr == NULL_TERMINATOR)
+    if (*ptr == STRING_TERMINATOR)
     {
         if (line->label != NULL)
             remove_last_label();
@@ -564,7 +564,7 @@ void string_found(unsigned short *data, int *Usage, int *DC, Line *line, char *p
     trimmed_line_len = strlen(trimmed_line);
 
     /* Checking for double quotes at the start and the end of the string */
-    if (trimmed_line[0] != DOUBLE_QUOTE || trimmed_line[trimmed_line_len - 1] != DOUBLE_QUOTE)
+    if (trimmed_line[0] != QUOTATION_MARK || trimmed_line[trimmed_line_len - 1] != QUOTATION_MARK)
     {
         if (line->label != NULL)
             remove_last_label();
@@ -573,13 +573,13 @@ void string_found(unsigned short *data, int *Usage, int *DC, Line *line, char *p
         return;
     }
     /* Checking if the string is empty */
-    if (strlen(trimmed_line) == TWO)
+    if (strlen(trimmed_line) == BINARY_BASE)
     { /* Indicates string contains only double quotes */
         printf(" WARNING | File \"%s\" at line %d | Instruction \".string\" parameter"
                " is an empty string\n",
                line->file_am_name, line->line_num);
     }
-    trimmed_line[trimmed_line_len - 1] = NULL_TERMINATOR;
+    trimmed_line[trimmed_line_len - 1] = STRING_TERMINATOR;
     trimmed_line++;
     trimmed_line_len = strlen(trimmed_line);
 
@@ -592,14 +592,14 @@ void string_found(unsigned short *data, int *Usage, int *DC, Line *line, char *p
     /* Adding machine code to data array */
     for (i = 0; i < trimmed_line_len; i++)
     {
-        if (*Usage + 1 == CAPACITY)
+        if (*Usage + 1 == MAX_ARRAY_CAPACITY)
         { /* Checking if memory limit was reached (+1 to account for the null-terminator) */
             print_system_error(Error_73);
             *errors_found = 1;
             (*Usage)++; /* Incrementing usage count so the next iteration will not print another error message */
             return;     /* Scanning line finished */
         }
-        if (*Usage + 1 > CAPACITY)
+        if (*Usage + 1 > MAX_ARRAY_CAPACITY)
         {           /* Checking if memory limit was exceeded */
             return; /* Scanning line finished */
         }
@@ -625,7 +625,7 @@ void entry_found(Line *line, char *ptr, int *errors_found)
         remove_label(line->label);
     }
     /* Checking if there is no label declaration */
-    if (*ptr == NULL_TERMINATOR)
+    if (*ptr == STRING_TERMINATOR)
     {
         print_syntax_error(Error_43, line->file_am_name, line->line_num);
         *errors_found = 1;
@@ -669,7 +669,7 @@ void extern_found(Line *line, char *ptr, int *errors_found)
         remove_label(line->label);
     }
     /* Checking if there is no label declaration */
-    if (*ptr == NULL_TERMINATOR)
+    if (*ptr == STRING_TERMINATOR)
     {
         print_syntax_error(Error_43, line->file_am_name, line->line_num);
         *errors_found = 1;
@@ -704,10 +704,10 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
     int rows = 0, cols = 0, count = 0, i, num;
     char *values_part;
     char *token;
-    char values_copy[MAX_LINE_LENGTH];
+    char values_copy[MAX_SOURCE_LINE_LENGTH];
 
     /* Checking if there are no parameters */
-    if (*ptr == NULL_TERMINATOR)
+    if (*ptr == STRING_TERMINATOR)
     {
         if (line->label != NULL)
             remove_last_label();
@@ -785,8 +785,8 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
     values_part = ptr;
 
     /* Count values */
-    strncpy(values_copy, values_part, MAX_LINE_LENGTH - 1);
-    values_copy[MAX_LINE_LENGTH - 1] = '\0';
+    strncpy(values_copy, values_part, MAX_SOURCE_LINE_LENGTH - 1);
+    values_copy[MAX_SOURCE_LINE_LENGTH - 1] = '\0';
     token = strtok(values_copy, ",");
     while (token != NULL)
     {
@@ -813,14 +813,14 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
     token = strtok(values_part, ",");
     for (i = 0; i < rows * cols; i++)
     {
-        if (*Usage == CAPACITY)
+        if (*Usage == MAX_ARRAY_CAPACITY)
         { /* Checking if memory limit was reached */
             print_system_error(Error_73);
             *errors_found = 1;
             (*Usage)++; /* Incrementing usage count so the next iteration will not print another error message */
             return;     /* Scanning line finished */
         }
-        if (*Usage > CAPACITY)
+        if (*Usage > MAX_ARRAY_CAPACITY)
         {           /* Checking if memory limit was exceeded */
             return; /* Scanning line finished */
         }
@@ -828,7 +828,7 @@ void mat_found(unsigned short *data, int *Usage, int *DC, Line *line, char *ptr,
         if (token != NULL)
         {
             num = atoi(token);
-            if (num < MIN_10BIT || num > MAX_10BIT)
+            if (num < MIN_10_BIT_SIGNED_VALUE || num > MAX_10_BIT_SIGNED_VALUE)
             {
                 print_syntax_error(Error_39, line->file_am_name, line->line_num);
                 *errors_found = 1;
@@ -852,13 +852,13 @@ void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char
     char *opernad, *second_operand, *comma_pos;
     int operands_num = OPCODES[ind].operands_num, length, method, method_2;
     unsigned short word = 0;
-            word |= (ind << SHIFT_OPCODE_POS) | BIT_MASK_ABSOLUTE;
+            word |= (ind << OPCODE_SHIFT_POSITION) | ARE_ABSOLUTE;
 
     /* Analyzing opernads */
     switch (operands_num)
     {
     case 0:
-        if (ptr[0] != NULL_TERMINATOR)
+        if (ptr[0] != STRING_TERMINATOR)
         { /* Checking if there is a extraneous text */
             print_syntax_error(Error_49, line->file_am_name, line->line_num);
             *errors_found = 1;
@@ -867,7 +867,7 @@ void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char
         add_instruction_code(code, Usage, IC, word, errors_found); /* Adding machine code */
         return;                                                    /* Scanning line finished */
     case 1:
-        if (ptr[0] == NULL_TERMINATOR)
+        if (ptr[0] == STRING_TERMINATOR)
         { /* Checking if there is a missing operand */
             print_syntax_error(Error_50, line->file_am_name, line->line_num);
             *errors_found = 1;
@@ -876,13 +876,13 @@ void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char
         while (*ptr && isspace(*ptr)) /* Skipping leading whitespace */
             ptr++;
 
-        if (ptr[0] == COMMA)
+        if (ptr[0] == COMMA_SIGN)
         { /* Checking if there is an illegal comma */
             print_syntax_error(Error_53, line->file_am_name, line->line_num);
             *errors_found = 1;
             return; /* Scanning line finished */
         }
-        if (contains_whitespace(ptr) || strchr(ptr, COMMA) != NULL)
+        if (contains_whitespace(ptr) || strchr(ptr, COMMA_SIGN) != NULL)
         { /* Checking for extraneous text */
             print_syntax_error(Error_52, line->file_am_name, line->line_num);
             *errors_found = 1;
@@ -901,7 +901,7 @@ void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char
         handle_one_operand(code, Usage, IC, line, method, ptr, ind, errors_found);
         return; /* Scanning line finished */
     case 2:
-        if (ptr[0] == NULL_TERMINATOR)
+        if (ptr[0] == STRING_TERMINATOR)
         { /* Checking if there are missing operands */
             print_syntax_error(Error_51, line->file_am_name, line->line_num);
             *errors_found = 1;
@@ -910,7 +910,7 @@ void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char
         while (*ptr && isspace(*ptr)) /* Skipping leading whitespace */
             ptr++;
 
-        if (ptr[0] == COMMA)
+        if (ptr[0] == COMMA_SIGN)
         { /* Checking if there is an illegal comma */
             print_syntax_error(Error_53, line->file_am_name, line->line_num);
             *errors_found = 1;
@@ -925,31 +925,31 @@ void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char
         }
         length = strlen(opernad);
 
-        comma_pos = strchr(opernad, COMMA);
+        comma_pos = strchr(opernad, COMMA_SIGN);
         if (comma_pos != NULL)
         { /* If a comma was found, spliting the string into two opernads */
-            if (comma_pos - opernad == strlen(opernad) - 1 && ptr[length] == NULL_TERMINATOR)
+            if (comma_pos - opernad == strlen(opernad) - 1 && ptr[length] == STRING_TERMINATOR)
             {
                 print_syntax_error(Error_50, line->file_am_name, line->line_num);
                 *errors_found = 1;
                 deallocate_memory(opernad);
                 return; /* Scanning line finished */
             }
-            *comma_pos = NULL_TERMINATOR;
+            *comma_pos = STRING_TERMINATOR;
             length = comma_pos - opernad;
             second_operand = &ptr[length + 1]; /* Setting a pointer to the second operand */
 
             while (*second_operand && isspace(*second_operand)) /* Skipping leading whitespace */
                 second_operand++;
 
-            if (second_operand[0] == COMMA)
+            if (second_operand[0] == COMMA_SIGN)
             { /* Checking if there are consecutive commas */
                 print_syntax_error(Error_55, line->file_am_name, line->line_num);
                 *errors_found = 1;
                 deallocate_memory(opernad);
                 return; /* Scanning line finished */
             }
-            if (contains_whitespace(second_operand) || strchr(second_operand, COMMA) != NULL)
+            if (contains_whitespace(second_operand) || strchr(second_operand, COMMA_SIGN) != NULL)
             { /* Checking for extraneous text */
                 print_syntax_error(Error_54, line->file_am_name, line->line_num);
                 *errors_found = 1;
@@ -962,14 +962,14 @@ void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char
             ptr = &ptr[length];
             while (*ptr && isspace(*ptr)) /* Skipping leading whitespace */
                 ptr++;
-            if (ptr[0] == NULL_TERMINATOR || (*ptr == COMMA && ptr[1] == NULL_TERMINATOR))
+            if (ptr[0] == STRING_TERMINATOR || (*ptr == COMMA_SIGN && ptr[1] == STRING_TERMINATOR))
             { /* Checking if there is a missing operand */
                 print_syntax_error(Error_50, line->file_am_name, line->line_num);
                 *errors_found = 1;
                 deallocate_memory(opernad);
                 return; /* Scanning line finished */
             }
-            if (ptr[0] != COMMA)
+            if (ptr[0] != COMMA_SIGN)
             {
                 print_syntax_error(Error_56, line->file_am_name, line->line_num);
                 *errors_found = 1;
@@ -986,7 +986,7 @@ void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char
                 free_line(line);
                 exit(1); /* Exiting program */
             }
-            if (second_operand[0] == COMMA)
+            if (second_operand[0] == COMMA_SIGN)
             {
                 print_syntax_error(Error_55, line->file_am_name, line->line_num);
                 *errors_found = 1;
@@ -995,7 +995,7 @@ void valid_operation(unsigned short *code, int *Usage, int *IC, Line *line, char
                 return; /* Scanning line finished */
             }
             length = strlen(second_operand);
-            if (strchr(second_operand, COMMA) != NULL || ptr[length] != NULL_TERMINATOR)
+            if (strchr(second_operand, COMMA_SIGN) != NULL || ptr[length] != STRING_TERMINATOR)
             { /* Checking for extraneous text */
                 print_syntax_error(Error_54, line->file_am_name, line->line_num);
                 *errors_found = 1;
@@ -1046,14 +1046,14 @@ void analyze_numbers(unsigned short *data, int *Usage, int *DC, Line *line, char
     /* Adding machine code to data array */
     for (; i < num_count; i++)
     {
-        if (*Usage == CAPACITY)
+        if (*Usage == MAX_ARRAY_CAPACITY)
         { /* Checking if memory limit was reached */
             print_system_error(Error_73);
             *errors_found = 1;
             (*Usage)++; /* Incrementing usage count so the next iteration will not print another error message */
             return;     /* Scanning line finished */
         }
-        if (*Usage > CAPACITY)
+        if (*Usage > MAX_ARRAY_CAPACITY)
         {           /* Checking if memory limit was exceeded */
             return; /* Scanning line finished */
         }

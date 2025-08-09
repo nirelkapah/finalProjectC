@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     FILE *file;
     char *file_name;
 
-    if (argc < TWO) {  /* Checking if no files were entered */
+    if (argc < BINARY_BASE) {  /* Checking if no files were entered */
         print_system_error(Error_0);
         return 1;  /* Indicates faliure */
     }
