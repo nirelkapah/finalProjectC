@@ -182,7 +182,7 @@ char *valid_macro_decl(char *file_name, char *decl, int line_count) {
             decl += MACRO_START_LENGTH;  /* Move the pointer to the next word */
         macro_name = trim_whitespace(decl);
 
-        if(valid_macro_name(file_name,macro_name,line_count) != 0)  /* Validating macro name */
+        if(validate_macro_identifier(file_name,macro_name,line_count) != 0)  /* Validating macro name */
            return NULL;  /* Indicates faliure */
     } else {
         print_syntax_error(Error_9,file_name,line_count);

@@ -115,7 +115,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     /* Checking for a potential label definition */
     if (current_word[curr_word_len - 1] == COLON_SIGN)
     {
-        res = valid_label_name(current_word, REGULAR, line, errors_found);
+        res = validate_label_identifier(current_word, REGULAR, line, errors_found);
         if (res == 0)  /* New label */
         {
             label = add_label(current_word, 0, REGULAR, TBD);
@@ -171,9 +171,9 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
             }
 
             /* ✅ NEW: Assign label address for .data, .string, .mat */
-            if (which_instr(current_word) == 0 || /* .data */
-                which_instr(current_word) == 1 || /* .string */
-                which_instr(current_word) == 4)   /* .mat */
+            if (identify_assembler_directive(current_word) == 0 || /* .data */
+                identify_assembler_directive(current_word) == 1 || /* .string */
+                identify_assembler_directive(current_word) == 4)   /* .mat */
             {
                 line->label->address = *DC;
                 line->label->location = DATA;
@@ -194,14 +194,14 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     }
 
     /* Checking for a potential instruction */
-    if (is_instruction(data, Usage, DC, line, ptr, current_word, errors_found) != 0)
+    if (parse_assembler_directive(data, Usage, DC, line, ptr, current_word, errors_found) != 0)
     {
         deallocate_memory(current_word);
         return;
     }
 
     /* Checking for a potential operation */
-    if (is_operation(code, Usage, IC, line, ptr, current_word, errors_found) != 0)
+    if (parse_executable_instruction(code, Usage, IC, line, ptr, current_word, errors_found) != 0)
     {
         deallocate_memory(current_word);
         return;
@@ -250,7 +250,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     }
     temp[0] = PERIOD;
     strcpy(temp + 1, current_word);
-    if (which_instr(temp) != -1)
+    if (identify_assembler_directive(temp) != -1)
     {
         print_specific_error(Error_67, line->file_am_name, line->line_num, current_word);
         *errors_found = 1;
