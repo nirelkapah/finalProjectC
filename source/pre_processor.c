@@ -26,7 +26,7 @@ int pre_processing(char *file_name) {
         return 1;  /* Indicates faliure */
     }
     deallocate_memory(file_am_name);
-    printf("* Pre-processing completed\n");
+    printf("--- Pre-processing Stage passed successfully ---\n");
     return 0;  /* Indicates success */
 }
 

@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
             printf("Process terminated\n");
             continue;  /* Skipping to the next file */
         }
-        printf("Process ended\n");
+        printf("--- Process ended successfully ---\n");
         free_all_memory();
     }
     return 0;  /* Indicates success */

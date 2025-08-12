@@ -4,8 +4,8 @@
 
 /* Error struct definition */
 typedef struct Error {
-    int code_num;
-    char *error_msg;
+    int num;
+    char *message;
 } Error;
 
 typedef enum ERROR_CODES {

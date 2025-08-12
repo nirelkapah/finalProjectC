@@ -35,7 +35,7 @@ int first_pass(char *file_name)
     }
     free_macros(); /* Macros are no longer needed */
 
-    printf("* First pass was successful\n");
+    printf("--- First pass passed successfully ---\n");
 
     /* Starting second pass */
     if (second_pass(file_am_name, code, data, &IC, &DC) != 0)

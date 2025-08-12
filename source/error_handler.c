@@ -83,7 +83,7 @@ static const char* find_error_msg(int error_code) {
         size_t i;
         size_t n = sizeof(errors) / sizeof(errors[0]);
         for (i = 0; i < n; ++i) {
-                if (errors[i].code_num == error_code) return errors[i].error_msg;
+                if (errors[i].num == error_code) return errors[i].message;
         }
         return "Unknown error code";
 }
