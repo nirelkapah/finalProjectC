@@ -1,6 +1,6 @@
 /* This is the errors header file.*/
-#ifndef ERRORS_H
-#define ERRORS_H
+#ifndef ERROR_HANDLER_H
+#define ERROR_HANDLER_H
 
 /* Error struct definition */
 typedef struct Error {

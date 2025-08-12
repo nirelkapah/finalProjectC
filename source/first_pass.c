@@ -10,7 +10,7 @@
 #include <ctype.h>
 #include "first_pass.h"
 #include "validator.h"
-#include "errors.h"
+#include "error_handler.h"
 #include "macros.h"
 #include "labels.h"
 #include "utils.h"

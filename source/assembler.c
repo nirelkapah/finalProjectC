@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "errors.h"
+#include "error_handler.h"
 #include "utils.h"
 #include "pre_proc.h"
 #include "first_pass.h"

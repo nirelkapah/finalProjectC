@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "labels.h"
-#include "errors.h"
+#include "error_handler.h"
 #include "definitions.h"
 
 /* Defining the head of the labels linked list */

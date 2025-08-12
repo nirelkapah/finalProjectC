@@ -1,6 +1,6 @@
 /* This file handles the printing of errors.*/
 #include <stdio.h>
-#include "errors.h"
+#include "error_handler.h"
 
 /* The Following array specifies the error code numbers and the corresponding error message */
 Error errors[] = {

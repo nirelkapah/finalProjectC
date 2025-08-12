@@ -9,7 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "pre_proc.h"
-#include "errors.h"
+#include "error_handler.h"
 #include "validator.h"
 #include "utils.h"
 #include "macros.h"

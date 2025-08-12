@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "machine_code.h"
-#include "errors.h"
+#include "error_handler.h"
 #include "validator.h"
 #include "labels.h"
 #include "macros.h"

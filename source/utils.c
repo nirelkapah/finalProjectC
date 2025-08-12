@@ -10,7 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "utils.h"
-#include "errors.h"
+#include "error_handler.h"
 #include "macros.h"
 #include "labels.h"
 #include "definitions.h"
