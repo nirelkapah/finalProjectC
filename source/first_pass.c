@@ -58,7 +58,7 @@ int scan_text(char *file_am_name, unsigned short *code, unsigned short *data, in
     FILE *file_am = fopen(file_am_name, "r");
     if (file_am == NULL)
     { /* Failed to open file for reading */
-        print_system_error(Error_5);
+        log_system_error(Error_5);
         free_macros();
         free_all_memory();
         exit(1); /* Exiting program */
@@ -187,7 +187,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
         else
         {
             ptr[strlen(ptr) - 1] = STRING_TERMINATOR;
-            print_syntax_error(Error_22, line->file_am_name, line->line_num);
+            log_syntax_error(Error_22, line->file_am_name, line->line_num);
             *errors_found = 1;
             return;
         }
@@ -210,7 +210,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     /* Handling special cases */
     if (is_macro_name(current_word) != NULL)
     {
-        print_specific_error(Error_33, line->file_am_name, line->line_num, current_word);
+        log_unique_error(Error_33, line->file_am_name, line->line_num, current_word);
         *errors_found = 1;
         deallocate_memory(current_word);
         return;
@@ -231,14 +231,14 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     strcpy(temp + 1, current_word);
     if (identify_assembler_directive(temp) != -1)
     {
-        print_specific_error(Error_67, line->file_am_name, line->line_num, current_word);
+        log_unique_error(Error_67, line->file_am_name, line->line_num, current_word);
         *errors_found = 1;
         deallocate_memory(temp);
         deallocate_memory(current_word);
         return;
     }
     deallocate_memory(temp);
-    print_specific_error(Error_68, line->file_am_name, line->line_num, current_word);
+    log_unique_error(Error_68, line->file_am_name, line->line_num, current_word);
     *errors_found = 1;
     deallocate_memory(temp);
     deallocate_memory(current_word);

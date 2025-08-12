@@ -22,7 +22,7 @@ void *allocate_memory(long size) {
     Mem_Node *new_node;
     void *ptr = malloc(size);  /* Using void * for compatibility with different data types */
     if (ptr == NULL) {
-        print_system_error(Error_1);
+        log_system_error(Error_1);
         free_macros();
         free_labels();
         free_all_memory();
@@ -30,7 +30,7 @@ void *allocate_memory(long size) {
     }
     new_node = (Mem_Node *)malloc(sizeof(Mem_Node));
     if (new_node == NULL) {
-        print_system_error(Error_1);
+        log_system_error(Error_1);
         free_macros();
         free_labels();
         free_all_memory();
@@ -87,7 +87,7 @@ FILE *search_file(char *filename) {
 
 void delete_file(char *filename) {
     if (remove(filename) != 0)
-        print_system_error(Error_4);
+        log_system_error(Error_4);
 }
 
 char *valid_file_name(char *filename) {
@@ -106,7 +106,7 @@ char *add_extension(char *filename, char *extension) {
     /* Checking if the file name already has the ".as" extention */
     if (extension_len < filename_len) {
         if (strcmp(filename + filename_len - extension_len, extension) == 0) {
-            print_system_error(Error_2);
+            log_system_error(Error_2);
             return NULL;
         }
     }
@@ -186,10 +186,10 @@ int *get_numbers(Line *line, char *ptr, int *num_count, int *errors_found) {
             if (!isdigit(ptr[i]) && ptr[i] != MINUS_SIGN && ptr[i] != PLUS_SIGN) {  /* Checking for an invalid character */
         *errors_found = 1;
         if (ptr[i] == COMMA_SIGN) {
-            print_syntax_error(Error_34,line->file_am_name,line->line_num);
+            log_syntax_error(Error_34,line->file_am_name,line->line_num);
       	    return NULL;
       	}
-        print_syntax_error(Error_35,line->file_am_name,line->line_num);
+        log_syntax_error(Error_35,line->file_am_name,line->line_num);
         return NULL;
     }
     while (i < length) {
@@ -209,7 +209,7 @@ int *get_numbers(Line *line, char *ptr, int *num_count, int *errors_found) {
 
             /* Checking for an invalid character after the number */
             if (i < length && !isspace(ptr[i]) && ptr[i] != COMMA_SIGN && ptr[i] != MINUS_SIGN && ptr[i] != PLUS_SIGN) {
-                print_syntax_error(Error_35,line->file_am_name,line->line_num);
+                log_syntax_error(Error_35,line->file_am_name,line->line_num);
                 *errors_found = 1;
                 return NULL;
             }
@@ -218,7 +218,7 @@ int *get_numbers(Line *line, char *ptr, int *num_count, int *errors_found) {
 
             /* Checking if the number is in range */
             if (num < MIN_10_BIT_SIGNED_VALUE || num > MAX_10_BIT_SIGNED_VALUE) {
-                print_syntax_error(Error_39,line->file_am_name,line->line_num);
+                log_syntax_error(Error_39,line->file_am_name,line->line_num);
                 *errors_found = 1;
                 return NULL;
             }
@@ -233,12 +233,12 @@ int *get_numbers(Line *line, char *ptr, int *num_count, int *errors_found) {
                 last_was_comma = 1;
                 i++;
             } else if (i < length && ptr[i] != COMMA_SIGN) {
-                print_syntax_error(Error_36,line->file_am_name,line->line_num);
+                log_syntax_error(Error_36,line->file_am_name,line->line_num);
                 *errors_found = 1;
                 return NULL;
             }
         } else {
-            print_syntax_error(Error_35,line->file_am_name,line->line_num);
+            log_syntax_error(Error_35,line->file_am_name,line->line_num);
             *errors_found = 1;
             return NULL;
         }
@@ -248,14 +248,14 @@ int *get_numbers(Line *line, char *ptr, int *num_count, int *errors_found) {
                 i++;
 
             if (i < length && ptr[i] == COMMA_SIGN) {
-                print_syntax_error(Error_37,line->file_am_name,line->line_num);
+                log_syntax_error(Error_37,line->file_am_name,line->line_num);
                 *errors_found = 1;
                 return NULL;
             }
         }
     }
     if (last_was_comma) {
-        print_syntax_error(Error_38,line->file_am_name,line->line_num);
+        log_syntax_error(Error_38,line->file_am_name,line->line_num);
         *errors_found = 1;
         return NULL;
     }
@@ -308,13 +308,13 @@ int is_standalone_word(char *str, char *word) {
 Line *create_line(FILE *file, char *file_am_name, char *content, int line_num) {
     Line *new_line = (Line *)malloc(sizeof(Line));
     if (new_line == NULL) {
-        print_system_error(Error_1);
+        log_system_error(Error_1);
         return NULL;  /* Indicates failure */
     }
     /* Allocating memory for the file name and the line's content */
     new_line->file_am_name = (char *)malloc(strlen(file_am_name)+1);
     if (new_line->file_am_name == NULL) {
-        print_system_error(Error_1);
+        log_system_error(Error_1);
         free(new_line);
         return NULL;  /* Indicates failure */
     }
@@ -322,7 +322,7 @@ Line *create_line(FILE *file, char *file_am_name, char *content, int line_num) {
 
     new_line->content = (char *)malloc(strlen(content)+1);
     if (new_line->content == NULL) {
-        print_system_error(Error_1);
+        log_system_error(Error_1);
         free(new_line->file_am_name);
         free(new_line);
         return NULL;  /* Indicates failure */
@@ -421,7 +421,7 @@ void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *da
     int i = 0, j = 0;
 
     if (file_ob == NULL) {  /* Failed to open file for writing */
-        print_system_error(Error_6);
+        log_system_error(Error_6);
         free_labels();
         free_all_memory();
         exit(1);  /* Exiting program */
@@ -457,7 +457,7 @@ void create_ent_file(char *file_ent_name) {
     char base4_addr[32]; /* Buffer for base 4 address */
 
     if (file_ent == NULL) {  /* Failed to open file for writing */
-        print_system_error(Error_6);
+        log_system_error(Error_6);
         free_labels();
         free_all_memory();
         exit(1);  /* Exiting program */
@@ -480,7 +480,7 @@ void create_ext_file(char *file_ext_name) {
     char base4_addr[32]; /* Buffer for base 4 address */
 
     if (file_ext == NULL) {  /* Failed to open file for writing */
-        print_system_error(Error_6);
+        log_system_error(Error_6);
         free_labels();
         free_all_memory();
         exit(1);  /* Exiting program */

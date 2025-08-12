@@ -66,8 +66,6 @@ Error errors[] = {
         {Error_74, "Instruction \".mat\" Has Invalid Syntax — Expected Format: .mat [rows][cols] values..."},
         {Error_75, "Invalid Matrix Operand Syntax — Expected Format: LABEL[rX][rY]"},
         {Error_76, "Instruction \".mat\" Has More Values Than Allowed By rows * cols Definition"},
-
-        /* Specific (token-related) errors */
         {Error_59, "Operand Recognized As A Label But Is Not Valid — Check Syntax"},
         {Error_60, "Operand Uses The IMMEDIATE Addressing Method But Has No Value"},
         {Error_61, "Operand Invalid For The IMMEDIATE Addressing Method — Only Integers Allowed"},
@@ -91,15 +89,15 @@ static const char* find_error_msg(int error_code) {
         return "Unknown error code";
 }
 
-void print_system_error(int error_code) {
+void log_system_error(int error_code) {
         printf("ERROR (CODE_%d)  %s\n", error_code, find_error_msg(error_code));
 }
 
-void print_syntax_error(int error_code, char *file_name, int line_num) {
+void log_syntax_error(int error_code, char *file_name, int line_num) {
     printf("ERROR (CODE_%d)  File \"%s\" at line %d | %s\n", error_code, file_name, line_num, find_error_msg(error_code));
 }
 
-void print_specific_error(int error_code, char *file_name, int line_num, char *word) {
+void log_unique_error(int error_code, char *file_name, int line_num, char *word) {
     /* Printing the file name, assembly line number, specific error quoted and the error message */
     printf("ERROR (CODE_%d)  File \"%s\" at line %d | \"%s\" | %s\n", error_code, file_name, line_num, word, find_error_msg(error_code));
 }

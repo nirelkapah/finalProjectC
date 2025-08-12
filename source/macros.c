@@ -20,13 +20,13 @@ int add_macro(char *name, int line) {
 
     Macro *new_macro = (Macro *)malloc(sizeof(Macro));
     if (new_macro == NULL) {
-        print_system_error(Error_1);
+        log_system_error(Error_1);
         return 1;  /* Indicates failure */
     }
     /* Allocating memory and copying the name */
     new_macro->name = (char *)malloc(strlen(name)+1);  /* +1 to accommodate '\0' */
     if (new_macro->name == NULL) {
-        print_system_error(Error_1);
+        log_system_error(Error_1);
         free(new_macro);  /* Freeing the previously allocated macro */
         return 1;  /* Indicates failure */
     }
@@ -81,7 +81,7 @@ int append_macro_content(char *new_content) {
 
     new_memory = realloc(current->content,total_length);  /* Reallocating or allocating memory for the new content */
     if (new_memory == NULL) {
-        print_system_error(Error_1);
+        log_system_error(Error_1);
         return 1;  /* Indicates faliure */
     }
 

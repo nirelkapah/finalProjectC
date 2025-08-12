@@ -27,7 +27,7 @@ void add_instruction_code(unsigned short *code, int *memory_usage, int *instruct
 {
     if (*memory_usage == MAX_ARRAY_CAPACITY)
     {
-        print_system_error(Error_73);
+        log_system_error(Error_73);
         *error_counter = 1;
         (*memory_usage)++;
         return;
@@ -55,7 +55,7 @@ void process_operation_code(unsigned short *code, int *memory_usage, int *instru
         immediate_val = atoi(operand);
         if (immediate_val < MIN_10_BIT_SIGNED_VALUE || immediate_val > MAX_10_BIT_SIGNED_VALUE)
         {
-            print_syntax_error(Error_62, context->file_am_name, context->line_num);
+            log_syntax_error(Error_62, context->file_am_name, context->line_num);
             *error_counter = 1;
             return;
         }
@@ -98,7 +98,7 @@ void process_operation_code(unsigned short *code, int *memory_usage, int *instru
         /* Store the full matrix expression for second pass parsing */
         if (add_label(operand, *instruction_counter, OPERAND, TBD) == NULL)
         {
-            print_system_error(Error_1);
+            log_system_error(Error_1);
             *error_counter = 1;
             return;
         }
@@ -110,7 +110,7 @@ void process_operation_code(unsigned short *code, int *memory_usage, int *instru
 
     default:
         /* Unknown addressing method */
-        print_syntax_error(Error_69, context->file_am_name, context->line_num);
+        log_syntax_error(Error_69, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }

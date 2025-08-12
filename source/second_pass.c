@@ -157,14 +157,14 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
                 }
                 else
                 {
-                    print_specific_error(Error_69, file_am_name,
+                    log_unique_error(Error_69, file_am_name,
                                          operand_label->address + MEMORY_START_ADDRESS, label_name);
                     errors_found = 1;
                 }
             }
             else
             {
-                print_syntax_error(Error_75, file_am_name,
+                log_syntax_error(Error_75, file_am_name,
                                    operand_label->address + MEMORY_START_ADDRESS);
                 errors_found = 1;
             }
@@ -219,7 +219,7 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
             }
             else
             {
-                print_specific_error(Error_69, file_am_name,
+                log_unique_error(Error_69, file_am_name,
                                      operand_label->address + MEMORY_START_ADDRESS, operand_name);
                 errors_found = 1;
             }

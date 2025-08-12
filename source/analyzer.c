@@ -53,7 +53,7 @@ int validate_macro_identifier(char *source_file, char *macro_identifier, int lin
     /* Checking if there is more than one name */
     if (contains_whitespace(macro_identifier))
     {
-        print_syntax_error(Error_13, source_file, line_number);
+        log_syntax_error(Error_13, source_file, line_number);
         return 1; /* Indicates faliure */
     }
     /* Comparing the macro name with each of the system's reserved words */
@@ -80,7 +80,7 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
     /* Checking if the name is empty */
             if (*label_identifier == STRING_TERMINATOR)
     {
-        print_syntax_error(label_type == REGULAR ? Error_28 : label_type == OPERAND ? Error_59
+        log_syntax_error(label_type == REGULAR ? Error_28 : label_type == OPERAND ? Error_59
                                                                         : Error_43,
                            context->file_am_name, context->line_num);
         *error_counter = 1;
@@ -91,11 +91,11 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
     {
         if (identify_assembler_directive(label_identifier) != -1 && label_type == REGULAR)
         { /* Checking if the label name is an instruction in case of a non alphabetic first character */
-            print_syntax_error(4, context->file_am_name, context->line_num);
+            log_syntax_error(4, context->file_am_name, context->line_num);
             *error_counter = 1;
             return 1; /* Indicates label name is not valid */
         }
-        print_specific_error(label_type == REGULAR ? Error_29 : label_type == OPERAND ? Error_59
+        log_unique_error(label_type == REGULAR ? Error_29 : label_type == OPERAND ? Error_59
                                                                           : Error_45,
                              context->file_am_name, context->line_num, label_identifier);
         *error_counter = 1;
@@ -104,7 +104,7 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
     /* Checking if the label name length is valid */
     if (label_name_len > MAX_LABEL_NAME_LENGTH)
     {
-        print_syntax_error(Error_22, context->file_am_name, context->line_num);
+        log_syntax_error(Error_22, context->file_am_name, context->line_num);
         *error_counter = 1;
         return 1; /* Indicates label name is not valid */
     }
@@ -113,7 +113,7 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
     {
         if (!isalnum(label_identifier[i]))
         {
-            print_syntax_error(Error_21, context->file_am_name, context->line_num);
+            log_syntax_error(Error_21, context->file_am_name, context->line_num);
             *error_counter = 1;
             return 1; /* Indicates label name is not valid */
         }
@@ -121,7 +121,7 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
     /* Checking if the label name is a macro name */
     if (is_macro_name(label_identifier) != NULL)
     {
-        print_specific_error(label_type == REGULAR ? Error_23 : label_type == OPERAND ? Error_70
+        log_unique_error(label_type == REGULAR ? Error_23 : label_type == OPERAND ? Error_70
                                                                           : Error_46,
                              context->file_am_name, context->line_num, label_identifier);
         *error_counter = 1;
@@ -144,7 +144,7 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
         {
             if (label->type != ENTRY)
             {
-                print_syntax_error(Error_47, context->file_am_name, context->line_num);
+                log_syntax_error(Error_47, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 return 1; /* Indicates label name is not valid */
             }
@@ -162,7 +162,7 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
         {
             if (label->type != EXTERN)
             {
-                print_syntax_error(Error_48, context->file_am_name, context->line_num);
+                log_syntax_error(Error_48, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 return 1; /* Indicates label name is not valid */
             }
@@ -174,13 +174,13 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
         /* If this line was reached then label type is "REGULAR" */
         if (label->type == EXTERN)
         {
-            print_specific_error(Error_32, context->file_am_name, context->line_num, label_identifier);
+            log_unique_error(Error_32, context->file_am_name, context->line_num, label_identifier);
             *error_counter = 1;
             return 1; /* Indicates label name is not valid */
         }
         if (label->type == REGULAR)
         {
-            print_specific_error(Error_27, context->file_am_name, context->line_num, label_identifier);
+            log_unique_error(Error_27, context->file_am_name, context->line_num, label_identifier);
             *error_counter = 1;
             return 1; /* Indicates label name is not valid */
         }
@@ -267,20 +267,20 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
         operand_text++;
         if (*operand_text == STRING_TERMINATOR)
         {
-            print_syntax_error(Error_60, context->file_am_name, context->line_num);
+            log_syntax_error(Error_60, context->file_am_name, context->line_num);
             *error_counter = 1;
             return -1;
         }
         val = strtol(operand_text, &endptr, BASE_10);
         if (*endptr != STRING_TERMINATOR || endptr == operand_text)
         {
-            print_syntax_error(Error_61, context->file_am_name, context->line_num);
+            log_syntax_error(Error_61, context->file_am_name, context->line_num);
             *error_counter = 1;
             return -1;
         }
         if (val < MIN_10_BIT_SIGNED_VALUE || val > MAX_10_BIT_SIGNED_VALUE)
         {
-            print_specific_error(Error_62, context->file_am_name, context->line_num, operand_text);
+            log_unique_error(Error_62, context->file_am_name, context->line_num, operand_text);
             *error_counter = 1;
             return -1;
         }
@@ -305,7 +305,7 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
                 if (row_num < MIN_REGISTER_NUMBER || row_num > MAX_REGISTER_NUMBER ||
                     col_num < MIN_REGISTER_NUMBER || col_num > MAX_REGISTER_NUMBER)
                 {
-                    print_syntax_error(Error_75, context->file_am_name, context->line_num);
+                    log_syntax_error(Error_75, context->file_am_name, context->line_num);
                     *error_counter = 1;
                     return -1;
                 }
@@ -313,12 +313,12 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
             }
             else
             {
-                print_syntax_error(Error_75, context->file_am_name, context->line_num);
+                log_syntax_error(Error_75, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 return -1;
             }
         }
-        print_syntax_error(Error_75, context->file_am_name, context->line_num);
+        log_syntax_error(Error_75, context->file_am_name, context->line_num);
         *error_counter = 1;
         return -1;
     }
@@ -329,13 +329,13 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
         operand_text++;
         if (*operand_text == STRING_TERMINATOR)
         {
-            print_syntax_error(Error_63, context->file_am_name, context->line_num);
+            log_syntax_error(Error_63, context->file_am_name, context->line_num);
             *error_counter = 1;
             return -1;
         }
         if (parse_register_operand(operand_text) == -1)
         {
-            print_specific_error(Error_64, context->file_am_name, context->line_num, operand_text);
+            log_unique_error(Error_64, context->file_am_name, context->line_num, operand_text);
             *error_counter = 1;
             return -1;
         }
@@ -362,10 +362,10 @@ int check_reserved_word_conflict(char *source_file, char *identifier, int line_n
     { /* Function returns the index of the matching word or -1 if no word matched */
         if (strcmp(&source_file[len - FILE_EXTENSION_LENGTH], ".as") == 0 && identifier_type != OPERAND)
         { /* Indicates this is a macro name validation */
-            print_syntax_error(Error_10, source_file, line_number);
+            log_syntax_error(Error_10, source_file, line_number);
             return 1; /* Indicates the name is invalid */
         }
-        print_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_24
+        log_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_24
                                                                         : Error_45,
                            source_file, line_number);
         return 1; /* Indicates the name is invalid */
@@ -374,10 +374,10 @@ int check_reserved_word_conflict(char *source_file, char *identifier, int line_n
     {
         if (strcmp(&source_file[len - FILE_EXTENSION_LENGTH], ".as") == 0 && identifier_type != OPERAND)
         { /* Indicates this is a macro name validation */
-            print_syntax_error(Error_11, source_file, line_number);
+            log_syntax_error(Error_11, source_file, line_number);
             return 1; /* Indicates the name is invalid */
         }
-        print_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_25
+        log_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_25
                                                                         : Error_45,
                            source_file, line_number);
         return 1; /* Indicates the name is invalid */
@@ -386,10 +386,10 @@ int check_reserved_word_conflict(char *source_file, char *identifier, int line_n
     {
         if (strcmp(&source_file[len - FILE_EXTENSION_LENGTH], ".as") == 0 && identifier_type != OPERAND)
         { /* Indicates this is a macro name validation */
-            print_syntax_error(Error_10, source_file, line_number);
+            log_syntax_error(Error_10, source_file, line_number);
             return 1; /* Indicates the name is invalid */
         }
-        print_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_24
+        log_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_24
                                                                         : Error_45,
                            source_file, line_number);
         return 1; /* Indicates the name is invalid */
@@ -398,10 +398,10 @@ int check_reserved_word_conflict(char *source_file, char *identifier, int line_n
     {
         if (strcmp(&source_file[len - FILE_EXTENSION_LENGTH], ".as") == 0 && identifier_type != OPERAND)
         { /* Indicates this is a macro name validation */
-            print_syntax_error(Error_18, source_file, line_number);
+            log_syntax_error(Error_18, source_file, line_number);
             return 1; /* Indicates the name is invalid */
         }
-        print_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_30
+        log_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_30
                                                                         : Error_45,
                            source_file, line_number);
         return 1; /* Indicates the name is invalid */
@@ -410,10 +410,10 @@ int check_reserved_word_conflict(char *source_file, char *identifier, int line_n
     {
         if (strcmp(&source_file[len - FILE_EXTENSION_LENGTH], ".as") == 0 && identifier_type != OPERAND)
         { /* Indicates this is a macro name validation */
-            print_syntax_error(Error_19, source_file, line_number);
+            log_syntax_error(Error_19, source_file, line_number);
             return 1; /* Indicates the name is invalid */
         }
-        print_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_31
+        log_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_31
                                                                         : Error_45,
                            source_file, line_number);
         return 1; /* Indicates the name is invalid */
@@ -468,7 +468,7 @@ int parse_executable_instruction(unsigned short *instruction_segment, int *memor
             /* Check if address exceeds memory capacity */
             if (context->label->address > MAX_ARRAY_CAPACITY + MEMORY_START_ADDRESS)
             {
-                print_system_error(Error_73);
+                log_system_error(Error_73);
                 *error_counter = 1;
                 return 1;
             }
@@ -492,7 +492,7 @@ int validate_addressing_mode_compatibility(Line *context, int addressing_mode, i
         case ALL_EXCEPT_IMMEDIATE:
             if (addressing_mode == IMMEDIATE)
             {
-                print_syntax_error(Error_57, context->file_am_name, context->line_num);
+                log_syntax_error(Error_57, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 return 1; /* Indicates method is illegal */
             }
@@ -500,7 +500,7 @@ int validate_addressing_mode_compatibility(Line *context, int addressing_mode, i
         case DIRECT_AND_REGISTER:
             if (addressing_mode == IMMEDIATE || addressing_mode == MATRIX)
             {
-                print_syntax_error(Error_57, context->file_am_name, context->line_num);
+                log_syntax_error(Error_57, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 return 1; /* Indicates method is illegal */
             }
@@ -514,7 +514,7 @@ int validate_addressing_mode_compatibility(Line *context, int addressing_mode, i
     {
         if (addressing_mode != DIRECT)
         {
-            print_syntax_error(Error_58, context->file_am_name, context->line_num);
+            log_syntax_error(Error_58, context->file_am_name, context->line_num);
             *error_counter = 1;
             return 1; /* Indicates method is illegal */
         }
@@ -529,7 +529,7 @@ void process_data_directive(unsigned short *data_segment, int *memory_usage, int
     {
         if (context->label != NULL)
             remove_last_label();
-        print_syntax_error(Error_40, context->file_am_name, context->line_num);
+        log_syntax_error(Error_40, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
@@ -547,7 +547,7 @@ void process_string_directive(unsigned short *data_segment, int *memory_usage, i
     {
         if (context->label != NULL)
             remove_last_label();
-        print_syntax_error(Error_42, context->file_am_name, context->line_num);
+        log_syntax_error(Error_42, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
@@ -559,7 +559,7 @@ void process_string_directive(unsigned short *data_segment, int *memory_usage, i
     {
         if (context->label != NULL)
             remove_last_label();
-        print_syntax_error(Error_41, context->file_am_name, context->line_num);
+        log_syntax_error(Error_41, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
@@ -585,7 +585,7 @@ void process_string_directive(unsigned short *data_segment, int *memory_usage, i
     {
         if (*memory_usage + 1 == MAX_ARRAY_CAPACITY)
         { /* Checking if memory limit was reached (+1 to account for the null-terminator) */
-            print_system_error(Error_73);
+            log_system_error(Error_73);
             *error_counter = 1;
             (*memory_usage)++; /* Incrementing usage count so the next iteration will not print another error message */
             return;     /* Scanning line finished */
@@ -618,7 +618,7 @@ void process_entry_directive(Line *context, char *label_list, int *error_counter
     /* Checking if there is no label declaration */
     if (*label_list == STRING_TERMINATOR)
     {
-        print_syntax_error(Error_43, context->file_am_name, context->line_num);
+        log_syntax_error(Error_43, context->file_am_name, context->line_num);
         *error_counter = 1;
         return; /* Scanning line finished */
     }
@@ -626,7 +626,7 @@ void process_entry_directive(Line *context, char *label_list, int *error_counter
     trimmed_line = trim_whitespace(label_list);
     if (contains_whitespace(trimmed_line))
     {
-        print_syntax_error(Error_44, context->file_am_name, context->line_num);
+        log_syntax_error(Error_44, context->file_am_name, context->line_num);
         *error_counter = 1;
         return; /* Scanning line finished */
     }
@@ -662,7 +662,7 @@ void process_extern_directive(Line *context, char *symbol_list, int *error_count
     /* Checking if there is no label declaration */
     if (*symbol_list == STRING_TERMINATOR)
     {
-        print_syntax_error(Error_43, context->file_am_name, context->line_num);
+        log_syntax_error(Error_43, context->file_am_name, context->line_num);
         *error_counter = 1;
         return; /* Scanning line finished */
     }
@@ -670,7 +670,7 @@ void process_extern_directive(Line *context, char *symbol_list, int *error_count
     trimmed_line = trim_whitespace(symbol_list);
     if (contains_whitespace(trimmed_line))
     {
-        print_syntax_error(Error_44, context->file_am_name, context->line_num);
+        log_syntax_error(Error_44, context->file_am_name, context->line_num);
         *error_counter = 1;
         return; /* Scanning line finished */
     }
@@ -702,7 +702,7 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
     {
         if (context->label != NULL)
             remove_last_label();
-        print_syntax_error(Error_74, context->file_am_name, context->line_num);
+        log_syntax_error(Error_74, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
@@ -714,14 +714,14 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
     /* Expect '[' then rows */
     if (*matrix_definition != '[')
     {
-        print_syntax_error(Error_74, context->file_am_name, context->line_num);
+        log_syntax_error(Error_74, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
     matrix_definition++;
     if (!isdigit((unsigned char)*matrix_definition))
     {
-        print_syntax_error(Error_74, context->file_am_name, context->line_num);
+        log_syntax_error(Error_74, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
@@ -731,7 +731,7 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
     while (*matrix_definition && *matrix_definition != ']') matrix_definition++;
     if (*matrix_definition != ']')
     {
-        print_syntax_error(Error_74, context->file_am_name, context->line_num);
+        log_syntax_error(Error_74, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
@@ -741,14 +741,14 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
     while (*matrix_definition && isspace((unsigned char)*matrix_definition)) matrix_definition++;
     if (*matrix_definition != '[')
     {
-        print_syntax_error(Error_74, context->file_am_name, context->line_num);
+        log_syntax_error(Error_74, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
     matrix_definition++;
     if (!isdigit((unsigned char)*matrix_definition))
     {
-        print_syntax_error(Error_74, context->file_am_name, context->line_num);
+        log_syntax_error(Error_74, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
@@ -757,7 +757,7 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
     while (*matrix_definition && *matrix_definition != ']') matrix_definition++;
     if (*matrix_definition != ']')
     {
-        print_syntax_error(Error_74, context->file_am_name, context->line_num);
+        log_syntax_error(Error_74, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
@@ -766,7 +766,7 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
     /* Validate */
     if (rows <= 0 || cols <= 0)
     {
-        print_syntax_error(Error_74, context->file_am_name, context->line_num);
+        log_syntax_error(Error_74, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
@@ -788,7 +788,7 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
     /* Too many values */
     if (count > rows * cols)
     {
-        print_syntax_error(Error_76, context->file_am_name, context->line_num);
+        log_syntax_error(Error_76, context->file_am_name, context->line_num);
         *error_counter = 1;
         return;
     }
@@ -806,7 +806,7 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
     {
         if (*memory_usage == MAX_ARRAY_CAPACITY)
         { /* Checking if memory limit was reached */
-            print_system_error(Error_73);
+            log_system_error(Error_73);
             *error_counter = 1;
             (*memory_usage)++; /* Incrementing usage count so the next iteration will not print another error message */
             return;     /* Scanning line finished */
@@ -821,7 +821,7 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
             num = atoi(token);
             if (num < MIN_10_BIT_SIGNED_VALUE || num > MAX_10_BIT_SIGNED_VALUE)
             {
-                print_syntax_error(Error_39, context->file_am_name, context->line_num);
+                log_syntax_error(Error_39, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 num = 0;
             }
@@ -850,7 +850,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
     case 0:
         if (operand_list[0] != STRING_TERMINATOR)
         { /* Checking if there is a extraneous text */
-            print_syntax_error(Error_49, context->file_am_name, context->line_num);
+            log_syntax_error(Error_49, context->file_am_name, context->line_num);
             *error_counter = 1;
             return; /* Scanning line finished */
         }
@@ -859,7 +859,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
     case 1:
         if (operand_list[0] == STRING_TERMINATOR)
         { /* Checking if there is a missing operand */
-            print_syntax_error(Error_50, context->file_am_name, context->line_num);
+            log_syntax_error(Error_50, context->file_am_name, context->line_num);
             *error_counter = 1;
             return; /* Scanning line finished */
         }
@@ -868,13 +868,13 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
 
         if (operand_list[0] == COMMA_SIGN)
         { /* Checking if there is an illegal comma */
-            print_syntax_error(Error_53, context->file_am_name, context->line_num);
+            log_syntax_error(Error_53, context->file_am_name, context->line_num);
             *error_counter = 1;
             return; /* Scanning line finished */
         }
         if (contains_whitespace(operand_list) || strchr(operand_list, COMMA_SIGN) != NULL)
         { /* Checking for extraneous text */
-            print_syntax_error(Error_52, context->file_am_name, context->line_num);
+            log_syntax_error(Error_52, context->file_am_name, context->line_num);
             *error_counter = 1;
             return; /* Scanning line finished */
         }
@@ -893,7 +893,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
     case 2:
         if (operand_list[0] == STRING_TERMINATOR)
         { /* Checking if there are missing operands */
-            print_syntax_error(Error_51, context->file_am_name, context->line_num);
+            log_syntax_error(Error_51, context->file_am_name, context->line_num);
             *error_counter = 1;
             return; /* Scanning line finished */
         }
@@ -902,7 +902,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
 
         if (operand_list[0] == COMMA_SIGN)
         { /* Checking if there is an illegal comma */
-            print_syntax_error(Error_53, context->file_am_name, context->line_num);
+            log_syntax_error(Error_53, context->file_am_name, context->line_num);
             *error_counter = 1;
             return; /* Scanning line finished */
         }
@@ -920,7 +920,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
         { /* If a comma was found, spliting the string into two opernads */
             if (comma_pos - opernad == strlen(opernad) - 1 && operand_list[length] == STRING_TERMINATOR)
             {
-                print_syntax_error(Error_50, context->file_am_name, context->line_num);
+                log_syntax_error(Error_50, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 deallocate_memory(opernad);
                 return; /* Scanning line finished */
@@ -934,14 +934,14 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
 
             if (second_operand[0] == COMMA_SIGN)
             { /* Checking if there are consecutive commas */
-                print_syntax_error(Error_55, context->file_am_name, context->line_num);
+                log_syntax_error(Error_55, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 deallocate_memory(opernad);
                 return; /* Scanning line finished */
             }
             if (contains_whitespace(second_operand) || strchr(second_operand, COMMA_SIGN) != NULL)
             { /* Checking for extraneous text */
-                print_syntax_error(Error_54, context->file_am_name, context->line_num);
+                log_syntax_error(Error_54, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 deallocate_memory(opernad);
                 return; /* Scanning line finished */
@@ -954,14 +954,14 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
                 operand_list++;
             if (operand_list[0] == STRING_TERMINATOR || (*operand_list == COMMA_SIGN && operand_list[1] == STRING_TERMINATOR))
             { /* Checking if there is a missing operand */
-                print_syntax_error(Error_50, context->file_am_name, context->line_num);
+                log_syntax_error(Error_50, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 deallocate_memory(opernad);
                 return; /* Scanning line finished */
             }
             if (operand_list[0] != COMMA_SIGN)
             {
-                print_syntax_error(Error_56, context->file_am_name, context->line_num);
+                log_syntax_error(Error_56, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 deallocate_memory(opernad);
                 return; /* Scanning line finished */
@@ -978,7 +978,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
             }
             if (second_operand[0] == COMMA_SIGN)
             {
-                print_syntax_error(Error_55, context->file_am_name, context->line_num);
+                log_syntax_error(Error_55, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 deallocate_memory(opernad);
                 deallocate_memory(second_operand);
@@ -987,7 +987,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
             length = strlen(second_operand);
             if (strchr(second_operand, COMMA_SIGN) != NULL || operand_list[length] != STRING_TERMINATOR)
             { /* Checking for extraneous text */
-                print_syntax_error(Error_54, context->file_am_name, context->line_num);
+                log_syntax_error(Error_54, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 deallocate_memory(opernad);
                 deallocate_memory(second_operand);
@@ -1038,7 +1038,7 @@ void parse_and_encode_numeric_data(unsigned short *data_segment, int *memory_usa
     {
         if (*memory_usage == MAX_ARRAY_CAPACITY)
         { /* Checking if memory limit was reached */
-            print_system_error(Error_73);
+            log_system_error(Error_73);
             *error_counter = 1;
             (*memory_usage)++; /* Incrementing usage count so the next iteration will not print another error message */
             return;     /* Scanning line finished */

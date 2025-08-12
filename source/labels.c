@@ -25,7 +25,7 @@ Label *add_label(char *name, int address, Type type, Location location)
     new_label = (Label *)malloc(sizeof(Label));
     if (new_label == NULL)
     {
-        print_system_error(Error_1);
+        log_system_error(Error_1);
         return NULL; /* Indicates failure */
     }
 
@@ -33,7 +33,7 @@ Label *add_label(char *name, int address, Type type, Location location)
     new_label->name = (char *)malloc(strlen(name) + 1); /* +1 to accommodate '\0' */
     if (new_label->name == NULL)
     {
-        print_system_error(Error_1);
+        log_system_error(Error_1);
         free(new_label);
         return NULL; /* Indicates failure */
     }
@@ -109,7 +109,7 @@ int check_entry_labels(char *file_am_name)
         if (current->type == ENTRY && current->location == TBD)
         { /* Checking for an undefined "entry" label */
             printf(" [CODE_7] | ERROR | File \"%s\" | Label \"%s\"", file_am_name, current->name);
-            print_system_error(Error_72);
+            log_system_error(Error_72);
             errors_found = 1; /* Indicates not all "entry" labels were defined */
         }
         current = current->next;

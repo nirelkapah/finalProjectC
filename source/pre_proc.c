@@ -39,13 +39,13 @@ int handle_macros(char *file_name, char *file_am_name) {
 
     file = fopen(file_name,"r");
     if (file == NULL) {  /* Failed to open file for reading */
-        print_system_error(Error_5);
+        log_system_error(Error_5);
         free_all_memory();
         exit(1);  /* Exiting program */
     }
     file_am = fopen(file_am_name,"w");
     if (file_am == NULL) {  /* Failed to open file for writing */
-        print_system_error(Error_6);
+        log_system_error(Error_6);
         fclose(file);
         free_all_memory();
         exit(1);  /* Exiting program */
@@ -64,7 +64,7 @@ int handle_macros(char *file_name, char *file_am_name) {
                     macro_found = 0;
                 }
             }
-            print_syntax_error(Error_7,file_name,line_count);
+            log_syntax_error(Error_7,file_name,line_count);
             errors_found = 1;
             while ((ch = fgetc(file)) != '\n' && ch != EOF);  /* Clearing the rest of the line from the buffer */
             continue;  /* Skipping to the next line */
@@ -101,7 +101,7 @@ int handle_macros(char *file_name, char *file_am_name) {
             }
             /* Handling -endmacr- command potential errors */
             if (strlen(trimmed_line) > MACRO_END_LENGTH) {
-                print_syntax_error(Error_15,file_name,line_count);
+                log_syntax_error(Error_15,file_name,line_count);
                 if (name_is_valid == 1)
                     remove_last_macro();
                 errors_found = 1;
@@ -111,7 +111,7 @@ int handle_macros(char *file_name, char *file_am_name) {
             }
             if (name_is_valid == 1) {  /* Checking if content is empty */
                 if (get_last_macro()->content == NULL || strlen(trim_whitespace(get_last_macro()->content)) == 0) {
-                    print_syntax_error(Error_17,file_name,line_count);
+                    log_syntax_error(Error_17,file_name,line_count);
                     remove_last_macro();
                     errors_found = 1;
                 }
@@ -135,7 +135,7 @@ int handle_macros(char *file_name, char *file_am_name) {
             macro_name = valid_macro_decl(file_name,trimmed_line,line_count);
             if (macro_name) {
                 if (is_macro_name(macro_name) != NULL) {  /* Checking if the name had already been defined */
-                    print_syntax_error(Error_14,file_name,line_count);
+                    log_syntax_error(Error_14,file_name,line_count);
                     errors_found = 1;
                     name_is_valid = 0;
                     continue;  /* Skipping to the next line */
@@ -154,7 +154,7 @@ int handle_macros(char *file_name, char *file_am_name) {
                 continue;  /* Skipping to the next line */
             }
         } else {
-            print_syntax_error(Error_8,file_name,line_count);
+            log_syntax_error(Error_8,file_name,line_count);
             errors_found = 1;
             macro_found = 1;
             name_is_valid = 0;
@@ -180,7 +180,7 @@ char *valid_macro_decl(char *file_name, char *decl, int line_count) {
         if(validate_macro_identifier(file_name,macro_name,line_count) != 0)  /* Validating macro name */
            return NULL;  /* Indicates faliure */
     } else {
-        print_syntax_error(Error_9,file_name,line_count);
+        log_syntax_error(Error_9,file_name,line_count);
         return NULL;  /* Indicates faliure */
     }
     return macro_name;
