@@ -20,13 +20,13 @@ int add_macro(char *name, int line) {
 
     Macro *new_macro = (Macro *)malloc(sizeof(Macro));
     if (new_macro == NULL) {
-        log_system_error(Error_1);
+        log_system_error(Error_101);
         return 1;  /* Indicates failure */
     }
     /* Allocating memory and copying the name */
     new_macro->name = (char *)malloc(strlen(name)+1);  /* +1 to accommodate '\0' */
     if (new_macro->name == NULL) {
-        log_system_error(Error_1);
+        log_system_error(Error_101);
         free(new_macro);  /* Freeing the previously allocated macro */
         return 1;  /* Indicates failure */
     }
@@ -81,7 +81,7 @@ int append_macro_content(char *new_content) {
 
     new_memory = realloc(current->content,total_length);  /* Reallocating or allocating memory for the new content */
     if (new_memory == NULL) {
-        log_system_error(Error_1);
+        log_system_error(Error_101);
         return 1;  /* Indicates faliure */
     }
 
@@ -114,7 +114,7 @@ void remove_last_macro() {
 
     if (head->next == NULL) {  /* Only one macro in the list */
         free(head->name);
-        if (head->content)  /* Checking if content is NULL in case of "Error_17" */
+        if (head->content)  /* Checking if content is NULL in case of "Error_209" */
             free(head->content);
         free(head);
         head = NULL;
@@ -127,7 +127,7 @@ void remove_last_macro() {
     }
 
     free(current->next->name);
-    if (current->next->content)  /* Checking if content is NULL in case of "Error_17" */
+    if (current->next->content)  /* Checking if content is NULL in case of "Error_209" */
         free(current->next->content);
     free(current->next);
 
