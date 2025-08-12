@@ -65,17 +65,17 @@ Error errors[] = {
         {Error_58, "This operation uses an illegal method for a source operand"},
         {Error_59, "This operand was recognized as a label but is not valid, please check syntax"},
         {Error_60, "This operation has an operand that uses an 'IMMEDIATE' method type but has no value"},
-        {Error_61, "This opernad is invalid for an 'IMMEDIATE' method type, only integers allowed"},
-        {Error_62, "This opernad is out of range for an 'IMMEDIATE' method type"},
-        {Error_63, "This operation has an opernad that uses a 'REGISTER' method type but has no value"},
-        {Error_64, "This opernad is not a valid register for a 'REGISTER' method type"},
-        {Error_65, "Unrecognized command, note that label declarations must have a space after the colon (:)"},  /* Example: "LABEL:mov..." */
-        {Error_66, "Unrecognized command, note that label declarations must have the colon (:) attached to the label name"},  /* Example: "LABEL : mov..." */
-        {Error_67, "Unrecognized command, note that an instruction must start with a dot (.)"},  /* Example: "entry LABEL" */
+        {Error_61, "This operand is invalid for an 'IMMEDIATE' method type, only integers allowed"},
+        {Error_62, "This operand is out of range for an 'IMMEDIATE' method type"},
+        {Error_63, "This operation has an operand that uses a 'REGISTER' method type but has no value"},
+        {Error_64, "This operand is not a valid register for a 'REGISTER' method type"},
+        {Error_65, "Unrecognized command, note that label declarations must have a space after the colon (:)"},  
+        {Error_66, "Unrecognized command, note that label declarations must have the colon (:) attached to the label name"},  
+        {Error_67, "Unrecognized command, note that an instruction must start with a dot (.)"}, 
         {Error_68, "Unrecognized command, please check syntax"},
         {Error_69, "Unrecognized operand, please check syntax"},
         {Error_70, "Invalid operand, note that reserved words and macro names cannot be used as operands"},
-        {Error_71, "Label name is not a valid command"},  /* Example: "LABEL r7" */
+        {Error_71, "Label name is not a valid command"},  
         {Error_72, " was declared as \".entry\" but was not defined"},
         {Error_73, " [CODE_8] | ERROR | Memory capacity exceeded! Assembler machine-coding is suspended, however line scanning continues"},
         {Error_74, "Instruction \".mat\" has invalid syntax. Expected format: .mat [rows][cols] values..."},
@@ -90,10 +90,10 @@ void print_system_error(int error_code) {
 
 void print_syntax_error(int error_code, char *file_name, int line_num) {
     /* Printing the file name, assembly line number and the error message */
-    printf(" ERROR | File \"%s\" at line %d | %s\n",file_name,line_num,errors[error_code].error_msg);
+    printf(" ERROR FOUND in file \"%s\" at line %d | %s\n",file_name,line_num,errors[error_code].error_msg);
 }
 
 void print_specific_error(int error_code, char *file_name, int line_num, char *word) {
     /* Printing the file name, assembly line number, specific error quoted and the error message */
-    printf(" ERROR | File \"%s\" at line %d | \"%s\" | %s\n",file_name,line_num,word,errors[error_code].error_msg);
+    printf(" ERROR FOUND in file \"%s\" at line %d | \"%s\" | %s\n",file_name,line_num,word,errors[error_code].error_msg);
 }
