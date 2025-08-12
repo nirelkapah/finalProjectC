@@ -4,13 +4,13 @@
 
 /* The Following array specifies the error code numbers and the corresponding error message */
 Error errors[] = {
-        {Error_0, " [CODE_0] | ERROR | No files entered"},
-        {Error_1, " [CODE_1] | ERROR | Memory allocation failed"},
-        {Error_2, " [CODE_2] | ERROR | File names should be entered without \".as\" extention"},
-        {Error_3, "Illegal comment, whitespace characters are not allowed before the semicolon (;)"},
-        {Error_4, " [CODE_4] | ERROR | Failed to delete redundant file"},
-        {Error_5, " [CODE_5] | ERROR | Failed to open existing file for reading"},
-        {Error_6, " [CODE_6] | ERROR | Failed to open new file for writing"},
+        {Error_0, "No files entered"},
+        {Error_1, "Memory allocation failed"},
+        {Error_2, "File names must be provided without the .as extension"},
+        {Error_3, "Illegal comment: no whitespace is allowed before the semicolon (;)"},
+        {Error_4, "Failed to delete redundant file"},
+        {Error_5, "Failed to open existing file for reading"},
+        {Error_6, "Failed to open new file for writing"},
         {Error_7, "The line is too long, 80 characters max"},
         {Error_8, "Invalid macro declaration, no name was defined"},
         {Error_9, "Invalid macro declaration, \"macr\" command with extraneous text"},
@@ -33,11 +33,11 @@ Error errors[] = {
         {Error_26, "Invalid label declaration, an instruction name cannot be used as a label name"},
         {Error_27, "Invalid label declaration, this label name is already in use"},
         {Error_28, "Invalid label declaration, no name was defined"},
-        {Error_29, "Invalid label declaration, label name must start with an alphabetical character"},
+        {Error_29, "Invalid label declaration, label name must start with an alphabetic character"},
         {Error_30, "Invalid label declaration, \"macr\" is a reserved word"},
         {Error_31, "Invalid label declaration, \"endmacr\" is a reserved word"},
         {Error_32, "Invalid label declaration, local label name cannot be the same as an external label name"},  /* "Local" means regular/entry label */
-        {Error_33, "This macro call was missed in pre-processing, macros calls are allowed once per line and with no extra text"},
+        {Error_33, "Macro call was missed during preprocessing; macro calls are allowed once per line with no extra text"},
         {Error_34, "Instruction \".data\" has an illegal comma following the instruction name"},
         {Error_35, "Instruction \".data\" has illegal characters, only integers allowed"},
         {Error_36, "Instruction \".data\" has a missing comma"},
@@ -53,31 +53,31 @@ Error errors[] = {
         {Error_46, "Instructions \".entry\" and \".extern\" label name cannot be the same as a macro name"},
         {Error_47, "Instruction \".entry\" label name cannot be the same as an external label name"},
         {Error_48, "Instruction \".extern\" label name cannot be the same as a local label name"},  /* "Local" means regular/entry label */
-        {Error_49, "This operation has extraneous text, no operands required"},
-        {Error_50, "This operation has a missing operand"},
-        {Error_51, "This operation has missing operands"},
-        {Error_52, "This operation has extraneous text, only one operand is required"},
-        {Error_53, "This operation has an illegal comma after the operation name"},
-        {Error_54, "This operation has extraneous text, only two operands are required"},
-        {Error_55, "This operation has multiple consecutive commas"},
-        {Error_56, "This operation has a missing comma"},
-        {Error_57, "This operation uses an illegal method for a destination operand"},
-        {Error_58, "This operation uses an illegal method for a source operand"},
+        {Error_49, "Operation has extraneous text, no operands required"},
+        {Error_50, "Operation has a missing operand"},
+        {Error_51, "Operation has missing operands"},
+        {Error_52, "Operation has extraneous text, only one operand is required"},
+        {Error_53, "Operation has an illegal comma after the operation name"},
+        {Error_54, "Operation has extraneous text, only two operands are required"},
+        {Error_55, "Operation has multiple consecutive commas"},
+        {Error_56, "Operation has a missing comma"},
+        {Error_57, "Operation uses an invalid addressing method for a destination operand"},
+        {Error_58, "Operation uses an invalid addressing method for a source operand"},
         {Error_59, "This operand was recognized as a label but is not valid, please check syntax"},
-        {Error_60, "This operation has an operand that uses an 'IMMEDIATE' method type but has no value"},
-        {Error_61, "This operand is invalid for an 'IMMEDIATE' method type, only integers allowed"},
-        {Error_62, "This operand is out of range for an 'IMMEDIATE' method type"},
-        {Error_63, "This operation has an operand that uses a 'REGISTER' method type but has no value"},
-        {Error_64, "This operand is not a valid register for a 'REGISTER' method type"},
-        {Error_65, "Unrecognized command, note that label declarations must have a space after the colon (:)"},  
-        {Error_66, "Unrecognized command, note that label declarations must have the colon (:) attached to the label name"},  
-        {Error_67, "Unrecognized command, note that an instruction must start with a dot (.)"}, 
+        {Error_60, "Operation has an operand that uses the IMMEDIATE addressing method but has no value"},
+        {Error_61, "Operand is invalid for the IMMEDIATE addressing method, only integers allowed"},
+        {Error_62, "Operand is out of range for the IMMEDIATE addressing method"},
+        {Error_63, "Operation has an operand that uses the REGISTER addressing method but has no value"},
+        {Error_64, "Operand is not a valid register for the REGISTER addressing method"},
+        {Error_65, "Unrecognized command; label declarations must have a space after the colon (:)"},  
+        {Error_66, "Unrecognized command; the colon (:) must be attached to the label name"},  
+        {Error_67, "Unrecognized command; an instruction must start with a dot (.)"}, 
         {Error_68, "Unrecognized command, please check syntax"},
         {Error_69, "Unrecognized operand, please check syntax"},
-        {Error_70, "Invalid operand, note that reserved words and macro names cannot be used as operands"},
+        {Error_70, "Invalid operand; reserved words and macro names cannot be used as operands"},
         {Error_71, "Label name is not a valid command"},  
         {Error_72, " was declared as \".entry\" but was not defined"},
-        {Error_73, " [CODE_8] | ERROR | Memory capacity exceeded! Assembler machine-coding is suspended, however line scanning continues"},
+        {Error_73, "Memory capacity exceeded! Assembler machine-coding is suspended; line scanning continues"},
         {Error_74, "Instruction \".mat\" has invalid syntax. Expected format: .mat [rows][cols] values..."},
         {Error_75, "Invalid matrix operand syntax. Expected format: LABEL[rX][rY]"},
         {Error_76, "Instruction \".mat\" has more values than allowed by rows * cols definition"},
@@ -85,15 +85,15 @@ Error errors[] = {
 
 void print_system_error(int error_code) {
         /* Printing the error message */
-        printf("%s\n", errors[error_code].error_msg);
+        printf("ERROR (CODE_%d)  %s\n", error_code, errors[error_code].error_msg);
 }
 
 void print_syntax_error(int error_code, char *file_name, int line_num) {
     /* Printing the file name, assembly line number and the error message */
-    printf(" ERROR FOUND in file \"%s\" at line %d | %s\n",file_name,line_num,errors[error_code].error_msg);
+    printf("ERROR (CODE_%d)  File \"%s\" at line %d | %s\n", error_code, file_name, line_num, errors[error_code].error_msg);
 }
 
 void print_specific_error(int error_code, char *file_name, int line_num, char *word) {
     /* Printing the file name, assembly line number, specific error quoted and the error message */
-    printf(" ERROR FOUND in file \"%s\" at line %d | \"%s\" | %s\n",file_name,line_num,word,errors[error_code].error_msg);
+    printf("ERROR (CODE_%d)  File \"%s\" at line %d | \"%s\" | %s\n", error_code, file_name, line_num, word, errors[error_code].error_msg);
 }
