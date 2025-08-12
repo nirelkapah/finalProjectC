@@ -78,11 +78,6 @@ int handle_macros(char *file_name, char *file_am_name) {
         strcpy(copy,line);
         trimmed_line = trim_whitespace(line);  /* Trimming leading and trailing whitespace characters */
 
-        if (*trimmed_line == SEMICOLON) {  /* Checking for an illegal comment */
-            print_syntax_error(Error_3,file_name,line_count);
-            errors_found = 1;
-            continue;  /* Skipping to the next line */
-        }
         /* Writing the macro content into "file.am" if a macro call was detected */
         if ((macro_ptr = is_macro_name(trimmed_line)) != NULL) {
             if (errors_found == 0) {

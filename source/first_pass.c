@@ -215,31 +215,10 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
         deallocate_memory(current_word);
         return;
     }
-    if (strchr(current_word + 1, COLON_SIGN) != NULL)
-    {
-        print_specific_error(Error_65, line->file_am_name, line->line_num, current_word);
-        *errors_found = 1;
-        deallocate_memory(current_word);
-        return;
-    }
     while (ptr && !isspace(*ptr))
         ptr++;
     while (ptr && isspace(*ptr))
         ptr++;
-    if (ptr && *ptr == COLON_SIGN)
-    {
-        print_specific_error(Error_66, line->file_am_name, line->line_num, current_word);
-        *errors_found = 1;
-        deallocate_memory(current_word);
-        return;
-    }
-    if (is_label_name(current_word) != NULL)
-    {
-        print_specific_error(Error_71, line->file_am_name, line->line_num, current_word);
-        *errors_found = 1;
-        deallocate_memory(current_word);
-        return;
-    }
             len = strlen(current_word) + BINARY_BASE;
     temp = (char *)allocate_memory(len);
     if (temp == NULL)

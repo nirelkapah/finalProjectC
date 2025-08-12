@@ -56,12 +56,6 @@ int validate_macro_identifier(char *source_file, char *macro_identifier, int lin
         print_syntax_error(Error_13, source_file, line_number);
         return 1; /* Indicates faliure */
     }
-    /* Checking if macro length is valid */
-    if (strlen(macro_identifier) > MAX_MACRO_NAME_LENGTH)
-    {
-        print_syntax_error(Error_16, source_file, line_number);
-        return 1; /* Indicates failure */
-    }
     /* Comparing the macro name with each of the system's reserved words */
     if (check_reserved_word_conflict(source_file, macro_identifier, line_number, REGULAR) != 0)
         return 1; /* Indicates failure */
@@ -97,7 +91,7 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
     {
         if (identify_assembler_directive(label_identifier) != -1 && label_type == REGULAR)
         { /* Checking if the label name is an instruction in case of a non alphabetic first character */
-            print_syntax_error(Error_26, context->file_am_name, context->line_num);
+            print_syntax_error(4, context->file_am_name, context->line_num);
             *error_counter = 1;
             return 1; /* Indicates label name is not valid */
         }
@@ -392,10 +386,10 @@ int check_reserved_word_conflict(char *source_file, char *identifier, int line_n
     {
         if (strcmp(&source_file[len - FILE_EXTENSION_LENGTH], ".as") == 0 && identifier_type != OPERAND)
         { /* Indicates this is a macro name validation */
-            print_syntax_error(Error_12, source_file, line_number);
+            print_syntax_error(Error_10, source_file, line_number);
             return 1; /* Indicates the name is invalid */
         }
-        print_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_26
+        print_syntax_error(identifier_type == OPERAND ? Error_70 : identifier_type == REGULAR ? Error_24
                                                                         : Error_45,
                            source_file, line_number);
         return 1; /* Indicates the name is invalid */
