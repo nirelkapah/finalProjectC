@@ -8,7 +8,7 @@
 
 #ifndef VALIDATOR_H
 #define VALIDATOR_H
-#include "utility.h"
+#include "utils.h"
 
 /* Which addressing modes each instruction can handle */
 typedef enum SupportedAddressingModes {

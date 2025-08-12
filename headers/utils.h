@@ -1,8 +1,8 @@
 /**
  * This is the utility header file.
  */
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef UTILS_H
+#define UTILS_H
 #include <stdio.h>
 #include "labels.h"
 

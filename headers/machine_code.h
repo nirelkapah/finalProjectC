@@ -3,7 +3,7 @@
  */
 #ifndef MACHINE_CODE_H
 #define MACHINE_CODE_H
-#include "utility.h"
+#include "utils.h"
 
 /**
  * Adds a data code to the data array.

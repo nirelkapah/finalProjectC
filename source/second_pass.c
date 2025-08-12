@@ -12,7 +12,7 @@
 #include "validator.h"
 #include "definitions.h"
 #include "labels.h"
-#include "utility.h"
+#include "utils.h"
 
 int second_pass(char *file_am_name, unsigned short *code, unsigned short *data, int *IC, int *DC)
 {

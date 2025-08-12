@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "errors.h"
-#include "utility.h"
+#include "utils.h"
 #include "pre_proc.h"
 #include "first_pass.h"
 #include "definitions.h"

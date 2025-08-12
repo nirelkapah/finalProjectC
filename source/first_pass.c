@@ -13,7 +13,7 @@
 #include "errors.h"
 #include "macros.h"
 #include "labels.h"
-#include "utility.h"
+#include "utils.h"
 #include "second_pass.h"
 #include "definitions.h"
 

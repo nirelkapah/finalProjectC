@@ -11,7 +11,7 @@
 #include "pre_proc.h"
 #include "errors.h"
 #include "validator.h"
-#include "utility.h"
+#include "utils.h"
 #include "macros.h"
 #include "definitions.h"
 

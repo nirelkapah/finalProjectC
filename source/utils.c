@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "utility.h"
+#include "utils.h"
 #include "errors.h"
 #include "macros.h"
 #include "labels.h"

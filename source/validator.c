@@ -12,7 +12,7 @@
 #include <ctype.h>
 #include "errors.h"
 #include "validator.h"
-#include "utility.h"
+#include "utils.h"
 #include "macros.h"
 #include "labels.h"
 #include "machine_code.h"
