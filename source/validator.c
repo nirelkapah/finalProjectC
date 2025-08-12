@@ -11,7 +11,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "errors.h"
-#include "analyzer.h"
+#include "validator.h"
 #include "utility.h"
 #include "macros.h"
 #include "labels.h"

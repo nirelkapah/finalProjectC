@@ -1,13 +1,13 @@
 /**
- * analyzer.h - Assembly Language Parser & Code Generator
+ * validator.h - Assembly Language Parser & Code Generator
  * 
  * This module provides comprehensive parsing and analysis functionality for assembly code.
  * It handles label validation, instruction parsing, and machine code generation
  * with complete error checking and validation.
  */
 
-#ifndef ANALYZER_H
-#define ANALYZER_H
+#ifndef VALIDATOR_H
+#define VALIDATOR_H
 #include "utility.h"
 
 /* Which addressing modes each instruction can handle */

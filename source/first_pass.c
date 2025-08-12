@@ -9,7 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "first_pass.h"
-#include "analyzer.h"
+#include "validator.h"
 #include "errors.h"
 #include "macros.h"
 #include "labels.h"

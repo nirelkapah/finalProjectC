@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include "machine_code.h"
 #include "errors.h"
-#include "analyzer.h"
+#include "validator.h"
 #include "labels.h"
 #include "macros.h"
 #include "utility.h"

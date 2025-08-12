@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include "second_pass.h"
 #include "errors.h"
-#include "analyzer.h"
+#include "validator.h"
 #include "definitions.h"
 #include "labels.h"
 #include "utility.h"
