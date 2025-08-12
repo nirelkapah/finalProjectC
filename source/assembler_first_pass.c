@@ -170,7 +170,6 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
                 exit(1);
             }
 
-            /* ✅ NEW: Assign label address for .data, .string, .mat */
             if (identify_assembler_directive(current_word) == 0 || /* .data */
                 identify_assembler_directive(current_word) == 1 || /* .string */
                 identify_assembler_directive(current_word) == 4)   /* .mat */

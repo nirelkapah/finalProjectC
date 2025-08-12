@@ -1,9 +1,11 @@
 /**
  * This is the labels header file.
  */
+
 #ifndef LABELS_H
 #define LABELS_H
 
+/* Type enum definition */
 typedef enum Type {
     REGULAR,
     ENTRY,
@@ -11,8 +13,9 @@ typedef enum Type {
     OPERAND
 } Type;
 
+/* Location enum definition */
 typedef enum Location {
-    TBD,  /* To Be Determined */
+    TBD,  
     CODE,
     DATA
 } Location;

@@ -54,7 +54,7 @@ int second_pass(char *file_am_name, unsigned short *code, unsigned short *data, 
     }
     deallocate_memory(file_ob_name);
     free_labels();
-    printf("* Second pass was successful\n");
+    printf("--- Second pass passed successfully ---\n");
     return errors_found;
 }
 int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
@@ -94,9 +94,7 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
         operand_name = operand_label->name;
         word = 0;
 
-
-
-        /* ===================== MATRIX OPERAND ===================== */
+        /* Matrix operand */
         if (strchr(operand_name, '[') != NULL)
         {
             char label_name[31];
@@ -169,9 +167,10 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
                 errors_found = 1;
             }
         }
-        /* ===================== DIRECT OPERAND ===================== */
+
+        /* Direct operand */
         else
-        {
+        {   
             /* First try to find a defined label with this name */
             label = is_label_defined(operand_name);
             if (label == NULL)
