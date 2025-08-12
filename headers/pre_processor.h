@@ -8,8 +8,8 @@
  * The end result is a new file that has all macro declarations removed and all macro calls replaced with their corresponding content,
  * providing a simplified file ready for further processing by the assembler.
  */
-#ifndef PRE_PROC_H
-#define PRE_PROC_H
+#ifndef PRE_PROCESSOR_H
+#define PRE_PROCESSOR_H
 
 
 /**

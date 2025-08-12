@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "error_handler.h"
 #include "utils.h"
-#include "pre_proc.h"
+#include "pre_processor.h"
 #include "first_pass.h"
 #include "definitions.h"
 
