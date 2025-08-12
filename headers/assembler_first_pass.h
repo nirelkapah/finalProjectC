@@ -8,8 +8,8 @@
  * that this label's address has not yet been coded and will need to be updated during the second pass.
  * This ensures that all label references are correctly handled later in the assembly process.
  */
-#ifndef FIRST_PASS_H
-#define FIRST_PASS_H
+#ifndef ASSEMBLER_FIRST_STAGE_H
+#define ASSEMBLER_FIRST_STAGE_H
 #include "utils.h"
 
 

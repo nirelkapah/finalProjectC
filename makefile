@@ -3,8 +3,8 @@ CC = gcc
 CFLAGS = -ansi -pedantic -Wall -Iheaders
 
 # Executable target
-assembler: assembler.o pre_processor.o macro_handler.o first_pass.o second_pass.o labels.o validator.o utils.o machine_code.o error_handler.o
-	$(CC) $(CFLAGS) assembler.o pre_processor.o macro_handler.o first_pass.o second_pass.o labels.o validator.o utils.o machine_code.o error_handler.o -o assembler
+assembler: assembler.o pre_processor.o macro_handler.o assembler_first_pass.o second_pass.o labels.o validator.o utils.o machine_code.o error_handler.o
+	$(CC) $(CFLAGS) assembler.o pre_processor.o macro_handler.o assembler_first_pass.o second_pass.o labels.o validator.o utils.o machine_code.o error_handler.o -o assembler
 
 # Object file rules
 assembler.o: source/assembler.c headers/error_handler.h headers/validator.h headers/utils.h headers/macro_handler.h headers/labels.h headers/machine_code.h headers/definitions.h
@@ -16,8 +16,8 @@ pre_processor.o: source/pre_processor.c headers/pre_processor.h headers/error_ha
 macro_handler.o: source/macro_handler.c headers/macro_handler.h headers/error_handler.h headers/definitions.h
 	$(CC) $(CFLAGS) -c source/macro_handler.c -o macro_handler.o
 
-first_pass.o: source/first_pass.c headers/first_pass.h headers/validator.h headers/error_handler.h headers/macro_handler.h headers/labels.h headers/utils.h headers/second_pass.h headers/definitions.h
-	$(CC) $(CFLAGS) -c source/first_pass.c -o first_pass.o
+assembler_first_pass.o: source/assembler_first_pass.c headers/assembler_first_pass.h headers/validator.h headers/error_handler.h headers/macro_handler.h headers/labels.h headers/utils.h headers/second_pass.h headers/definitions.h
+	$(CC) $(CFLAGS) -c source/assembler_first_pass.c -o assembler_first_pass.o
 
 second_pass.o: source/second_pass.c headers/second_pass.h headers/error_handler.h headers/validator.h headers/definitions.h
 	$(CC) $(CFLAGS) -c source/second_pass.c -o second_pass.o

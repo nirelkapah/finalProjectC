@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "first_pass.h"
+#include "assembler_first_pass.h"
 #include "validator.h"
 #include "error_handler.h"
 #include "macro_handler.h"

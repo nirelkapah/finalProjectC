@@ -2,7 +2,7 @@
 #include "error_handler.h"
 #include "utils.h"
 #include "pre_processor.h"
-#include "first_pass.h"
+#include "assembler_first_pass.h"
 #include "definitions.h"
 
 /**
