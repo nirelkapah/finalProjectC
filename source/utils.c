@@ -11,7 +11,7 @@
 #include <ctype.h>
 #include "utils.h"
 #include "error_handler.h"
-#include "macros.h"
+#include "macro_handler.h"
 #include "labels.h"
 #include "definitions.h"
 

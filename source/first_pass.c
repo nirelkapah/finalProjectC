@@ -11,7 +11,7 @@
 #include "first_pass.h"
 #include "validator.h"
 #include "error_handler.h"
-#include "macros.h"
+#include "macro_handler.h"
 #include "labels.h"
 #include "utils.h"
 #include "second_pass.h"

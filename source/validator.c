@@ -13,7 +13,7 @@
 #include "error_handler.h"
 #include "validator.h"
 #include "utils.h"
-#include "macros.h"
+#include "macro_handler.h"
 #include "labels.h"
 #include "machine_code.h"
 #include "definitions.h"

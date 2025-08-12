@@ -12,7 +12,7 @@
 #include "error_handler.h"
 #include "validator.h"
 #include "utils.h"
-#include "macros.h"
+#include "macro_handler.h"
 #include "definitions.h"
 
 int pre_processing(char *file_name) {

@@ -1,8 +1,8 @@
 /**
  * This is the macros header file.
  */
-#ifndef MACROS_H
-#define MACROS_H
+#ifndef MACRO_HANDLER_H
+#define MACRO_HANDLER_H
 
 /* Macro struct definition */
 typedef struct Macro {
