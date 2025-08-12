@@ -14,7 +14,7 @@
 #include "macro_handler.h"
 #include "labels.h"
 #include "utils.h"
-#include "second_pass.h"
+#include "assembler_second_pass.h"
 #include "definitions.h"
 
 int first_pass(char *file_name)

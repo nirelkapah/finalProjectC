@@ -7,8 +7,8 @@
  * If the operand label was defined during the first pass, its address is retrieved and updated in the instruction array.
  * This approach is efficient, as it avoids redundant file reading and directly addresses only the necessary updates.
  */
-#ifndef SECOND_PASS_H
-#define SECOND_PASS_H
+#ifndef ASSEMBLER_SECOND_PASS_H
+#define ASSEMBLER_SECOND_PASS_H
 
 /**
  * This function performs the second pass of the assembler.

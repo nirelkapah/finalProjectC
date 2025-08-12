@@ -7,7 +7,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "second_pass.h"
+#include "assembler_second_pass.h"
 #include "error_handler.h"
 #include "validator.h"
 #include "definitions.h"
