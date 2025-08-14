@@ -15,6 +15,53 @@
 #include "macro_handler.h"
 #include "definitions.h"
 
+/*
+ * Recursively writes expanded macro content into the output file.
+ * For each line in 'content', if the line (trimmed) is a macro name, it expands it recursively;
+ * otherwise, it writes the line as-is.
+ * @param file_am Output file pointer
+ * @param content The raw content of a macro (may contain multiple lines)
+ */
+static void write_expanded_content(FILE *file_am, char *content) {
+    char *buffer, *line, *next_line, *trimmed;
+    Macro *mp;
+
+    if (content == NULL || *content == '\0')
+        return;
+
+    /* Duplicate content so we can tokenize by newlines */
+    buffer = (char *)malloc(strlen(content) + 1);
+    if (buffer == NULL) {
+        log_system_error(Error_101);
+        return;
+    }
+    strcpy(buffer, content);
+
+    line = buffer;
+    while (line && *line) {
+        /* Find end of current line */
+        next_line = strchr(line, '\n');
+        if (next_line) {
+            *next_line = '\0';
+        }
+
+        trimmed = trim_whitespace(line);
+        if ((mp = is_macro_name(trimmed)) != NULL) {
+            /* Recursively expand nested macro */
+            write_expanded_content(file_am, mp->content);
+        } else {
+            fputs(line, file_am);
+            fputs("\n", file_am);
+        }
+
+        if (!next_line)
+            break;
+        line = next_line + 1;
+    }
+
+    free(buffer);
+}
+
 int pre_processing(char *file_name) {
     /* Getting the new file name */
     char *file_am_name = change_extension(file_name,".am");
@@ -57,7 +104,7 @@ int handle_macros(char *file_name, char *file_am_name) {
 
         /* Validating line length */
         if (line_length == MAX_SOURCE_LINE_LENGTH && line[MAX_SOURCE_LINE_LENGTH-1] != '\n') {
-            if (is_standalone_word(line,"macr") != 0) {
+            if (is_standalone_word(line,"mcro") != 0) {
                 if (macro_found == 0) {
                     macro_found = 1;
                 } else {
@@ -78,17 +125,16 @@ int handle_macros(char *file_name, char *file_am_name) {
         strcpy(copy,line);
         trimmed_line = trim_whitespace(line);  /* Trimming leading and trailing whitespace characters */
 
-        /* Writing the macro content into "file.am" if a macro call was detected */
-        if ((macro_ptr = is_macro_name(trimmed_line)) != NULL) {
+        /* Writing the macro content into "file.am" if a macro call was detected (only outside a declaration) */
+        if (macro_found == 0 && (macro_ptr = is_macro_name(trimmed_line)) != NULL) {
             if (errors_found == 0) {
-                fputs(macro_ptr->content,file_am);
-                fputs("\n",file_am);
+                write_expanded_content(file_am, macro_ptr->content);
             }
             continue;  /* Skipping to the next line */
         }
-        /* Checking if -endmacr- command had been reached */
+        /* Checking if -endmcro- command had been reached */
         if (macro_found == 1) {
-            if (is_standalone_word(trimmed_line,"endmacr") == 0) {  /* Writing the current line into macro content */
+            if (is_standalone_word(trimmed_line,"endmcro") == 0) {  /* Writing the current line into macro content */
                 if (name_is_valid == 1 && append_macro_content(copy) != 0) {  /* Indicates memory allocation failed */
                     fclose(file);
                     fclose(file_am);
@@ -121,7 +167,7 @@ int handle_macros(char *file_name, char *file_am_name) {
             continue;  /* Skipping to the next line */
         }
         /* Checking for a potential macro declaration */
-        if (is_standalone_word(trimmed_line,"macr") == 0) {
+        if (is_standalone_word(trimmed_line,"mcro") == 0) {
             if (errors_found == 0)
                 fputs(copy,file_am);  /* Copying line into "file.am" */
             continue;  /* Skipping to the next line */
@@ -173,7 +219,7 @@ char *valid_macro_decl(char *file_name, char *decl, int line_count) {
     char *macro_name;
 
     /* Checking if the first word is "macr" */
-            if (strncmp(decl,"macr",MACRO_START_LENGTH) == 0 && isspace(decl[MACRO_START_LENGTH])) {
+            if (strncmp(decl,"mcro",MACRO_START_LENGTH) == 0 && isspace(decl[MACRO_START_LENGTH])) {
             decl += MACRO_START_LENGTH;  /* Move the pointer to the next word */
         macro_name = trim_whitespace(decl);
 
