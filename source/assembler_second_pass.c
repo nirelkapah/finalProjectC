@@ -155,8 +155,8 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
                 }
                 else
                 {
-                    log_unique_error(Error_261, file_am_name,
-                                         operand_label->address + MEMORY_START_ADDRESS, label_name);
+                    log_syntax_error(Error_261, file_am_name,
+                                         operand_label->address + MEMORY_START_ADDRESS);
                     errors_found = 1;
                 }
             }
@@ -218,8 +218,8 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
             }
             else
             {
-                log_unique_error(Error_261, file_am_name,
-                                     operand_label->address + MEMORY_START_ADDRESS, operand_name);
+                log_syntax_error(Error_261, file_am_name,
+                                     operand_label->address + MEMORY_START_ADDRESS);
                 errors_found = 1;
             }
         }

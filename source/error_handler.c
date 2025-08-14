@@ -96,6 +96,3 @@ void log_syntax_error(int error_code, char *file_name, int line_num) {
     printf("ERROR (CODE_%d)  File \"%s\" at line %d | %s\n", error_code, file_name, line_num, find_error_msg(error_code));
 }
 
-void log_unique_error(int error_code, char *file_name, int line_num, char *word) {
-    printf("ERROR (CODE_%d)  File \"%s\" at line %d | \"%s\" | %s\n", error_code, file_name, line_num, word, find_error_msg(error_code));
-}

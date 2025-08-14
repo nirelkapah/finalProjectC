@@ -41,15 +41,4 @@ void log_system_error(int error_code);
 void log_syntax_error(int error_code,char *file_name,int line_num);
 
 
-/**
- * Prints a syntax error message including the file name, the line number and the specific error quoted.
- * @param error_code The code of the error to be printed.
- * @param file_name The name of the file where the error occurred.
- * @param line_num The line number where the error occurred.
- * @param word The word that caused the error.
- */
-
-void log_unique_error(int error_code, char *file_name, int line_num, char *word);
-
-
 #endif

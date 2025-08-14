@@ -95,9 +95,9 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
             *error_counter = 1;
             return 1; /* Indicates label name is not valid */
         }
-        log_unique_error(label_type == REGULAR ? Error_220 : label_type == OPERAND ? Error_253
+        log_syntax_error(label_type == REGULAR ? Error_220 : label_type == OPERAND ? Error_253
                                                                           : Error_236,
-                             context->file_am_name, context->line_num, label_identifier);
+                             context->file_am_name, context->line_num);
         *error_counter = 1;
         return 1; /* Indicates label name is not valid */
     }
@@ -121,9 +121,9 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
     /* Checking if the label name is a macro name */
     if (is_macro_name(label_identifier) != NULL)
     {
-        log_unique_error(label_type == REGULAR ? Error_215 : label_type == OPERAND ? Error_262
+        log_syntax_error(label_type == REGULAR ? Error_215 : label_type == OPERAND ? Error_262
                                                                           : Error_237,
-                             context->file_am_name, context->line_num, label_identifier);
+                             context->file_am_name, context->line_num);
         *error_counter = 1;
         return 1; /* Indicates label name is not valid */
     }
@@ -174,13 +174,13 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
         /* If this line was reached then label type is "REGULAR" */
         if (label->type == EXTERN)
         {
-            log_unique_error(Error_223, context->file_am_name, context->line_num, label_identifier);
+            log_syntax_error(Error_223, context->file_am_name, context->line_num);
             *error_counter = 1;
             return 1; /* Indicates label name is not valid */
         }
         if (label->type == REGULAR)
         {
-            log_unique_error(Error_218, context->file_am_name, context->line_num, label_identifier);
+            log_syntax_error(Error_218, context->file_am_name, context->line_num);
             *error_counter = 1;
             return 1; /* Indicates label name is not valid */
         }
@@ -280,7 +280,7 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
         }
         if (val < MIN_10_BIT_SIGNED_VALUE || val > MAX_10_BIT_SIGNED_VALUE)
         {
-            log_unique_error(Error_256, context->file_am_name, context->line_num, operand_text);
+            log_syntax_error(Error_256, context->file_am_name, context->line_num);
             *error_counter = 1;
             return -1;
         }
@@ -335,7 +335,7 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
         }
         if (parse_register_operand(operand_text) == -1)
         {
-            log_unique_error(Error_258, context->file_am_name, context->line_num, operand_text);
+            log_syntax_error(Error_258, context->file_am_name, context->line_num);
             *error_counter = 1;
             return -1;
         }

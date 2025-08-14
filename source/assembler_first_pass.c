@@ -209,7 +209,7 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     /* Handling special cases */
     if (is_macro_name(current_word) != NULL)
     {
-        log_unique_error(Error_224, line->file_am_name, line->line_num, current_word);
+        log_syntax_error(Error_224, line->file_am_name, line->line_num);
         *errors_found = 1;
         deallocate_memory(current_word);
         return;
@@ -230,14 +230,14 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     strcpy(temp + 1, current_word);
     if (identify_assembler_directive(temp) != -1)
     {
-        log_unique_error(Error_259, line->file_am_name, line->line_num, current_word);
+        log_syntax_error(Error_259, line->file_am_name, line->line_num);
         *errors_found = 1;
         deallocate_memory(temp);
         deallocate_memory(current_word);
         return;
     }
     deallocate_memory(temp);
-    log_unique_error(Error_260, line->file_am_name, line->line_num, current_word);
+    log_syntax_error(Error_260, line->file_am_name, line->line_num);
     *errors_found = 1;
     deallocate_memory(temp);
     deallocate_memory(current_word);
