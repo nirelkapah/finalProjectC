@@ -1,8 +1,8 @@
 /**
  * This is the machine code header file.
  */
-#ifndef MACHINE_CODE_H
-#define MACHINE_CODE_H
+#ifndef CODE_PR0CESSOR_H
+#define CODE_PR0CESSOR_H
 #include "utils.h"
 
 /**

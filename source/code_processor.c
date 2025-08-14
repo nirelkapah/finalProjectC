@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "machine_code.h"
+#include "code_processor.h"
 #include "error_handler.h"
 #include "validator.h"
 #include "labels.h"

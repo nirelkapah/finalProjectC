@@ -15,7 +15,7 @@
 #include "utils.h"
 #include "macro_handler.h"
 #include "labels.h"
-#include "machine_code.h"
+#include "code_processor.h"
 #include "definitions.h"
 
 /* Defining the opcodes */
