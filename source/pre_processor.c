@@ -129,6 +129,8 @@ int handle_macros(char *file_name, char *file_am_name) {
         if (macro_found == 0 && (macro_ptr = is_macro_name(trimmed_line)) != NULL) {
             if (errors_found == 0) {
                 write_expanded_content(file_am, macro_ptr->content);
+                /* Keep a blank line between separate macro expansions */
+                fputs("\n", file_am);
             }
             continue;  /* Skipping to the next line */
         }
