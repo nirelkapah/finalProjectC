@@ -59,9 +59,9 @@ entry LABEL
 unrecognizedCommand r1, r2
 
 ;Invalid operand, reserved words and macro names cannot be used as operands
-macr myMacro
+mcro myMacro
     add r1, r2
-endmacr
+endmcro
 mov myMacro, r3
 
 ;Label name is not a valid command

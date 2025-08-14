@@ -50,7 +50,7 @@ static void write_expanded_content(FILE *file_am, char *content) {
             /* Recursively expand nested macro */
             write_expanded_content(file_am, mp->content);
         } else {
-            fputs(line, file_am);
+            fputs(trimmed, file_am);
             fputs("\n", file_am);
         }
 
@@ -147,7 +147,7 @@ int handle_macros(char *file_name, char *file_am_name) {
                 }
                 continue;  /* Skipping to the next line */
             }
-            /* Handling -endmacr- command potential errors */
+            /* Handling -endmcro- command potential errors */
             if (strlen(trimmed_line) > MACRO_END_LENGTH) {
                 log_syntax_error(Error_208,file_name,line_count);
                 if (name_is_valid == 1)
@@ -220,7 +220,7 @@ int handle_macros(char *file_name, char *file_am_name) {
 char *valid_macro_decl(char *file_name, char *decl, int line_count) {
     char *macro_name;
 
-    /* Checking if the first word is "macr" */
+    /* Checking if the first word is "mcro" */
             if (strncmp(decl,"mcro",MACRO_START_LENGTH) == 0 && isspace(decl[MACRO_START_LENGTH])) {
             decl += MACRO_START_LENGTH;  /* Move the pointer to the next word */
         macro_name = trim_whitespace(decl);

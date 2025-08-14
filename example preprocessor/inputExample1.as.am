@@ -1,7 +1,0 @@
-; First example file with macro defining
-
-
-mov r1, r2
-PRINT_HELLO
-add r3, r4
-

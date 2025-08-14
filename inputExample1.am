@@ -2,6 +2,7 @@
 
 
 mov r1, r2
-PRINT_HELLO
+prn "Hello"
+
 add r3, r4
 

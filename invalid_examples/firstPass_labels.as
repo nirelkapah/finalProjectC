@@ -9,9 +9,9 @@ label_with_invalid_chars_@: add r2, r3
 labelWithNoValue:
 
 ;Invalid label declaration, a label name cannot be the same as a macro name
-macr myMacro
+mcro myMacro
     sub r1, r2
-endmacr
+endmcro
 myMacro: clr r3
 
 ;Invalid label declaration, an opcode name cannot be used as a label name
@@ -33,11 +33,11 @@ duplicateLabel: add r2, r3
 ;Invalid label declaration, label name must start with an alphabetical character
 1invalidLabelName: prn r6
 
-;Invalid label declaration, "macr" is a reserved word
-macr: stop
+;Invalid label declaration, "mcro" is a reserved word
+mcro: stop
 
-;Invalid label declaration, "endmacr" is a reserved word
-endmacr: rts
+;Invalid label declaration, "endmcro" is a reserved word
+endmcro: rts
 
 ;Invalid label declaration, local label name cannot be the same
 ;as an external label name

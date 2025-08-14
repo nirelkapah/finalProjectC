@@ -1,59 +1,59 @@
       Thisssssss lliiiinnneeeee iss wayyyyyyyy tooooo longgggggggggg      TTTTThissssss lliiiinnneeeeeeee isssss wayyyyyyyy tooooo lllllongggggggggggg!!!!!
 
 ;Invalid macro declaration, no name was defined
-macr
-endmacr
+mcro
+endmcro
 
-;Invalid macro declaration, "macr" command with extraneous text
-e macr macro_name
-endmacr
+;Invalid macro declaration, "mcro" command with extraneous text
+e mcro macro_name
+endmcro
 
 ;Invalid macro declaration, an opcode name cannot be used as a macro name
-macr mov
-endmacr
+mcro mov
+endmcro
 
 ;Invalid macro declaration, a register name cannot be used as a macro name
-macr r0
-endmacr
+mcro r0
+endmcro
 
 ;Invalid macro declaration, an instruction name cannot be used as a macro name
-macr .data
-endmacr
+mcro .data
+endmcro
 
 ;Invalid macro declaration, macro should be assigned with one name
-macr macro1 macro2
-endmacr
+mcro macro1 macro2
+endmcro
 
 ;Invalid macro declaration, this macro name is already in use
-macr mymacro
+mcro mymacro
     mov r1, r2
-endmacr
+endmcro
 
-macr mymacro
+mcro mymacro
     add r1, r3
-endmacr
+endmcro
 
-;Invalid macro declaration, "endmacr" command with extraneous text
-macr anothermacro
+;Invalid macro declaration, "endmcro" command with extraneous text
+mcro anothermacro
     sub r2, r4
-endmacr extra_text_here
+endmcro extra_text_here
 
 ;Invalid macro declaration, macro name is too long, 31 characters max
-macr thisMacroNameIsWayTooLongAndInvalid
+mcro thisMacroNameIsWayTooLongAndInvalid
     clr r5
-endmacr
+endmcro
 
 ;Invalid macro declaration, empty macro content
-macr emptyMacro
+mcro emptyMacro
 
-endmacr
+endmcro
 
-;Invalid macro declaration, "macr" is a reserved word
-macr macr
+;Invalid macro declaration, "mcro" is a reserved word
+mcro mcro
     inc r1
-endmacr
+endmcro
 
-;Invalid macro declaration, "endmacr" is a reserved word
-macr endmacr
+;Invalid macro declaration, "endmcro" is a reserved word
+mcro endmcro
     dec r2
-endmacr
+endmcro

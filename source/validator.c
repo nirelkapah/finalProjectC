@@ -394,7 +394,7 @@ int check_reserved_word_conflict(char *source_file, char *identifier, int line_n
                            source_file, line_number);
         return 1; /* Indicates the name is invalid */
     }
-    if (strcmp(identifier, "macr") == 0)
+    if (strcmp(identifier, "mcro") == 0)
     {
         if (strcmp(&source_file[len - FILE_EXTENSION_LENGTH], ".as") == 0 && identifier_type != OPERAND)
         { /* Indicates this is a macro name validation */
@@ -406,7 +406,7 @@ int check_reserved_word_conflict(char *source_file, char *identifier, int line_n
                            source_file, line_number);
         return 1; /* Indicates the name is invalid */
     }
-    if (strcmp(identifier, "endmacr") == 0)
+    if (strcmp(identifier, "endmcro") == 0)
     {
         if (strcmp(&source_file[len - FILE_EXTENSION_LENGTH], ".as") == 0 && identifier_type != OPERAND)
         { /* Indicates this is a macro name validation */

@@ -38,9 +38,9 @@
 .extern invalid_Label
 
 ;Instructions ".entry" and ".extern" label name cannot be the same as a macro
-macr myMacro
+mcro myMacro
     add r1, r2
-endmacr
+endmcro
 .entry myMacro
 .extern myMacro
 
