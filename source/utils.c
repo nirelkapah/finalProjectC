@@ -12,7 +12,7 @@
 #include "utils.h"
 #include "error_handler.h"
 #include "macro_handler.h"
-#include "labels.h"
+#include "labels_handler.h"
 #include "definitions.h"
 
 /* Defining the head of the memory-nodes linked list */

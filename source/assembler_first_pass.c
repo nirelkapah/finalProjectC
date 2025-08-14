@@ -12,7 +12,7 @@
 #include "validator.h"
 #include "error_handler.h"
 #include "macro_handler.h"
-#include "labels.h"
+#include "labels_handler.h"
 #include "utils.h"
 #include "assembler_second_pass.h"
 #include "definitions.h"

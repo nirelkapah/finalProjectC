@@ -4,7 +4,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include <stdio.h>
-#include "labels.h"
+#include "labels_handler.h"
 
 /* Memory node struct definition */
 typedef struct Mem_Node {

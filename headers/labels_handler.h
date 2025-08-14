@@ -2,8 +2,8 @@
  * This is the labels header file.
  */
 
-#ifndef LABELS_H
-#define LABELS_H
+#ifndef LABELS_HANDLER_H
+#define LABELS_HANDLER_H
 
 /* Type enum definition */
 typedef enum Type {

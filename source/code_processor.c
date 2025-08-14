@@ -9,7 +9,7 @@
 #include "code_processor.h"
 #include "error_handler.h"
 #include "validator.h"
-#include "labels.h"
+#include "labels_handler.h"
 #include "macro_handler.h"
 #include "utils.h"
 #include "definitions.h"
