@@ -83,6 +83,7 @@ int handle_macros(char *file_name, char *file_am_name) {
     int errors_found = 0 , macro_found = 0, line_count = 0, name_is_valid = 0, decl_line, line_length, ch;
     FILE *file, *file_am;
     Macro *macro_ptr;
+    int last_line_blank = 1; /* Track whether the last written output line was blank */
 
     file = fopen(file_name,"r");
     if (file == NULL) {  /* Failed to open file for reading */
@@ -118,8 +119,10 @@ int handle_macros(char *file_name, char *file_am_name) {
         }
         /* Skipping to the next line if the current line is a comment */
         if (*line == SEMICOLON) {
-            if (errors_found == 0)
+            if (errors_found == 0) {
                 fputs(line,file_am);  /* Copying line into "file.am" */
+                last_line_blank = 0;  /* A comment line is not blank */
+            }
             continue;  /* Skipping to the next line */
         }
         strcpy(copy,line);
@@ -128,9 +131,14 @@ int handle_macros(char *file_name, char *file_am_name) {
         /* Writing the macro content into "file.am" if a macro call was detected (only outside a declaration) */
         if (macro_found == 0 && (macro_ptr = is_macro_name(trimmed_line)) != NULL) {
             if (errors_found == 0) {
+                /* Ensure a blank line BEFORE the expanded macro content if previous line wasn't blank */
+                if (!last_line_blank) {
+                    fputs("\n", file_am);
+                }
                 write_expanded_content(file_am, macro_ptr->content);
-                /* Keep a blank line between separate macro expansions */
+                /* Keep a blank line after the expanded macro content */
                 fputs("\n", file_am);
+                last_line_blank = 1;
             }
             continue;  /* Skipping to the next line */
         }
@@ -170,8 +178,11 @@ int handle_macros(char *file_name, char *file_am_name) {
         }
         /* Checking for a potential macro declaration */
         if (is_standalone_word(trimmed_line,"mcro") == 0) {
-            if (errors_found == 0)
+            if (errors_found == 0) {
                 fputs(copy,file_am);  /* Copying line into "file.am" */
+                /* Update blank-line state based on whether this line is empty after trimming */
+                last_line_blank = (trimmed_line[0] == '\0');
+            }
             continue;  /* Skipping to the next line */
         }
         /* If this line had been reached then a macro declaration was found */
