@@ -1,0 +1,9 @@
+; First example file with macro defining
+
+
+mov r1, r2
+
+prn "Hello"
+
+add r3, r4
+

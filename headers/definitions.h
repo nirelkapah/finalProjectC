@@ -4,67 +4,71 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
-/* Constants */
-#define EXTENSION_LEN 3
-#define MAX_LINE_LENGTH 81
-#define MAX_MACRO_LENGTH 31
-#define MAX_LABEL_LENGTH 31
-#define OPCODES_COUNT 16
-#define REGISTERS_COUNT 8
-#define INSTRUCTIONS_COUNT 5
-#define MACR_LENGTH 4
-#define ENDMACR_LENGTH 7
-#define CAPACITY 256
-#define STARTING_ADDRESS 100
-#define DECIMAL_BASE 10
-#define BIT_MASK 1
-#define TWO 2
-#define SHIFT_OPCODE_POS 6
-#define SHIFT_SRC_OPERAND 4
-#define SHIFT_DST_OPERAND 2
-#define SHIFT_IMMEDIATE_VALUE 2 /* Bits 9-2 for immediate values */
-#define SHIFT_SRC_REGISTER 6
-#define SHIFT_DST_REGISTER 2
-#define BIT_MASK_EXTERNAL 1
-#define BIT_MASK_RELOCATABLE 2
-#define BIT_MASK_SIGNAL 3 /* Bits 0 for "External" and 1 for "Relocatable" to signal an uncoded label */
-#define BIT_ABSOLUTE_FLAG 0 /* Absolute encoding: 00 */
-#define MASK_10BIT 0x3FF
-#define MASK_8BIT 0xFF
-#define MASK_4BIT 0xF
-#define MASK_12BIT 0xFFF
-#define MAX_10BIT 511     /* Max number for a 10 bit 2's complement representation */
-#define MIN_10BIT (-512)  /* Min number for a 10 bit 2's complement representation */
-#define MAX_12BIT 2047    /* Max number for a 12 bit 2's complement representation */
-#define MIN_12BIT (-2048) /* Min number for a 12 bit 2's complement representation */
+/* File and line constraints */
+#define FILE_EXTENSION_LENGTH 3
+#define MAX_SOURCE_LINE_LENGTH 81
+#define MAX_MACRO_NAME_LENGTH 31
+#define MAX_LABEL_NAME_LENGTH 31
 
-/* Address and register limits (positive only) */
-#define MAX_ADDRESS 255   /* Max memory address (0-255) */
-#define MIN_ADDRESS 0     /* Min memory address */
-#define MAX_REGISTER 7    /* Max register number (r0-r7) */
-#define MIN_REGISTER 0    /* Min register number */
-#define BUFFER_SIZE 20    /* Sufficient size to temporarily store the string representation of an integer */
-#define MAX_DATA_NUM 38   /* The max amount of numbers possible for a line of ".data" instruction, considering commas and max characters per line */
-#define DOT '.'
-#define HASH '#'
-#define PLUS '+'
-#define MINUS '-'
-#define COLON ':'
-#define COMMA ','
-#define COMMENT ';'
-#define ASTERISK '*'
-#define DOUBLE_QUOTE '\"'
-#define NULL_TERMINATOR '\0'
+/* Counts and capacities */
+#define TOTAL_OPCODES 16
+#define TOTAL_REGISTERS 8
+#define TOTAL_INSTRUCTION_TYPES 5
+#define MAX_ARRAY_CAPACITY 256
 
-/* === Operand word encoding === */
-#define OPERAND_ADDR_SHIFT 2 /* bits 2–9 for addresses */
+/* Address and numeric constants */
+#define MEMORY_START_ADDRESS 100
+#define BASE_10 10
+#define BINARY_BASE 2
 
-/* === Matrix second word encoding === */
-#define MATRIX_ROW_SHIFT 6 /* bits 6–9 for row register */
-#define MATRIX_COL_SHIFT 2 /* bits 2–5 for column register */
+/* Bit manipulation and masks */
+#define SINGLE_BIT_MASK 1
+#define MASK_10_BITS 0x3FF
+#define MASK_8_BITS 0xFF
+#define MASK_4_BITS 0xF
 
-/* === ARE values === */
-#define ARE_ABSOLUTE 0
+/* Bit shift positions for instruction encoding */
+#define OPCODE_SHIFT_POSITION 6
+#define SOURCE_OPERAND_SHIFT_POSITION 4
+#define DESTINATION_OPERAND_SHIFT_POSITION 2
+#define IMMEDIATE_VALUE_SHIFT_POSITION 2
+#define SOURCE_REGISTER_SHIFT_POSITION 6
+#define DESTINATION_REGISTER_SHIFT_POSITION 2
+
+/* Address Relocation Encoding (ARE) values */
 #define ARE_EXTERNAL 1
 #define ARE_RELOCATABLE 2
+#define ARE_PLACEHOLDER_SIGNAL 3
+#define ARE_ABSOLUTE 0
+
+/* Numeric range limits */
+#define MAX_10_BIT_SIGNED_VALUE 511
+#define MIN_10_BIT_SIGNED_VALUE (-512)
+#define MAX_REGISTER_NUMBER 7
+#define MIN_REGISTER_NUMBER 0
+
+/* Buffer and data constraints */
+#define INTEGER_STRING_BUFFER_SIZE 20
+#define MAX_DATA_VALUES_PER_LINE 38
+
+/* Macro processing */
+#define MACRO_START_LENGTH 4
+#define MACRO_END_LENGTH 7
+
+/* Matrix encoding */
+#define MATRIX_ROW_REGISTER_SHIFT 6
+#define MATRIX_COLUMN_REGISTER_SHIFT 2
+
+/* Character constants */
+#define PERIOD '.'
+#define POUND_SIGN '#'
+#define PLUS_SIGN '+'
+#define MINUS_SIGN '-'
+#define COLON_SIGN ':'
+#define COMMA_SIGN ','
+#define SEMICOLON ';'
+#define ASTERISK_SIGN '*'
+#define QUOTATION_MARK '\"'
+#define STRING_TERMINATOR '\0'
+
 #endif

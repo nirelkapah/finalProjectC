@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include "errors.h"
-#include "utility.h"
-#include "pre_proc.h"
-#include "first_pass.h"
+#include "error_handler.h"
+#include "utils.h"
+#include "pre_processor.h"
+#include "assembler_first_pass.h"
 #include "definitions.h"
 
 /**
@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
     FILE *file;
     char *file_name;
 
-    if (argc < TWO) {  /* Checking if no files were entered */
-        print_system_error(Error_0);
+    if (argc < BINARY_BASE) {  /* Checking if no files were entered */
+        log_system_error(Error_100);
         return 1;  /* Indicates faliure */
     }
     /* Scanning files */
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
             printf("Process terminated\n");
             continue;  /* Skipping to the next file */
         }
-        printf("Process ended\n");
+        printf("--- Process ended successfully ---\n");
         free_all_memory();
     }
     return 0;  /* Indicates success */

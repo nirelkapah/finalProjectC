@@ -1,0 +1,246 @@
+/**
+ * This is the pre-processing file, which is the initial step in the assembler process.
+ * This file handles scanning and storing of macros while checking for declaration errors.
+ * If no errors are detected, a new output file is created, where all macro calls are replaced
+ * with their corresponding content, and all of the original macro declarations are removed.
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include "pre_processor.h"
+#include "error_handler.h"
+#include "validator.h"
+#include "utils.h"
+#include "macro_handler.h"
+#include "definitions.h"
+
+/*
+ * Recursively writes expanded macro content into the output file.
+ * For each line in 'content', if the line (trimmed) is a macro name, it expands it recursively;
+ * otherwise, it writes the line as-is.
+ * @param file_am Output file pointer
+ * @param content The raw content of a macro (may contain multiple lines)
+ */
+static void write_expanded_content(FILE *file_am, char *content) {
+    char *buffer, *line, *next_line, *trimmed;
+    Macro *mp;
+
+    if (content == NULL || *content == '\0')
+        return;
+
+    /* Duplicate content so we can tokenize by newlines */
+    buffer = (char *)malloc(strlen(content) + 1);
+    if (buffer == NULL) {
+        log_system_error(Error_101);
+        return;
+    }
+    strcpy(buffer, content);
+
+    line = buffer;
+    while (line && *line) {
+        /* Find end of current line */
+        next_line = strchr(line, '\n');
+        if (next_line) {
+            *next_line = '\0';
+        }
+
+        trimmed = trim_whitespace(line);
+        if ((mp = is_macro_name(trimmed)) != NULL) {
+            /* Recursively expand nested macro */
+            write_expanded_content(file_am, mp->content);
+        } else {
+            fputs(trimmed, file_am);
+            fputs("\n", file_am);
+        }
+
+        if (!next_line)
+            break;
+        line = next_line + 1;
+    }
+
+    free(buffer);
+}
+
+int pre_processing(char *file_name) {
+    /* Getting the new file name */
+    char *file_am_name = change_extension(file_name,".am");
+
+    /* Handling all macro calls and declarations */
+    if (handle_macros(file_name,file_am_name) != 0) {
+        free_macros();
+        free_all_memory();
+        return 1;  /* Indicates faliure */
+    }
+    deallocate_memory(file_am_name);
+    printf("--- Pre-processing Stage passed successfully ---\n");
+    return 0;  /* Indicates success */
+}
+
+int handle_macros(char *file_name, char *file_am_name) {
+    char *macro_name, *trimmed_line;
+    char line[MAX_SOURCE_LINE_LENGTH+1], copy[MAX_SOURCE_LINE_LENGTH+1];  /* +1 to accommodate '\0' */
+    int errors_found = 0 , macro_found = 0, line_count = 0, name_is_valid = 0, decl_line, line_length, ch;
+    FILE *file, *file_am;
+    Macro *macro_ptr;
+    int last_line_blank = 1; /* Track whether the last written output line was blank */
+
+    file = fopen(file_name,"r");
+    if (file == NULL) {  /* Failed to open file for reading */
+        log_system_error(Error_103);
+        free_all_memory();
+        exit(1);  /* Exiting program */
+    }
+    file_am = fopen(file_am_name,"w");
+    if (file_am == NULL) {  /* Failed to open file for writing */
+        log_system_error(Error_104);
+        fclose(file);
+        free_all_memory();
+        exit(1);  /* Exiting program */
+    }
+    /* Reading line by line */
+    while (fgets(line,MAX_SOURCE_LINE_LENGTH+1,file)) {
+        line_count++;
+        line_length = strlen(line);
+
+        /* Validating line length */
+        if (line_length == MAX_SOURCE_LINE_LENGTH && line[MAX_SOURCE_LINE_LENGTH-1] != '\n') {
+            if (is_standalone_word(line,"mcro") != 0) {
+                if (macro_found == 0) {
+                    macro_found = 1;
+                } else {
+                    macro_found = 0;
+                }
+            }
+            log_syntax_error(Error_201,file_name,line_count);
+            errors_found = 1;
+            while ((ch = fgetc(file)) != '\n' && ch != EOF);  /* Clearing the rest of the line from the buffer */
+            continue;  /* Skipping to the next line */
+        }
+        /* Skipping to the next line if the current line is a comment */
+        if (*line == SEMICOLON) {
+            if (errors_found == 0) {
+                fputs(line,file_am);  /* Copying line into "file.am" */
+                last_line_blank = 0;  /* A comment line is not blank */
+            }
+            continue;  /* Skipping to the next line */
+        }
+        strcpy(copy,line);
+        trimmed_line = trim_whitespace(line);  /* Trimming leading and trailing whitespace characters */
+
+        /* Writing the macro content into "file.am" if a macro call was detected (only outside a declaration) */
+        if (macro_found == 0 && (macro_ptr = is_macro_name(trimmed_line)) != NULL) {
+            if (errors_found == 0) {
+                /* Ensure a blank line BEFORE the expanded macro content if previous line wasn't blank */
+                if (!last_line_blank) {
+                    fputs("\n", file_am);
+                }
+                write_expanded_content(file_am, macro_ptr->content);
+                /* Keep a blank line after the expanded macro content */
+                fputs("\n", file_am);
+                last_line_blank = 1;
+            }
+            continue;  /* Skipping to the next line */
+        }
+        /* Checking if -endmcro- command had been reached */
+        if (macro_found == 1) {
+            if (is_standalone_word(trimmed_line,"endmcro") == 0) {  /* Writing the current line into macro content */
+                if (name_is_valid == 1 && append_macro_content(copy) != 0) {  /* Indicates memory allocation failed */
+                    fclose(file);
+                    fclose(file_am);
+                    delete_file(file_am_name);
+                    free_macros();
+                    free_all_memory();
+                    exit(1);  /* Exiting program */
+                }
+                continue;  /* Skipping to the next line */
+            }
+            /* Handling -endmcro- command potential errors */
+            if (strlen(trimmed_line) > MACRO_END_LENGTH) {
+                log_syntax_error(Error_208,file_name,line_count);
+                if (name_is_valid == 1)
+                    remove_last_macro();
+                errors_found = 1;
+                macro_found = 0;
+                name_is_valid = 0;
+                continue;  /* Skipping to the next line */
+            }
+            if (name_is_valid == 1) {  /* Checking if content is empty */
+                if (get_last_macro()->content == NULL || strlen(trim_whitespace(get_last_macro()->content)) == 0) {
+                    log_syntax_error(Error_209,file_name,line_count);
+                    remove_last_macro();
+                    errors_found = 1;
+                }
+            }
+            name_is_valid = 0;
+            macro_found = 0;
+            continue;  /* Skipping to the next line */
+        }
+        /* Checking for a potential macro declaration */
+        if (is_standalone_word(trimmed_line,"mcro") == 0) {
+            if (errors_found == 0) {
+                fputs(copy,file_am);  /* Copying line into "file.am" */
+                /* Update blank-line state based on whether this line is empty after trimming */
+                last_line_blank = (trimmed_line[0] == '\0');
+            }
+            continue;  /* Skipping to the next line */
+        }
+        /* If this line had been reached then a macro declaration was found */
+        macro_found = 1;
+        decl_line = line_count;
+
+        /* Validating the macro declaration */
+        if (strlen(trimmed_line) > MACRO_START_LENGTH) {
+            macro_name = valid_macro_decl(file_name,trimmed_line,line_count);
+            if (macro_name) {
+                if (is_macro_name(macro_name) != NULL) {  /* Checking if the name had already been defined */
+                    log_syntax_error(Error_207,file_name,line_count);
+                    errors_found = 1;
+                    name_is_valid = 0;
+                    continue;  /* Skipping to the next line */
+                }
+                /* Adding a new macro to the linked list */
+                if (add_macro(macro_name,decl_line) != 0) {  /* Indicates memory allocation failed */
+                    fclose(file);
+                    fclose(file_am);
+                    delete_file(file_am_name);
+                    free_macros();
+                    free_all_memory();
+                    exit(1);  /* Exiting program */
+                }
+            } else {
+                errors_found = 1;
+                continue;  /* Skipping to the next line */
+            }
+        } else {
+            log_syntax_error(Error_202,file_name,line_count);
+            errors_found = 1;
+            macro_found = 1;
+            name_is_valid = 0;
+            continue;  /* Skipping to the next line */
+        }
+        name_is_valid = 1;
+    }
+    fclose(file);
+    fclose(file_am);
+    if (errors_found != 0)
+        delete_file(file_am_name);
+    return errors_found;
+}
+
+char *valid_macro_decl(char *file_name, char *decl, int line_count) {
+    char *macro_name;
+
+    /* Checking if the first word is "mcro" */
+            if (strncmp(decl,"mcro",MACRO_START_LENGTH) == 0 && isspace(decl[MACRO_START_LENGTH])) {
+            decl += MACRO_START_LENGTH;  /* Move the pointer to the next word */
+        macro_name = trim_whitespace(decl);
+
+        if(validate_macro_identifier(file_name,macro_name,line_count) != 0)  /* Validating macro name */
+           return NULL;  /* Indicates faliure */
+    } else {
+        log_syntax_error(Error_203,file_name,line_count);
+        return NULL;  /* Indicates faliure */
+    }
+    return macro_name;
+}

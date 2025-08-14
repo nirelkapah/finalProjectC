@@ -1,0 +1,10 @@
+; Second input example file with 2 scenerios of macro defining
+
+
+
+inc r0
+
+dec r1
+inc r0
+
+
