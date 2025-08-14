@@ -112,6 +112,23 @@ void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, 
     }
     curr_word_len = strlen(current_word);
 
+    /* Enforce no space before ':' in label definition: detect pattern "NAME  :" */
+    if (current_word[curr_word_len - 1] != COLON_SIGN)
+    {
+        char *p = line->content;
+        /* Skip the first token just parsed */
+        while (*p && !isspace((unsigned char)*p)) p++;
+        while (*p && isspace((unsigned char)*p)) p++;
+        if (*p == COLON_SIGN)
+        {
+            /* Found colon separated by spaces -> error */
+            log_syntax_error(Error_214, line->file_am_name, line->line_num);
+            *errors_found = 1;
+            deallocate_memory(current_word);
+            return;
+        }
+    }
+
     /* Checking for a potential label definition */
     if (current_word[curr_word_len - 1] == COLON_SIGN)
     {

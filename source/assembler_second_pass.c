@@ -104,7 +104,51 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
             int col_reg = 0;
             int parsed;
 
-            parsed = sscanf(operand_name, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg_str, col_reg_str);
+            /* Disallow spaces between consecutive brackets: "]  [" */
+            {
+                const char *p = operand_name;
+                while ((p = strchr(p, ']')) != NULL)
+                {
+                    const char *q = p + 1;
+                    while (*q && isspace((unsigned char)*q)) q++;
+                    if (*q == '[')
+                    {
+                        if (q != p + 1)
+                        {
+                            log_syntax_error(Error_251, file_am_name,
+                                             operand_label->address + MEMORY_START_ADDRESS);
+                            errors_found = 1;
+                            /* Move to next label */
+                            remove_label(operand_label);
+                            i++; j++;
+                            continue; /* process next */
+                        }
+                    }
+                    p = q;
+                }
+            }
+
+            /* Parse using a cleaned copy without spaces so that M1[2 ][ 5] works */
+            {
+                size_t len = strlen(operand_name);
+                char *clean = (char *)allocate_memory(len + 1);
+                size_t a = 0, b = 0;
+                if (clean == NULL)
+                {
+                    free_labels();
+                    free_all_memory();
+                    exit(1);
+                }
+                for (; a < len; a++)
+                {
+                    if (!isspace((unsigned char)operand_name[a]))
+                        clean[b++] = operand_name[a];
+                }
+                clean[b] = '\0';
+
+                parsed = sscanf(clean, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg_str, col_reg_str);
+                deallocate_memory(clean);
+            }
             if (parsed == 3)
             {
 

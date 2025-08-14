@@ -48,6 +48,63 @@ InstructionDefinition *retrieve_instruction_set()
     return OPCODES;
 }
 
+/*
+ * Internal helpers for tolerant operand parsing
+ * - Allow spaces inside matrix brackets and around commas
+ * - Still treat content outside operands as extraneous text
+ */
+static const char *skip_spaces_const(const char *p)
+{
+    while (p && *p && isspace((unsigned char)*p)) p++;
+    return p;
+}
+
+static char *trim_copy_range(const char *start, const char *end)
+{
+    /* Trim leading/trailing spaces in [start,end) and return allocated copy */
+    const char *s = start;
+    const char *e = end;
+    while (s < e && isspace((unsigned char)*s)) s++;
+    while (e > s && isspace((unsigned char)*(e - 1))) e--;
+    {
+        size_t len = (size_t)(e - s);
+        char *out = (char *)allocate_memory(len + 1);
+        size_t i;
+        if (out == NULL)
+            return NULL;
+        for (i = 0; i < len; i++) out[i] = s[i];
+        out[len] = '\0';
+        return out;
+    }
+}
+
+/* Extract next operand token respecting bracket nesting; sets *out_next to position after comma or end */
+static char *extract_operand_token(const char *p, const char **out_next)
+{
+    const char *q;
+    int depth = 0;
+    p = skip_spaces_const(p);
+    if (*p == '\0') { if (out_next) *out_next = p; return NULL; }
+    q = p;
+    while (*q)
+    {
+        if (*q == '[') depth++;
+        else if (*q == ']') { if (depth > 0) depth--; }
+        else if (*q == COMMA_SIGN && depth == 0)
+            break;
+        q++;
+    }
+    /* q points at comma or string terminator */
+    {
+        char *tok = trim_copy_range(p, q);
+        if (out_next)
+        {
+            if (*q == COMMA_SIGN) *out_next = q + 1; else *out_next = q;
+        }
+        return tok; /* may be empty string if only spaces; caller validates */
+    }
+}
+
 int validate_macro_identifier(char *source_file, char *macro_identifier, int line_number)
 {
     /* Checking if there is more than one name */
@@ -287,35 +344,70 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
         return IMMEDIATE;
     }
 
-    /* Matrix addressing (LABEL[rX][rY]) */
+    /* Matrix addressing (LABEL[rX][rY]) - allow spaces inside brackets but not between "] [" */
     if (strchr(operand_text, '[') && strchr(operand_text, ']'))
     {
-        /* Quick validation: ensure there are two register references inside [] */
-        char label_name[31], row_reg[5], col_reg[5];
-        if (sscanf(operand_text, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg, col_reg) == 3)
+        /* Detect illegal spaces between consecutive brackets: "]  [" */
         {
-            int row_num, col_num;
-            /* Basic check: row and column must be valid registers */
-            if ((row_reg[0] == 'r' || row_reg[0] == 'R') &&
-                (col_reg[0] == 'r' || col_reg[0] == 'R'))
+            const char *p = operand_text;
+            while ((p = strchr(p, ']')) != NULL)
             {
-                /* Check if registers are in valid range (0-7) */
-                row_num = row_reg[1] - '0';
-                col_num = col_reg[1] - '0';
-                if (row_num < MIN_REGISTER_NUMBER || row_num > MAX_REGISTER_NUMBER ||
-                    col_num < MIN_REGISTER_NUMBER || col_num > MAX_REGISTER_NUMBER)
+                const char *q = p + 1;
+                while (*q && isspace((unsigned char)*q)) q++;
+                if (*q == '[')
                 {
-                    log_syntax_error(Error_251, context->file_am_name, context->line_num);
-                    *error_counter = 1;
-                    return -1;
+                    if (q != p + 1) /* there were spaces between ] and [ */
+                    {
+                        log_syntax_error(Error_251, context->file_am_name, context->line_num);
+                        *error_counter = 1;
+                        return -1;
+                    }
                 }
-                return MATRIX;
+                p = q;
             }
-            else
+        }
+
+        /* Build a cleaned copy without spaces to simplify parsing */
+        {
+            size_t len = strlen(operand_text);
+            char *clean = (char *)allocate_memory(len + 1);
+            size_t i = 0, j = 0;
+            if (clean == NULL)
             {
-                log_syntax_error(Error_251, context->file_am_name, context->line_num);
-                *error_counter = 1;
-                return -1;
+                fclose(context->file);
+                free_line(context);
+                exit(1);
+            }
+            for (; i < len; i++)
+            {
+                if (!isspace((unsigned char)operand_text[i]))
+                    clean[j++] = operand_text[i];
+            }
+            clean[j] = '\0';
+
+            /* Now parse strictly without spaces */
+            {
+                char label_name[31], row_reg[5], col_reg[5];
+                int parsed = sscanf(clean, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg, col_reg);
+                if (parsed == 3)
+                {
+                    int row_num = -1, col_num = -1;
+                    if ((row_reg[0] == 'r' || row_reg[0] == 'R') && isdigit((unsigned char)row_reg[1]))
+                        row_num = row_reg[1] - '0';
+                    if ((col_reg[0] == 'r' || col_reg[0] == 'R') && isdigit((unsigned char)col_reg[1]))
+                        col_num = col_reg[1] - '0';
+                    if (row_num < MIN_REGISTER_NUMBER || row_num > MAX_REGISTER_NUMBER ||
+                        col_num < MIN_REGISTER_NUMBER || col_num > MAX_REGISTER_NUMBER)
+                    {
+                        log_syntax_error(Error_251, context->file_am_name, context->line_num);
+                        *error_counter = 1;
+                        deallocate_memory(clean);
+                        return -1;
+                    }
+                    deallocate_memory(clean);
+                    return MATRIX;
+                }
+                deallocate_memory(clean);
             }
         }
         log_syntax_error(Error_251, context->file_am_name, context->line_num);
@@ -839,8 +931,8 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
 
 void generate_instruction_machine_code(unsigned short *instruction_segment, int *memory_usage, int *instruction_counter, Line *context, char *operand_list, int instruction_index, int *error_counter)
 {
-    char *opernad, *second_operand, *comma_pos;
-    int operands_num = OPCODES[instruction_index].operand_count, length, method, method_2;
+    char *opernad, *second_operand;
+    int operands_num = OPCODES[instruction_index].operand_count, method, method_2;
     unsigned short word = 0;
             word |= (instruction_index << OPCODE_SHIFT_POSITION) | ARE_ABSOLUTE;
 
@@ -857,145 +949,118 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
         add_instruction(instruction_segment, memory_usage, instruction_counter, word, error_counter); /* Adding machine code */
         return;                                                    /* Scanning line finished */
     case 1:
-        if (operand_list[0] == STRING_TERMINATOR)
-        { /* Checking if there is a missing operand */
-            log_syntax_error(Error_241, context->file_am_name, context->line_num);
-            *error_counter = 1;
-            return; /* Scanning line finished */
+        {
+            const char *next;
+            operand_list = (char *)skip_spaces_const(operand_list);
+            if (*operand_list == STRING_TERMINATOR)
+            { /* missing operand */
+                log_syntax_error(Error_241, context->file_am_name, context->line_num);
+                *error_counter = 1;
+                return;
+            }
+            if (*operand_list == COMMA_SIGN)
+            { /* illegal leading comma */
+                log_syntax_error(Error_244, context->file_am_name, context->line_num);
+                *error_counter = 1;
+                return;
+            }
+            opernad = extract_operand_token(operand_list, &next);
+            if (opernad == NULL || opernad[0] == STRING_TERMINATOR)
+            { /* empty token */
+                log_syntax_error(Error_241, context->file_am_name, context->line_num);
+                *error_counter = 1;
+                if (opernad) deallocate_memory(opernad);
+                return;
+            }
+            next = skip_spaces_const(next);
+            if (*next != STRING_TERMINATOR)
+            { /* extraneous text beyond operand */
+                log_syntax_error(Error_243, context->file_am_name, context->line_num);
+                *error_counter = 1;
+                deallocate_memory(opernad);
+                return;
+            }
+            method = determine_operand_addressing_mode(opernad, context, error_counter);
         }
-        while (*operand_list && isspace(*operand_list)) /* Skipping leading whitespace */
-            operand_list++;
-
-        if (operand_list[0] == COMMA_SIGN)
-        { /* Checking if there is an illegal comma */
-            log_syntax_error(Error_244, context->file_am_name, context->line_num);
-            *error_counter = 1;
-            return; /* Scanning line finished */
-        }
-        if (contains_whitespace(operand_list) || strchr(operand_list, COMMA_SIGN) != NULL)
-        { /* Checking for extraneous text */
-            log_syntax_error(Error_243, context->file_am_name, context->line_num);
-            *error_counter = 1;
-            return; /* Scanning line finished */
-        }
-        /* Checking if the addressing method is legal */
-        method = determine_operand_addressing_mode(operand_list, context, error_counter);
         if (method == -1)
         {
+            deallocate_memory(opernad);
             return; /* Scanning line finished */
         }
         if (validate_addressing_mode_compatibility(context, method, instruction_index, operands_num, error_counter) != 0)
         {
+            deallocate_memory(opernad);
             return; /* Scanning line finished */
         }
-        process_one_operand(instruction_segment, memory_usage, instruction_counter, context, method, operand_list, instruction_index, error_counter);
+        process_one_operand(instruction_segment, memory_usage, instruction_counter, context, method, opernad, instruction_index, error_counter);
+        deallocate_memory(opernad);
         return; /* Scanning line finished */
     case 2:
-        if (operand_list[0] == STRING_TERMINATOR)
-        { /* Checking if there are missing operands */
-            log_syntax_error(Error_242, context->file_am_name, context->line_num);
-            *error_counter = 1;
-            return; /* Scanning line finished */
-        }
-        while (*operand_list && isspace(*operand_list)) /* Skipping leading whitespace */
-            operand_list++;
-
-        if (operand_list[0] == COMMA_SIGN)
-        { /* Checking if there is an illegal comma */
-            log_syntax_error(Error_244, context->file_am_name, context->line_num);
-            *error_counter = 1;
-            return; /* Scanning line finished */
-        }
-        opernad = get_first_word(operand_list);
-        if (opernad == NULL)
-        { /* Indicates memory allocation failed (all the other allocations were freed inside function) */
-            fclose(context->file);
-            free_line(context);
-            exit(1); /* Exiting program */
-        }
-        length = strlen(opernad);
-
-        comma_pos = strchr(opernad, COMMA_SIGN);
-        if (comma_pos != NULL)
-        { /* If a comma was found, spliting the string into two opernads */
-            if (comma_pos - opernad == strlen(opernad) - 1 && operand_list[length] == STRING_TERMINATOR)
+        {
+            const char *next;
+            const char *after_first;
+            operand_list = (char *)skip_spaces_const(operand_list);
+            if (*operand_list == STRING_TERMINATOR)
+            { /* missing both operands */
+                log_syntax_error(Error_242, context->file_am_name, context->line_num);
+                *error_counter = 1;
+                return;
+            }
+            if (*operand_list == COMMA_SIGN)
+            { /* illegal leading comma */
+                log_syntax_error(Error_244, context->file_am_name, context->line_num);
+                *error_counter = 1;
+                return;
+            }
+            opernad = extract_operand_token(operand_list, &next);
+            if (opernad == NULL || opernad[0] == STRING_TERMINATOR)
             {
                 log_syntax_error(Error_241, context->file_am_name, context->line_num);
                 *error_counter = 1;
-                deallocate_memory(opernad);
-                return; /* Scanning line finished */
+                if (opernad) deallocate_memory(opernad);
+                return;
             }
-            *comma_pos = STRING_TERMINATOR;
-            length = comma_pos - opernad;
-            second_operand = &operand_list[length + 1]; /* Setting a pointer to the second operand */
-
-            while (*second_operand && isspace(*second_operand)) /* Skipping leading whitespace */
-                second_operand++;
-
-            if (second_operand[0] == COMMA_SIGN)
-            { /* Checking if there are consecutive commas */
-                log_syntax_error(Error_246, context->file_am_name, context->line_num);
-                *error_counter = 1;
-                deallocate_memory(opernad);
-                return; /* Scanning line finished */
-            }
-            if (contains_whitespace(second_operand) || strchr(second_operand, COMMA_SIGN) != NULL)
-            { /* Checking for extraneous text */
-                log_syntax_error(Error_245, context->file_am_name, context->line_num);
-                *error_counter = 1;
-                deallocate_memory(opernad);
-                return; /* Scanning line finished */
-            }
-        }
-        else
-        { /* No comma was found in the first string */
-            operand_list = &operand_list[length];
-            while (*operand_list && isspace(*operand_list)) /* Skipping leading whitespace */
-                operand_list++;
-            if (operand_list[0] == STRING_TERMINATOR || (*operand_list == COMMA_SIGN && operand_list[1] == STRING_TERMINATOR))
-            { /* Checking if there is a missing operand */
-                log_syntax_error(Error_241, context->file_am_name, context->line_num);
-                *error_counter = 1;
-                deallocate_memory(opernad);
-                return; /* Scanning line finished */
-            }
-            if (operand_list[0] != COMMA_SIGN)
+            after_first = skip_spaces_const(next);
+            if (*after_first != COMMA_SIGN && *(next - 1) != COMMA_SIGN)
             {
+                /* extract_operand_token sets next to after comma or end; if no comma existed, it's syntax */
                 log_syntax_error(Error_247, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 deallocate_memory(opernad);
-                return; /* Scanning line finished */
+                return;
             }
-            operand_list++;
-            while (*operand_list && isspace(*operand_list)) /* Skipping leading whitespace */
-                operand_list++;
-            second_operand = get_first_word(operand_list);
-            if (second_operand == NULL)
-            { /* Indicates memory allocation failed (all the other allocations were freed inside function) */
-                fclose(context->file);
-                free_line(context);
-                exit(1); /* Exiting program */
-            }
-            if (second_operand[0] == COMMA_SIGN)
-            {
+            /* Ensure we move to content after comma */
+            if (*next == COMMA_SIGN)
+                next++;
+            next = skip_spaces_const(next);
+            if (*next == COMMA_SIGN)
+            { /* consecutive commas */
                 log_syntax_error(Error_246, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 deallocate_memory(opernad);
-                deallocate_memory(second_operand);
-                return; /* Scanning line finished */
+                return;
             }
-            length = strlen(second_operand);
-            if (strchr(second_operand, COMMA_SIGN) != NULL || operand_list[length] != STRING_TERMINATOR)
-            { /* Checking for extraneous text */
+            second_operand = extract_operand_token(next, &after_first);
+            if (second_operand == NULL || second_operand[0] == STRING_TERMINATOR)
+            {
+                log_syntax_error(Error_241, context->file_am_name, context->line_num);
+                *error_counter = 1;
+                deallocate_memory(opernad);
+                if (second_operand) deallocate_memory(second_operand);
+                return;
+            }
+            after_first = skip_spaces_const(after_first);
+            if (*after_first != STRING_TERMINATOR)
+            { /* extraneous text after two operands */
                 log_syntax_error(Error_245, context->file_am_name, context->line_num);
                 *error_counter = 1;
                 deallocate_memory(opernad);
                 deallocate_memory(second_operand);
-                return; /* Scanning line finished */
+                return;
             }
+            method = determine_operand_addressing_mode(opernad, context, error_counter);
+            method_2 = determine_operand_addressing_mode(second_operand, context, error_counter);
         }
-        method = determine_operand_addressing_mode(opernad, context, error_counter);
-        method_2 = determine_operand_addressing_mode(second_operand, context, error_counter);
         if (method == -1 || method_2 == -1)
         {
             deallocate_memory(opernad);
