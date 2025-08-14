@@ -595,10 +595,10 @@ void process_string_directive(unsigned short *data_segment, int *memory_usage, i
             return; /* Scanning line finished */
         }
         /* Getting the ASCII value by converting 'char' type to 'int' and then adding code */
-        add_data_code(data_segment, data_counter, (int)trimmed_line[i]);
+        add_data(data_segment, data_counter, (int)trimmed_line[i]);
         *memory_usage += 1; /* Incrementing usage count */
     }
-    add_data_code(data_segment, data_counter, 0); /* Adding the null-terminator */
+    add_data(data_segment, data_counter, 0); /* Adding the null-terminator */
     *memory_usage += 1;                /* Incrementing usage count */
 }
 
@@ -825,13 +825,13 @@ void process_matrix_directive(unsigned short *data_segment, int *memory_usage, i
                 *error_counter = 1;
                 num = 0;
             }
-            add_data_code(data_segment, data_counter, num);
+            add_data(data_segment, data_counter, num);
             *memory_usage += 1; /* Incrementing usage count */
             token = strtok(NULL, ",");
         }
         else
         {
-            add_data_code(data_segment, data_counter, 0); /* fill missing */
+            add_data(data_segment, data_counter, 0); /* fill missing */
             *memory_usage += 1; /* Incrementing usage count */
         }
     }
@@ -854,7 +854,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
             *error_counter = 1;
             return; /* Scanning line finished */
         }
-        add_instruction_code(instruction_segment, memory_usage, instruction_counter, word, error_counter); /* Adding machine code */
+        add_instruction(instruction_segment, memory_usage, instruction_counter, word, error_counter); /* Adding machine code */
         return;                                                    /* Scanning line finished */
     case 1:
         if (operand_list[0] == STRING_TERMINATOR)
@@ -888,7 +888,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
         {
             return; /* Scanning line finished */
         }
-        handle_one_operand(instruction_segment, memory_usage, instruction_counter, context, method, operand_list, instruction_index, error_counter);
+        process_one_operand(instruction_segment, memory_usage, instruction_counter, context, method, operand_list, instruction_index, error_counter);
         return; /* Scanning line finished */
     case 2:
         if (operand_list[0] == STRING_TERMINATOR)
@@ -1009,7 +1009,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
             deallocate_memory(second_operand);
             return; /* Scanning line finished */
         }
-        handle_two_operands(instruction_segment, memory_usage, instruction_counter, context, opernad, second_operand, instruction_index, error_counter);
+        process_two_operands(instruction_segment, memory_usage, instruction_counter, context, opernad, second_operand, instruction_index, error_counter);
         deallocate_memory(opernad);
         deallocate_memory(second_operand);
     }
@@ -1047,7 +1047,7 @@ void parse_and_encode_numeric_data(unsigned short *data_segment, int *memory_usa
         {           /* Checking if memory limit was exceeded */
             return; /* Scanning line finished */
         }
-        add_data_code(data_segment, data_counter, num_array[i]); /* Adding machine code */
+        add_data(data_segment, data_counter, num_array[i]); /* Adding machine code */
         (*memory_usage)++;                            /* Incrementing usage count */
     }
     deallocate_memory(num_array);

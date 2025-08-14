@@ -12,7 +12,7 @@
  * @param DC Pointer to the data counter.
  * @param number The number to be added as data code.
  */
-void add_data_code(unsigned short *data,int *DC,int number);
+void add_data(unsigned short *data,int *DC,int number);
 
 
 /**
@@ -24,7 +24,7 @@ void add_data_code(unsigned short *data,int *DC,int number);
  * @param word The instruction code to be added.
  * @param errors_found Pointer to the error counter.
  */
-void add_instruction_code(unsigned short *code,int *Usage,int *IC,unsigned short word,int *errors_found);
+void add_instruction(unsigned short *code,int *Usage,int *IC,unsigned short word,int *errors_found);
 
 
 /**
@@ -39,7 +39,7 @@ void add_instruction_code(unsigned short *code,int *Usage,int *IC,unsigned short
  * @param operands_num Number of operands in the instruction.
  * @param errors_found Pointer to the error counter.
  */
-void process_operation_code(unsigned short *code,int *Usage,int *IC,Line *line,int method,char *operand,int operands_num,int *errors_found);
+void process_operations(unsigned short *code,int *Usage,int *IC,Line *line,int method,char *operand,int operands_num,int *errors_found);
 
 
 /**
@@ -54,7 +54,7 @@ void process_operation_code(unsigned short *code,int *Usage,int *IC,Line *line,i
  * @param ind Index of the instruction in the opcode table.
  * @param errors_found Pointer to the error counter.
  */
-void handle_one_operand(unsigned short *code,int *Usage,int *IC,Line *line,int method,char *operand,int ind,int *errors_found);
+void process_one_operand(unsigned short *code,int *Usage,int *IC,Line *line,int method,char *operand,int ind,int *errors_found);
 
 
 /**
@@ -69,7 +69,7 @@ void handle_one_operand(unsigned short *code,int *Usage,int *IC,Line *line,int m
  * @param ind Index of the instruction in the opcode table.
  * @param errors_found Pointer to the error counter.
  */
-void handle_two_operands(unsigned short *code,int *Usage,int *IC,Line *line,char *operand,char *second_operand,int ind,int *errors_found);
+void process_two_operands(unsigned short *code,int *Usage,int *IC,Line *line,char *operand,char *second_operand,int ind,int *errors_found);
 
 
 #endif
