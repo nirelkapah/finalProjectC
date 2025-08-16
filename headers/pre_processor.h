@@ -16,31 +16,31 @@
  * Pre-processes the given assembly file to handle macros and generate a new file with expanded macros.
  * The function changes the file extension to ".am" and processes macro calls and declarations.
  * If errors are detected during macro handling, it frees the allocated resources and returns a failure status.
- * @param file_name The name of the input file containing the source code to be pre-processed.
- * @return Returns 0 on successful completion, or 1 if errors are detected during macro handling.
+ * file_name: The name of the input file containing the source code to be pre-processed.
+ * return Returns 0 on successful completion, or 1 if errors are detected during macro handling.
  */
-int pre_processing(char *file_name);
+int run_pre_processing(char *file_name);
 
 
 /**
  * Processes the given assembly file to handle macros, expanding them into the output file.
  * Reads the input file line by line, processes macros, and writes the expanded content to the output file.
  * If any errors are detected during processing, the output file is deleted.
- * @param file_name The name of the input file containing the source code to be read and processed.
- * @param file_am_name The name of the output file where the processed content with expanded macros will be written.
- * @return Returns 0 if no errors were found, or 1 if errors were detected.
+ * file_name: The name of the input file containing the source code to be read and processed.
+ * file_am_name: The name of the output file where the processed content with expanded macros will be written.
+ * return Returns 0 if no errors were found, or 1 if errors were detected.
  */
 int handle_macros(char *file_name,char *file_am_name);
 
 
 /**
  * Validates a macro declaration by checking the first word and validating the macro name.
- * @param file_name The name of the file being processed.
- * @param decl The line containing the macro declaration.
- * @param line_count The current line number in the file.
- * @return Returns the macro name if valid, otherwise returns NULL indicating failure.
+ * file_name: The name of the file being processed.
+ * decl: The line containing the macro declaration.
+ * line_count: The current line number in the file.
+ * return Returns the macro name if valid, otherwise returns NULL indicating failure.
  */
-char *valid_macro_decl(char *file_name,char *decl,int line_count);
+char *validate_macro_decleration(char *file_name,char *decl,int line_count);
 
 
 #endif

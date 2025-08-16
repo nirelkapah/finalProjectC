@@ -345,12 +345,12 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
     }
 
     /* Matrix addressing (LABEL[rX][rY]) - allow spaces inside brackets but not between "] [" */
-    if (strchr(operand_text, '[') && strchr(operand_text, ']'))
+    if (strchr(operand_text, LEFT_BRACKET) && strchr(operand_text, RIGHT_BRACKET))
     {
         /* Detect illegal spaces between consecutive brackets: "]  [" */
         {
             const char *p = operand_text;
-            while ((p = strchr(p, ']')) != NULL)
+            while ((p = strchr(p, RIGHT_BRACKET)) != NULL)
             {
                 const char *q = p + 1;
                 while (*q && isspace((unsigned char)*q)) q++;
@@ -387,7 +387,7 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
 
             /* Now parse strictly without spaces */
             {
-                char label_name[31], row_reg[5], col_reg[5];
+                char label_name[MAX_LABEL_NAME_LENGTH], row_reg[REGISTER_STRING_BUFFER_SIZE], col_reg[REGISTER_STRING_BUFFER_SIZE];
                 int parsed = sscanf(clean, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg, col_reg);
                 if (parsed == 3)
                 {
@@ -658,7 +658,7 @@ void process_string_directive(unsigned short *data_segment, int *memory_usage, i
     /* Checking if the string is empty */
     if (strlen(trimmed_line) == BINARY_BASE)
     { /* Indicates string contains only double quotes */
-        printf(" WARNING | File \"%s\" at line %d | Instruction \".string\" parameter"
+        printf(" File \"%s\" at line %d | Instruction \".string\" parameter"
                " is an empty string\n",
                context->file_am_name, context->line_num);
     }
@@ -702,7 +702,7 @@ void process_entry_directive(Line *context, char *label_list, int *error_counter
     /* Checking if a label was already declared at the current line */
     if (context->label != NULL)
     {
-        printf(" WARNING | File \"%s\" at line %d | Label defined at the start of an"
+        printf("File \"%s\" at line %d | Label defined at the start of an"
                " \".entry\" or \".extern\" instruction line will be ignored\n",
                context->file_am_name, context->line_num);
         remove_label(context->label);
@@ -746,7 +746,7 @@ void process_extern_directive(Line *context, char *symbol_list, int *error_count
     /* Checking if a label was already declared at the current line */
     if (context->label != NULL)
     {
-        printf(" WARNING | File \"%s\" at line %d | Label defined at the start of an"
+        printf("File \"%s\" at line %d | Label defined at the start of an"
                " \".entry\" or \".extern\" instruction line will be ignored\n",
                context->file_am_name, context->line_num);
         remove_label(context->label);

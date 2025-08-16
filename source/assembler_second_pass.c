@@ -14,19 +14,19 @@
 #include "labels_handler.h"
 #include "utils.h"
 
-int second_pass(char *file_am_name, unsigned short *code, unsigned short *data, int *IC, int *DC)
+int run_second_pass(char *file_am_name, unsigned short *code, unsigned short *data, int *IC, int *DC)
 {
     char *file_ob_name, *file_ent_name, *file_ext_name;
     int errors_found = 0;
 
     /* Checking if all "entry" labels were defined */
-    if (check_entry_labels(file_am_name) != 0)
+    if (is_all_entry_labels_exist(file_am_name) != 0)
     {
         errors_found = 1; /* Indicates failure */
     }
     /* Handling uncoded label addresses */
-    update_data_labels(IC);
-    if (code_operand_labels(file_am_name, code, IC) != 0)
+    update_data_label(IC);
+    if (code_operands(file_am_name, code, IC) != 0)
     {
         free_labels();
         free_all_memory();
@@ -39,14 +39,14 @@ int second_pass(char *file_am_name, unsigned short *code, unsigned short *data, 
     create_ob_file(file_ob_name, code, data, IC, DC);
 
     /* Creating "file.ent" if there are "entry" labels */
-    if (entry_exist() != 0)
+    if (is_entry_exist() != 0)
     {
         file_ent_name = change_extension(file_am_name, ".ent");
         create_ent_file(file_ent_name);
         deallocate_memory(file_ent_name);
     }
     /* Creating "file.ext" if there are "extern" labels */
-    if (extern_exist() != 0)
+    if (is_extern_exist() != 0)
     {
         file_ext_name = change_extension(file_am_name, ".ext");
         create_ext_file(file_ext_name);
@@ -54,10 +54,10 @@ int second_pass(char *file_am_name, unsigned short *code, unsigned short *data, 
     }
     deallocate_memory(file_ob_name);
     free_labels();
-    printf("--- Second pass passed successfully ---\n");
+    printf("--- Second parsing phase completed successfully ---\n");
     return errors_found;
 }
-int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
+int code_operands(char *file_am_name, unsigned short *code, int *IC)
 {
     int errors_found = 0;
     int i = 0;
@@ -83,7 +83,7 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
         }
 
         /* Get the next operand label */
-        operand_label = get_opernad_label();
+        operand_label = get_first_operand();
         if (operand_label == NULL)
         {
             return errors_found; /* No more operand labels */
@@ -95,11 +95,11 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
         word = 0;
 
         /* Matrix operand */
-        if (strchr(operand_name, '[') != NULL)
+        if (strchr(operand_name, LEFT_BRACKET) != NULL)
         {
-            char label_name[31];
-            char row_reg_str[5];
-            char col_reg_str[5];
+            char label_name[MAX_LABEL_NAME_LENGTH];
+            char row_reg_str[REGISTER_STRING_BUFFER_SIZE];
+            char col_reg_str[REGISTER_STRING_BUFFER_SIZE];
             int row_reg = 0;
             int col_reg = 0;
             int parsed;
@@ -107,7 +107,7 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
             /* Disallow spaces between consecutive brackets: "]  [" */
             {
                 const char *p = operand_name;
-                while ((p = strchr(p, ']')) != NULL)
+                while ((p = strchr(p, RIGHT_BRACKET)) != NULL)
                 {
                     const char *q = p + 1;
                     while (*q && isspace((unsigned char)*q)) q++;
@@ -152,7 +152,7 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
             if (parsed == 3)
             {
 
-                label = is_label_defined(label_name);
+                label = is_label_name_exist(label_name);
                 if (label != NULL)
                 {
                     /* First word: base address */
@@ -160,7 +160,7 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
                     int final_address = label->address;
                     if (label->location == DATA)
                     {
-                        final_address = label->address; /* Already updated by update_data_labels */
+                        final_address = label->address; /* Already updated by update_data_label */
                     }
                     else
                     {
@@ -216,7 +216,7 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
         else
         {   
             /* First try to find a defined label with this name */
-            label = is_label_defined(operand_name);
+            label = is_label_name_exist(operand_name);
             if (label == NULL)
             {
                 /* If not found as defined, try to find any label with this name */
@@ -247,7 +247,7 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
                     int final_address = label->address;
                     if (label->location == DATA)
                     {
-                        final_address = label->address; /* Already updated by update_data_labels */
+                        final_address = label->address; /* Already updated by update_data_label */
                     }
                     else
                     {
@@ -256,7 +256,7 @@ int code_operand_labels(char *file_am_name, unsigned short *code, int *IC)
                     
                     word = (unsigned short)(final_address & MASK_8_BITS); /* 8-bit address */
                     word <<= IMMEDIATE_VALUE_SHIFT_POSITION; /* Bits 9-2 contain the memory address */
-                    word |= ARE_RELOCATABLE; /* ARE = 10 */
+                    word |= ARE_RELOCATABLE; 
                 }
                 code[j] = word;
             }

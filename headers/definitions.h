@@ -1,5 +1,6 @@
 /**
  * This is the definitions header file.
+ * This file contains all the constants and macros used in the program.
  */
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
@@ -50,6 +51,10 @@
 /* Buffer and data constraints */
 #define INTEGER_STRING_BUFFER_SIZE 20
 #define MAX_DATA_VALUES_PER_LINE 38
+#define REGISTER_STRING_BUFFER_SIZE 5
+#define TEMP_CONVERSION_BUFFER_SIZE 32
+#define BINARY_10_BIT_STRING_LENGTH 10
+#define BASE4_DIGIT_COUNT 5
 
 /* Macro processing */
 #define MACRO_START_LENGTH 4
@@ -69,6 +74,8 @@
 #define SEMICOLON ';'
 #define ASTERISK_SIGN '*'
 #define QUOTATION_MARK '\"'
+#define LEFT_BRACKET '['
+#define RIGHT_BRACKET ']'
 #define STRING_TERMINATOR '\0'
 
 #endif

@@ -1,4 +1,4 @@
-; Second input example file with 2 scenerios of macro defining
+; Example 2: two macros (B invokes A)
 
 mcro A
     inc r0

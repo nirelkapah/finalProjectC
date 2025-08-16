@@ -4,6 +4,7 @@
  * converting them into machine code while handling all types off potential errors.
  * If no errors are detected, it proceeds with the second pass.
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +18,7 @@
 #include "assembler_second_pass.h"
 #include "definitions.h"
 
-int first_pass(char *file_name)
+int run_first_pass(char *file_name)
 {
     unsigned short code[MAX_ARRAY_CAPACITY] = {0}, data[MAX_ARRAY_CAPACITY] = {0}; /* Initializing machine code arrays */
     int IC = 0, DC = 0;
@@ -26,7 +27,7 @@ int first_pass(char *file_name)
     char *file_am_name = change_extension(file_name, ".am");
 
     /* Scanning the file */
-    if (scan_text(file_am_name, code, data, &IC, &DC) != 0)
+    if (examine_code(file_am_name, code, data, &IC, &DC) != 0)
     {
         free_labels();
         free_macros();
@@ -35,10 +36,10 @@ int first_pass(char *file_name)
     }
     free_macros(); /* Macros are no longer needed */
 
-    printf("--- First pass passed successfully ---\n");
+    printf("--- First parsing phase completed successfully ---\n");
 
     /* Starting second pass */
-    if (second_pass(file_am_name, code, data, &IC, &DC) != 0)
+    if (run_second_pass(file_am_name, code, data, &IC, &DC) != 0)
     {
         free_labels();
         free_all_memory();
@@ -48,7 +49,7 @@ int first_pass(char *file_name)
     return 0; /* Indicates success */
 }
 
-int scan_text(char *file_am_name, unsigned short *code, unsigned short *data, int *IC, int *DC)
+int examine_code(char *file_am_name, unsigned short *code, unsigned short *data, int *IC, int *DC)
 {
     char temp[MAX_SOURCE_LINE_LENGTH + 1]; /* +1 to accommodate '\0' */
     int Usage = 0, errors_found = 0, line_count = 0;
@@ -79,7 +80,7 @@ int scan_text(char *file_am_name, unsigned short *code, unsigned short *data, in
         if (strlen(trimmed_line) == 0)
             continue; /* Skipping to the next line */
 
-        line = create_line(file_am, file_am_name, trimmed_line, line_count);
+        line = create_line_struct(file_am, file_am_name, trimmed_line, line_count);
         if (line == NULL)
         {
             fclose(file_am);
@@ -88,14 +89,14 @@ int scan_text(char *file_am_name, unsigned short *code, unsigned short *data, in
             free_all_memory();
             exit(1); /* Exiting program */
         }
-        scan_word(code, data, &Usage, IC, DC, line, &errors_found);
+        examine_code_word(code, data, &Usage, IC, DC, line, &errors_found);
         free_line(line);
     }
     fclose(file_am);
     return errors_found;
 }
 
-void scan_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, int *DC, Line *line, int *errors_found)
+void examine_code_word(unsigned short *code, unsigned short *data, int *Usage, int *IC, int *DC, Line *line, int *errors_found)
 {
     char *ptr = line->content;
     char *current_word, *temp;
