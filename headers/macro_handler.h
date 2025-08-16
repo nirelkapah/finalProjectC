@@ -32,18 +32,18 @@ Macro *is_macro_name(char *macro_name);
 
 
 /**
- * Appends new content to the last macro in the linked list.
+ * Changes the content of the last macro in the linked list.
  * new_content: The content to append.
  * return 0 for a successful operation, 1 if errors were detected.
  */
-int append_macro_content(char *new_content);
+int change_macro_content(char *new_content);
 
 
 /**
- * Gets the last macro in the linked list.
+ * Points to the last macro in the linked list.
  * return Pointer to the last macro.
  */
-Macro *get_last_macro();
+Macro *point_last_macro();
 
 
 /**

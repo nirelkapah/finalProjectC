@@ -289,7 +289,7 @@ char *get_first_word(char *str) {
     return first_word;
 }
 
-int is_standalone_word(char *str, char *word) {
+int is_only_word(char *str, char *word) {
     int word_len = strlen(word);
     char *ptr = strstr(str,word);
 
@@ -305,7 +305,7 @@ int is_standalone_word(char *str, char *word) {
     return 0;  /* Indicates word was not found */
 }
 
-Line *create_line(FILE *file, char *file_am_name, char *content, int line_num) {
+Line *create_line_struct(FILE *file, char *file_am_name, char *content, int line_num) {
     Line *new_line = (Line *)malloc(sizeof(Line));
     if (new_line == NULL) {
         log_system_error(Error_101);
@@ -463,7 +463,7 @@ void create_ent_file(char *file_ent_name) {
         exit(1);  /* Exiting program */
     }
 
-    current = get_label_head();
+    current = point_label_head();
     while (current != NULL) {
         if (current->type == ENTRY) {
             convert_to_base4(current->address, base4_addr);
@@ -486,7 +486,7 @@ void create_ext_file(char *file_ext_name) {
         exit(1);  /* Exiting program */
     }
 
-    current = get_label_head();
+    current = point_label_head();
     while (current != NULL) {
         if (current->type == EXTERN && current->location == CODE) {
             convert_to_base4(current->address, base4_addr);

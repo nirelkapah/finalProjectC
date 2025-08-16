@@ -121,12 +121,12 @@ char *get_first_word(char *str);
 
 
 /**
- * Checks if a word is a standalone word in a string.
+ * Checks if a word is the only word in a string.
  * str: The string to search in.
  * word: The word to search for.
  * return 1 if the word is found, 0 otherwise.
  */
-int is_standalone_word(char *str,char *word);
+int is_only_word(char *str,char *word);
 
 
 /**
@@ -137,7 +137,7 @@ int is_standalone_word(char *str,char *word);
  * line_num: The line number in the file.
  * return Pointer to the newly created line struct, or NULL if memory allocation failed.
  */
-Line *create_line(FILE *file,char *file_am_name,char *content,int line_num);
+Line *create_line_struct(FILE *file,char *file_am_name,char *content,int line_num);
 /**
  * Frees the memory allocated for a line struct.
  * line: Pointer to the line struct to free.
@@ -170,8 +170,8 @@ void convert_to_base4_5digits(int decimal_num, char *output);
  * file_ob_name: The name of the object file to create.
  * code: Array containing the instruction code.
  * data: Array containing the data code.
- * IC: Pointer to the instruction counter.
- * DC: Pointer to the data counter.
+ * ic: Pointer to the instruction counter.
+ * dc: Pointer to the data counter.
  */
 void create_ob_file(char *file_ob_name,unsigned short *code,unsigned short *data,int *IC,int *DC);
 

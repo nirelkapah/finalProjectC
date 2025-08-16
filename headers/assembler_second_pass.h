@@ -20,7 +20,7 @@
  * dc: Pointer to the data counter.
  * return 0 for a successful operation, 1 if errors were detected.
  */
-int second_pass(char *file_am_name,unsigned short *code,unsigned short *data,int *ic,int *dc);
+int run_second_pass(char *file_am_name,unsigned short *code,unsigned short *data,int *ic,int *dc);
 
 
 /**
@@ -30,7 +30,7 @@ int second_pass(char *file_am_name,unsigned short *code,unsigned short *data,int
  * ic: Pointer to the instruction counter.
  * return 0 if no errors were detected, 1 if errors were detected.
  */
-int code_operand_labels(char *file_am_name,unsigned short *code,int *ic);
+int code_operands(char *file_am_name,unsigned short *code,int *ic);
 
 
 #endif

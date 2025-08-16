@@ -44,7 +44,7 @@ int add_macro(char *name, int line) {
         head = new_macro;
     } else {
         /* Otherwise, finding the end of the list and adding the new macro */
-        last_macro = get_last_macro();
+        last_macro = point_last_macro();
         last_macro->next = new_macro;
     }
     return 0;  /* Indicates success */
@@ -62,14 +62,14 @@ Macro *is_macro_name(char *macro_name) {
     return NULL;  /* Indicates name is not a macro name */
 }
 
-int append_macro_content(char *new_content) {
+int change_macro_content(char *new_content) {
     Macro *current;
     int current_length, new_content_length, total_length;
     char *new_memory;
 
-    current = get_last_macro(head);  /* Skipping to the last macro in the list */
+    current = point_last_macro(head);  /* Skipping to the last macro in the list */
 
-    /* Current cannot be NULL because append_macro_content is called only if a macro node was created - the list is not empty */
+    /* Current cannot be NULL because change_macro_content is called only if a macro node was created - the list is not empty */
     if (current->content != NULL) {
         current_length = strlen(current->content);
     } else {
@@ -96,7 +96,7 @@ int append_macro_content(char *new_content) {
     return 0;  /* Indicates success */
 }
 
-Macro *get_last_macro() {
+Macro *point_last_macro() {
     Macro *current;
 
     if (head == NULL)

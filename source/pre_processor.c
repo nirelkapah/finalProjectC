@@ -62,7 +62,7 @@ static void write_expanded_content(FILE *file_am, char *content) {
     free(buffer);
 }
 
-int pre_processing(char *file_name) {
+int run_pre_processing(char *file_name) {
     /* Getting the new file name */
     char *file_am_name = change_extension(file_name,".am");
 
@@ -105,7 +105,7 @@ int handle_macros(char *file_name, char *file_am_name) {
 
         /* Validating line length */
         if (line_length == MAX_SOURCE_LINE_LENGTH && line[MAX_SOURCE_LINE_LENGTH-1] != '\n') {
-            if (is_standalone_word(line,"mcro") != 0) {
+            if (is_only_word(line,"mcro") != 0) {
                 if (macro_found == 0) {
                     macro_found = 1;
                 } else {
@@ -144,8 +144,8 @@ int handle_macros(char *file_name, char *file_am_name) {
         }
         /* Checking if -endmcro- command had been reached */
         if (macro_found == 1) {
-            if (is_standalone_word(trimmed_line,"endmcro") == 0) {  /* Writing the current line into macro content */
-                if (name_is_valid == 1 && append_macro_content(copy) != 0) {  /* Indicates memory allocation failed */
+            if (is_only_word(trimmed_line,"endmcro") == 0) {  /* Writing the current line into macro content */
+                if (name_is_valid == 1 && change_macro_content(copy) != 0) {  /* Indicates memory allocation failed */
                     fclose(file);
                     fclose(file_am);
                     delete_file(file_am_name);
@@ -166,7 +166,7 @@ int handle_macros(char *file_name, char *file_am_name) {
                 continue;  /* Skipping to the next line */
             }
             if (name_is_valid == 1) {  /* Checking if content is empty */
-                if (get_last_macro()->content == NULL || strlen(trim_whitespace(get_last_macro()->content)) == 0) {
+                if (point_last_macro()->content == NULL || strlen(trim_whitespace(point_last_macro()->content)) == 0) {
                     log_syntax_error(Error_209,file_name,line_count);
                     remove_last_macro();
                     errors_found = 1;
@@ -177,7 +177,7 @@ int handle_macros(char *file_name, char *file_am_name) {
             continue;  /* Skipping to the next line */
         }
         /* Checking for a potential macro declaration */
-        if (is_standalone_word(trimmed_line,"mcro") == 0) {
+        if (is_only_word(trimmed_line,"mcro") == 0) {
             if (errors_found == 0) {
                 fputs(copy,file_am);  /* Copying line into "file.am" */
                 /* Update blank-line state based on whether this line is empty after trimming */
@@ -191,7 +191,7 @@ int handle_macros(char *file_name, char *file_am_name) {
 
         /* Validating the macro declaration */
         if (strlen(trimmed_line) > MACRO_START_LENGTH) {
-            macro_name = valid_macro_decl(file_name,trimmed_line,line_count);
+            macro_name = validate_macro_decleration(file_name,trimmed_line,line_count);
             if (macro_name) {
                 if (is_macro_name(macro_name) != NULL) {  /* Checking if the name had already been defined */
                     log_syntax_error(Error_207,file_name,line_count);
@@ -228,7 +228,7 @@ int handle_macros(char *file_name, char *file_am_name) {
     return errors_found;
 }
 
-char *valid_macro_decl(char *file_name, char *decl, int line_count) {
+char *validate_macro_decleration(char *file_name, char *decl, int line_count) {
     char *macro_name;
 
     /* Checking if the first word is "mcro" */

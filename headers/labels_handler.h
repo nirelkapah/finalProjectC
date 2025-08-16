@@ -50,61 +50,61 @@ Label *is_label_name(char *label_name);
 
 
 /**
- * Checks if a given label name is defined.
+ * Checks if a given label name is exist.
  * label_name: The name to check.
  * return Pointer to the label if found, NULL otherwise.
  */
-Label *is_label_defined(char *label_name);
+Label *is_label_name_exist(char *label_name);
 
 
 /**
- * Checks if all entry type labels were defined.
+ * Checks if all entry type labels exist.
  * file_am_name: The name of the file being processed.
  * return 1 if errors were found, 0 otherwise.
  */
-int check_entry_labels(char *file_am_name);
+int is_all_entry_labels_exist(char *file_am_name);
 
 
 /**
  * Updates the addresses of data labels.
  * IC: Pointer to the instruction counter.
  */
-void update_data_labels(int *IC);
+void update_data_label(int *IC);
 
 
 /**
  * Retrieves the first "operand" label.
  * return Pointer to the operand label if found, NULL otherwise.
  */
-Label *get_opernad_label();
+Label *get_first_operand();
 
 
 /**
  * Checks if any "entry" type labels exist.
  * return 1 if an entry label exists, 0 otherwise.
  */
-int entry_exist();
+int is_entry_exist();
 
 
 /**
  * Checks if any "extern" type labels exist.
  * return 1 if an extern label exists, 0 otherwise.
  */
-int extern_exist();
+int is_extern_exist();
 
 
 /**
- * Gets the head of the label list.
+ * points to the head of the label list.
  * return Pointer to the head of the label list.
  */
-Label *get_label_head();
+Label *point_label_head();
 
 
 /**
- * Gets the last label in the linked list.
+ * points to the last label in the linked list.
  * return Pointer to the last label in the list.
  */
-Label *get_last_label();
+Label *point_last_label();
 
 
 /**

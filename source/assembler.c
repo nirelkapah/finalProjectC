@@ -34,13 +34,13 @@ int main(int argc, char *argv[]) {
 
         printf("\nProcessing file: \"%s\"\n",file_name);
 
-        /* Starting pre_processing */
-        if (pre_processing(file_name) != 0) {
+        /* Starting run_pre_processing */
+        if (run_pre_processing(file_name) != 0) {
             printf("Process terminated\n");
             continue;  /* Skipping to the next file */
         }
         /* Starting first pass */
-        if (first_pass(file_name) != 0) {
+        if (run_first_pass(file_name) != 0) {
             printf("Process terminated\n");
             continue;  /* Skipping to the next file */
         }

@@ -19,7 +19,7 @@
  * file_name: The name of the input file containing the source code to be pre-processed.
  * return Returns 0 on successful completion, or 1 if errors are detected during macro handling.
  */
-int pre_processing(char *file_name);
+int run_pre_processing(char *file_name);
 
 
 /**
@@ -40,7 +40,7 @@ int handle_macros(char *file_name,char *file_am_name);
  * line_count: The current line number in the file.
  * return Returns the macro name if valid, otherwise returns NULL indicating failure.
  */
-char *valid_macro_decl(char *file_name,char *decl,int line_count);
+char *validate_macro_decleration(char *file_name,char *decl,int line_count);
 
 
 #endif

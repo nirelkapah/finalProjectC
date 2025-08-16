@@ -63,7 +63,7 @@ Label *add_label(char *name, int address, Type type, Location location)
     else
     {
         /* Otherwise, finding the end of the list and adding the new label */
-        last_label = get_last_label();
+        last_label = point_last_label();
         last_label->next = new_label;
     }
     return new_label; /* Indicates success */
@@ -83,7 +83,7 @@ Label *is_label_name(char *label_name)
     return NULL;
 }
 
-Label *is_label_defined(char *label_name)
+Label *is_label_name_exist(char *label_name)
 {
     Label *current = head;
 
@@ -99,7 +99,7 @@ Label *is_label_defined(char *label_name)
     return NULL; /* Indicates name is not a label name */
 }
 
-int check_entry_labels(char *file_am_name)
+int is_all_entry_labels_exist(char *file_am_name)
 {
     Label *current = head;
     int errors_found = 0;
@@ -117,7 +117,7 @@ int check_entry_labels(char *file_am_name)
     return errors_found;
 }
 
-void update_data_labels(int *IC)
+void update_data_label(int *IC)
 {
     Label *current = head;
 
@@ -131,7 +131,7 @@ void update_data_labels(int *IC)
     }
 }
 
-Label *get_opernad_label()
+Label *get_first_operand()
 {
     Label *current = head;
 
@@ -146,7 +146,7 @@ Label *get_opernad_label()
     return NULL; /* Indicates no "operand" type label was found */
 }
 
-int entry_exist()
+int is_entry_exist()
 {
     Label *current = head;
 
@@ -161,7 +161,7 @@ int entry_exist()
     return 0; /* Indicates no "entry" type label was found */
 }
 
-int extern_exist()
+int is_extern_exist()
 {
     Label *current = head;
 
@@ -176,12 +176,12 @@ int extern_exist()
     return 0; /* Indicates no "extern" type label was found */
 }
 
-Label *get_label_head()
+Label *point_label_head()
 {
     return head;
 }
 
-Label *get_last_label()
+Label *point_last_label()
 {
     Label *current;
 

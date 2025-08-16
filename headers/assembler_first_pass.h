@@ -22,11 +22,11 @@
  * file_name: The name of the file to process.
  * return 0 if successful, 1 if errors were detected.
  */
-int first_pass(char *file_name);
+int run_first_pass(char *file_name);
 
 
 /**
- * Scans the text of the provided file, processing each line to identify and
+ * Examines the text of the provided file, processing each line to identify and
  * handle instructions, operations, and labels, converting them into machine code.
  * file_am_name: The name of the file to scan.
  * code: Array to store the instruction code.
@@ -35,7 +35,7 @@ int first_pass(char *file_name);
  * dc: Data Counter.
  * return 0 if no errors were detected, 1 otherwise.
  */
-int scan_text(char *file_am_name,unsigned short *code,unsigned short *data,int *IC,int *DC);
+int examine_code(char *file_am_name,unsigned short *code,unsigned short *data,int *IC,int *DC);
 
 
 /**
@@ -49,7 +49,7 @@ int scan_text(char *file_am_name,unsigned short *code,unsigned short *data,int *
  * line: The current line being processed.
  * errors_found: Number stored to indicate success/faliure.
  */
-void scan_word(unsigned short *code,unsigned short *data,int *usage,int *ic,int *dc,Line *line,int *errors_found);
+void examine_code_word(unsigned short *code,unsigned short *data,int *usage,int *ic,int *dc,Line *line,int *errors_found);
 
 
 #endif
