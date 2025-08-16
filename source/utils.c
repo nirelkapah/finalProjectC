@@ -351,13 +351,13 @@ void convert_to_binary10(unsigned short value, char *output) {
     for (i = 9; i >= 0; i--) {
         output[9-i] = ((value >> i) & 1) + '0';
     }
-    output[10] = '\0';
+    output[BINARY_10_BIT_STRING_LENGTH] = '\0';
 }
 
 /* Convert a decimal number to base 4 string representation using letters */
 void convert_to_base4(int decimal_num, char *output) {
     int i = 0, j = 0;
-    char temp[32]; /* Temporary buffer for reversed digits */
+    char temp[TEMP_CONVERSION_BUFFER_SIZE]; /* Temporary buffer for reversed digits */
     
     if (decimal_num == 0) {
         strcpy(output, "a");
@@ -377,13 +377,10 @@ void convert_to_base4(int decimal_num, char *output) {
     output[j] = '\0';
 }
 
-
-
 /* Convert a decimal number to base 4 string representation with exactly 5 digits using letters */
 void convert_to_base4_5digits(int decimal_num, char *output) {
-    int i = 0, j = 0;
-    int current_len;
-    char temp[32]; /* Temporary buffer for reversed digits */
+    int i = 0, j = 0, current_len;
+    char temp[TEMP_CONVERSION_BUFFER_SIZE]; /* Temporary buffer for reversed digits */
     
     if (decimal_num == 0) {
         strcpy(output, "aaaaa");
@@ -404,11 +401,11 @@ void convert_to_base4_5digits(int decimal_num, char *output) {
     
     /* Pad with leading 'a's to ensure exactly 5 digits */
     current_len = strlen(output);
-    if (current_len < 5) {
+    if (current_len < BASE4_DIGIT_COUNT) {
         /* Move existing digits to the right */
-        memmove(output + (5 - current_len), output, current_len + 1);
+        memmove(output + (BASE4_DIGIT_COUNT - current_len), output, current_len + 1);
         /* Fill leading positions with 'a's */
-        for (i = 0; i < (5 - current_len); i++) {
+        for (i = 0; i < (BASE4_DIGIT_COUNT - current_len); i++) {
             output[i] = 'a';
         }
     }
@@ -416,8 +413,8 @@ void convert_to_base4_5digits(int decimal_num, char *output) {
 
 void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *data, int *IC, int *DC) {
     FILE *file_ob = fopen(file_ob_name, "w");
-    char base4_value[32]; /* Buffer for base 4 value */
-    char base4_addr[32]; /* Buffer for base 4 address */
+    char base4_value[TEMP_CONVERSION_BUFFER_SIZE]; /* Buffer for base 4 value */
+    char base4_addr[TEMP_CONVERSION_BUFFER_SIZE]; /* Buffer for base 4 address */
     int i = 0, j = 0;
 
     if (file_ob == NULL) {  /* Failed to open file for writing */
@@ -454,7 +451,7 @@ void create_ob_file(char *file_ob_name, unsigned short *code, unsigned short *da
 void create_ent_file(char *file_ent_name) {
     FILE *file_ent = fopen(file_ent_name,"w");
     Label *current;
-    char base4_addr[32]; /* Buffer for base 4 address */
+    char base4_addr[TEMP_CONVERSION_BUFFER_SIZE]; /* Buffer for base 4 address */
 
     if (file_ent == NULL) {  /* Failed to open file for writing */
         log_system_error(Error_104);
@@ -477,7 +474,7 @@ void create_ent_file(char *file_ent_name) {
 void create_ext_file(char *file_ext_name) {
     FILE *file_ext = fopen(file_ext_name,"w");
     Label *current;
-    char base4_addr[32]; /* Buffer for base 4 address */
+    char base4_addr[TEMP_CONVERSION_BUFFER_SIZE]; /* Buffer for base 4 address */
 
     if (file_ext == NULL) {  /* Failed to open file for writing */
         log_system_error(Error_104);

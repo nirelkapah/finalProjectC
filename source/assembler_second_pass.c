@@ -95,11 +95,11 @@ int code_operands(char *file_am_name, unsigned short *code, int *IC)
         word = 0;
 
         /* Matrix operand */
-        if (strchr(operand_name, '[') != NULL)
+        if (strchr(operand_name, LEFT_BRACKET) != NULL)
         {
             char label_name[MAX_LABEL_NAME_LENGTH];
-            char row_reg_str[5];
-            char col_reg_str[5];
+            char row_reg_str[REGISTER_STRING_BUFFER_SIZE];
+            char col_reg_str[REGISTER_STRING_BUFFER_SIZE];
             int row_reg = 0;
             int col_reg = 0;
             int parsed;
@@ -107,7 +107,7 @@ int code_operands(char *file_am_name, unsigned short *code, int *IC)
             /* Disallow spaces between consecutive brackets: "]  [" */
             {
                 const char *p = operand_name;
-                while ((p = strchr(p, ']')) != NULL)
+                while ((p = strchr(p, RIGHT_BRACKET)) != NULL)
                 {
                     const char *q = p + 1;
                     while (*q && isspace((unsigned char)*q)) q++;
