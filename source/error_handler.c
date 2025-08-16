@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include "error_handler.h"
 
-/* The Following array specifies the error code numbers and the corresponding error message */
+/* This array specifies the error code numbers and the corresponding error message */
+
 Error errors[] = {
+        
         /* System errors */
         {Error_100, "No Files Entered"},
         {Error_101, "Memory Allocation Failed"},

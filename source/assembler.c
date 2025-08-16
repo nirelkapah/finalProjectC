@@ -8,9 +8,9 @@
 /**
  * This is the main function that receives assembly input files (written in a specific language defined by the project's requirements).
  * The function then passes them over to the analysis of the "Three Steps Assembler".
- * @param argc The number of command-line arguments.
- * @param argv An array of strings containing the command-line arguments.
- * @return Returns 0 on successful completion.
+ * argc: The number of command-line arguments.
+ * argv: An array of strings containing the command-line arguments.
+ * return Returns 0 on successful completion.
  */
 
 int main(int argc, char *argv[]) {

@@ -108,7 +108,7 @@ int is_all_entry_labels_exist(char *file_am_name)
     {
         if (current->type == ENTRY && current->location == TBD)
         { /* Checking for an undefined "entry" label */
-            printf(" [CODE_7] | ERROR | File \"%s\" | Label \"%s\"", file_am_name, current->name);
+            printf(" ERROR FOUNDin File \"%s\" - Label \"%s\"", file_am_name, current->name);
             log_system_error(Error_263);
             errors_found = 1; /* Indicates not all "entry" labels were defined */
         }

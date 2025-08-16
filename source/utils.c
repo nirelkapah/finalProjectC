@@ -77,7 +77,7 @@ void free_all_memory() {
 FILE *search_file(char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        printf("\n [CODE_3] | ERROR | File \"%s\" was not found",filename);
+        printf("\n ERROR FOUND - File \"%s\" was not found",filename);
         free_all_memory();
         return NULL;
     }

@@ -256,7 +256,7 @@ int code_operands(char *file_am_name, unsigned short *code, int *IC)
                     
                     word = (unsigned short)(final_address & MASK_8_BITS); /* 8-bit address */
                     word <<= IMMEDIATE_VALUE_SHIFT_POSITION; /* Bits 9-2 contain the memory address */
-                    word |= ARE_RELOCATABLE; /* ARE = 10 */
+                    word |= ARE_RELOCATABLE; 
                 }
                 code[j] = word;
             }

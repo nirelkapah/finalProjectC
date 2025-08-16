@@ -4,6 +4,7 @@
  * converting them into machine code while handling all types off potential errors.
  * If no errors are detected, it proceeds with the second pass.
  */
+ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
