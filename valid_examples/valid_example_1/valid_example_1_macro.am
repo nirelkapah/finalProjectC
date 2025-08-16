@@ -1,0 +1,9 @@
+; Example 1: simple macro definition and use
+
+
+mov r1, r2
+
+prn #10
+
+add r3, r4
+

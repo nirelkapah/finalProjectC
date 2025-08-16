@@ -1,4 +1,4 @@
-; Third example file 
+; Example 3: extern/entry, labels, and control flow
 
 .extern CHECK
 .extern GLOBAL

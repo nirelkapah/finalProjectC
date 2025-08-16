@@ -1,4 +1,4 @@
-; First example file with macro defining
+; Example 1: simple macro definition and use
 
 mcro PRINT_10
     prn #10

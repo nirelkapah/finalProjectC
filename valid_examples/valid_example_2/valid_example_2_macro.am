@@ -1,0 +1,10 @@
+; Example 2: two macros (B invokes A)
+
+
+
+inc r0
+
+dec r1
+inc r0
+
+

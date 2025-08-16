@@ -1,4 +1,4 @@
-; example 4 of valid file with not ext ent declerations
+; Example 4: no extern/entry declarations; simple data, string, and loop
 
  add #10, r1
  lea DATA, r2
