@@ -1,4 +1,4 @@
-; Second input example file with 2 scenerios of macro defining
+; Second example file with Macro defining
 
 mcro A
     inc r0

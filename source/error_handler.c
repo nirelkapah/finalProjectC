@@ -5,7 +5,7 @@
 /* This array specifies the error code numbers and the corresponding error message */
 
 Error errors[] = {
-        
+
         /* System errors */
         {Error_100, "No Files Entered"},
         {Error_101, "Memory Allocation Failed"},
@@ -19,7 +19,7 @@ Error errors[] = {
         {Error_201, "Line Is Too Long — 80 Characters Maximum"},
         {Error_202, " No Name Defined"},
         {Error_203, " \"mcro\" Command With Extraneous Text"},
-        {Error_204, " Opcode/ Name Cannot Be Used As A Macro Name"},
+        {Error_204, " Opcode Name Cannot Be Used As A Macro Name"},
         {Error_205, " Register Name Cannot Be Used As A Macro Name"},
         {Error_206, " Macro Must Contain Exactly One Name"},
         {Error_207, " Macro Name Already In Use"},
@@ -74,9 +74,9 @@ Error errors[] = {
         {Error_256, "Operand Out Of Range For The IMMEDIATE Addressing Method"},
         {Error_257, "Operand Uses The REGISTER Addressing Method But Has No Value"},
         {Error_258, "Operand Is Not A Valid Register For The REGISTER Addressing Method"},
-        {Error_259, "Unrecognized Command — An  Must Start With A Dot (.)"}, 
-        {Error_260, "Unrecognized Command — Check Syntax"},
-        {Error_261, "Unrecognized Operand — Check Syntax"},
+        {Error_259, "Unrecognized Command - An  Must Start With A Dot (.)"}, 
+        {Error_260, "Unrecognized Command - Check Syntax"},
+        {Error_261, "Unrecognized Operand - Check Syntax"},
         {Error_262, "Invalid Operand — Reserved Words And Macro Names Cannot Be Used As Operands"},
         {Error_263, "Label Was Declared As \".entry\" But Was Not Defined"},
 };
