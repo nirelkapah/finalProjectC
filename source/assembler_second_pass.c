@@ -54,7 +54,7 @@ int run_second_pass(char *file_am_name, unsigned short *code, unsigned short *da
     }
     deallocate_memory(file_ob_name);
     free_labels();
-    printf("--- Second pass passed successfully ---\n");
+    printf("--- Second parsing phase completed successfully ---\n");
     return errors_found;
 }
 int code_operands(char *file_am_name, unsigned short *code, int *IC)

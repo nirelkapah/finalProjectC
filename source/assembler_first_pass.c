@@ -4,7 +4,7 @@
  * converting them into machine code while handling all types off potential errors.
  * If no errors are detected, it proceeds with the second pass.
  */
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,7 +36,7 @@ int run_first_pass(char *file_name)
     }
     free_macros(); /* Macros are no longer needed */
 
-    printf("--- First pass passed successfully ---\n");
+    printf("--- First parsing phase completed successfully ---\n");
 
     /* Starting second pass */
     if (run_second_pass(file_am_name, code, data, &IC, &DC) != 0)

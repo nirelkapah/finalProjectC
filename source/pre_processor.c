@@ -73,7 +73,7 @@ int run_pre_processing(char *file_name) {
         return 1;  /* Indicates faliure */
     }
     deallocate_memory(file_am_name);
-    printf("--- Pre-processing Stage passed successfully ---\n");
+    printf("--- Macro expansion stage completed successfully ---\n");
     return 0;  /* Indicates success */
 }
 
