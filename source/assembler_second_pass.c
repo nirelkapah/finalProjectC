@@ -97,7 +97,7 @@ int code_operands(char *file_am_name, unsigned short *code, int *IC)
         /* Matrix operand */
         if (strchr(operand_name, '[') != NULL)
         {
-            char label_name[31];
+            char label_name[MAX_LABEL_NAME_LENGTH];
             char row_reg_str[5];
             char col_reg_str[5];
             int row_reg = 0;

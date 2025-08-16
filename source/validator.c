@@ -387,7 +387,7 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
 
             /* Now parse strictly without spaces */
             {
-                char label_name[31], row_reg[5], col_reg[5];
+                char label_name[MAX_LABEL_NAME_LENGTH], row_reg[5], col_reg[5];
                 int parsed = sscanf(clean, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg, col_reg);
                 if (parsed == 3)
                 {
