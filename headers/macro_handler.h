@@ -1,5 +1,7 @@
 /**
  * This is the macros header file.
+ * This file handles the macros of the program.
+ * It includes functions for adding, checking, and removing macros.
  */
 #ifndef MACRO_HANDLER_H
 #define MACRO_HANDLER_H
@@ -14,32 +16,32 @@ typedef struct Macro {
 
 /**
  * Adds a new macro to the end of the linked list.
- * @param name The name of the new macro.
- * @param line The line number associated with the new macro.
- * @return 0 for a successful operation ,1 if errors were detected.
+ * name: The name of the new macro.
+ * line: The line number associated with the new macro.
+ * return 0 for a successful operation ,1 if errors were detected.
  */
 int add_macro(char *name,int line);
 
 
 /**
  * Checks if the given name is a macro name.
- * @param macro_name The name to check.
- * @return Pointer to the macro if found, NULL otherwise.
+ * macro_name: The name to check.
+ * return Pointer to the macro if found, NULL otherwise.
  */
 Macro *is_macro_name(char *macro_name);
 
 
 /**
  * Appends new content to the last macro in the linked list.
- * @param new_content The content to append.
- * @return 0 for a successful operation, 1 if errors were detected.
+ * new_content: The content to append.
+ * return 0 for a successful operation, 1 if errors were detected.
  */
 int append_macro_content(char *new_content);
 
 
 /**
  * Gets the last macro in the linked list.
- * @return Pointer to the last macro.
+ * return Pointer to the last macro.
  */
 Macro *get_last_macro();
 

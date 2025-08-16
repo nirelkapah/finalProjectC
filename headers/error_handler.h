@@ -1,4 +1,7 @@
-/* This is the errors header file.*/
+/**
+ * This is the errors header file.
+ * This file handles the error handling of the program.
+ */
 #ifndef ERROR_HANDLER_H
 #define ERROR_HANDLER_H
 
@@ -27,16 +30,16 @@ typedef enum ERROR_CODES {
 
 /**
  * Prints a system error message based on the given error code.
- * @param error_code The code of the error to be printed.
+ * error_code: The code of the error to be printed.
  */
 void log_system_error(int error_code);
 
 
 /**
  * Prints a syntax error message including the file name and line number.
- * @param error_code The code of the error to be printed.
- * @param file_name The name of the file where the error occurred.
- * @param line_num The line number where the error occurred.
+ * error_code: The code of the error to be printed.
+ * file_name: The name of the file where the error occurred.
+ * line_num: The line number where the error occurred.
  */
 void log_syntax_error(int error_code,char *file_name,int line_num);
 

@@ -1,5 +1,6 @@
 /**
  * This is the definitions header file.
+ * This file contains all the constants and macros used in the program.
  */
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
