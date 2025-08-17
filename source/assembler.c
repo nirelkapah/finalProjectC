@@ -26,11 +26,11 @@ int main(int argc, char *argv[]) {
     for (; i < argc; i++) {
         file_name = valid_file_name(argv[i]);  /* Validating the input file name */
         if (file_name == NULL)
-            continue;  /* Skipping to the next file */
+            continue;  /* Next file */
 
         file = search_file(file_name);
         if (file == NULL)
-            continue;  /* Skipping to the next file */
+            continue;  /* Next file */
 
         printf("\nInitializing assembly process for: \"%s\"\n",file_name);
 
@@ -44,8 +44,8 @@ int main(int argc, char *argv[]) {
             printf("Assembly compilation aborted\n");
             continue;  /* Skipping to the next file */
         }
-        printf("--- Assembly compilation completed successfully ---\n");
+        printf("Assembly compilation completed successfully \n");
         free_all_memory();
     }
-    return 0;  /* Indicates success */
+    return 0;  /* Success */
 }

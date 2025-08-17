@@ -46,7 +46,7 @@ static void write_expanded_content(FILE *file_am, char *content) {
         }
 
         trimmed = trim_whitespace(line);
-        if ((mp = is_macro_name(trimmed)) != NULL) {
+        if ((mp = find_macro_by_name(trimmed)) != NULL) {
             /* Recursively expand nested macro */
             write_expanded_content(file_am, mp->content);
         } else {
@@ -70,11 +70,11 @@ int run_pre_processing(char *file_name) {
     if (handle_macros(file_name,file_am_name) != 0) {
         free_macros();
         free_all_memory();
-        return 1;  /* Indicates faliure */
+        return 1;  /*failure */
     }
     deallocate_memory(file_am_name);
-    printf("--- Macro expansion stage completed successfully ---\n");
-    return 0;  /* Indicates success */
+    printf("Macro expansion stage completed successfully \n");
+    return 0;  /* success */
 }
 
 int handle_macros(char *file_name, char *file_am_name) {
@@ -86,19 +86,19 @@ int handle_macros(char *file_name, char *file_am_name) {
     int last_line_blank = 1; /* Track whether the last written output line was blank */
 
     file = fopen(file_name,"r");
-    if (file == NULL) {  /* Failed to open file for reading */
+    if (file == NULL) {  /* Failed to open file for READING */
         log_system_error(Error_103);
         free_all_memory();
-        exit(1);  /* Exiting program */
+        exit(1);  /* Exiting */
     }
     file_am = fopen(file_am_name,"w");
-    if (file_am == NULL) {  /* Failed to open file for writing */
+    if (file_am == NULL) {  /* Failed to open file for WRITING */
         log_system_error(Error_104);
         fclose(file);
         free_all_memory();
-        exit(1);  /* Exiting program */
+        exit(1);  /* Exiting */
     }
-    /* Reading line by line */
+    /* Reading each line */
     while (fgets(line,MAX_SOURCE_LINE_LENGTH+1,file)) {
         line_count++;
         line_length = strlen(line);
@@ -121,15 +121,15 @@ int handle_macros(char *file_name, char *file_am_name) {
         if (*line == SEMICOLON) {
             if (errors_found == 0) {
                 fputs(line,file_am);  /* Copying line into "file.am" */
-                last_line_blank = 0;  /* A comment line is not blank */
+                last_line_blank = 0;  
             }
             continue;  /* Skipping to the next line */
         }
         strcpy(copy,line);
-        trimmed_line = trim_whitespace(line);  /* Trimming leading and trailing whitespace characters */
+        trimmed_line = trim_whitespace(line);  /* whitespace characters */
 
         /* Writing the macro content into "file.am" if a macro call was detected (only outside a declaration) */
-        if (macro_found == 0 && (macro_ptr = is_macro_name(trimmed_line)) != NULL) {
+        if (macro_found == 0 && (macro_ptr = find_macro_by_name(trimmed_line)) != NULL) {
             if (errors_found == 0) {
                 /* Ensure a blank line BEFORE the expanded macro content if previous line wasn't blank */
                 if (!last_line_blank) {
@@ -142,7 +142,7 @@ int handle_macros(char *file_name, char *file_am_name) {
             }
             continue;  /* Skipping to the next line */
         }
-        /* Checking if -endmcro- command had been reached */
+        /* Checking if we reached the "endmcro" command */
         if (macro_found == 1) {
             if (is_only_word(trimmed_line,"endmcro") == 0) {  /* Writing the current line into macro content */
                 if (name_is_valid == 1 && change_macro_content(copy) != 0) {  /* Indicates memory allocation failed */
@@ -155,7 +155,7 @@ int handle_macros(char *file_name, char *file_am_name) {
                 }
                 continue;  /* Skipping to the next line */
             }
-            /* Handling -endmcro- command potential errors */
+            /* Handling the endmcro command potential errors */
             if (strlen(trimmed_line) > MACRO_END_LENGTH) {
                 log_syntax_error(Error_208,file_name,line_count);
                 if (name_is_valid == 1)
@@ -180,12 +180,12 @@ int handle_macros(char *file_name, char *file_am_name) {
         if (is_only_word(trimmed_line,"mcro") == 0) {
             if (errors_found == 0) {
                 fputs(copy,file_am);  /* Copying line into "file.am" */
-                /* Update blank-line state based on whether this line is empty after trimming */
+                /* Update blank-line state based on whether this line is empty after trimming or not */
                 last_line_blank = (trimmed_line[0] == '\0');
             }
-            continue;  /* Skipping to the next line */
+            continue;  /* otherwise skipping to the next line */
         }
-        /* If this line had been reached then a macro declaration was found */
+        /* If we reached these lines it means a macro declaration was found */
         macro_found = 1;
         decl_line = line_count;
 
@@ -193,7 +193,7 @@ int handle_macros(char *file_name, char *file_am_name) {
         if (strlen(trimmed_line) > MACRO_START_LENGTH) {
             macro_name = validate_macro_decleration(file_name,trimmed_line,line_count);
             if (macro_name) {
-                if (is_macro_name(macro_name) != NULL) {  /* Checking if the name had already been defined */
+                if (find_macro_by_name(macro_name) != NULL) {  /* Checking if the name had already been defined */
                     log_syntax_error(Error_207,file_name,line_count);
                     errors_found = 1;
                     name_is_valid = 0;
@@ -206,7 +206,7 @@ int handle_macros(char *file_name, char *file_am_name) {
                     delete_file(file_am_name);
                     free_macros();
                     free_all_memory();
-                    exit(1);  /* Exiting program */
+                    exit(1); 
                 }
             } else {
                 errors_found = 1;
@@ -237,10 +237,10 @@ char *validate_macro_decleration(char *file_name, char *decl, int line_count) {
         macro_name = trim_whitespace(decl);
 
         if(validate_macro_identifier(file_name,macro_name,line_count) != 0)  /* Validating macro name */
-           return NULL;  /* Indicates faliure */
+           return NULL;  /* Indicates that we had a faliure and that macro name isn't valid*/
     } else {
         log_syntax_error(Error_203,file_name,line_count);
-        return NULL;  /* Indicates faliure */
+        return NULL;  /* Indicates that we had a faliure */
     }
     return macro_name;
 }

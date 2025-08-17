@@ -21,16 +21,15 @@ int run_second_pass(char *file_am_name, unsigned short *code, unsigned short *da
 
     /* Checking if all "entry" labels were defined */
     if (is_all_entry_labels_exist(file_am_name) != 0)
-    {
-        errors_found = 1; /* Indicates failure */
-    }
+        errors_found = 1; 
+    
     /* Handling uncoded label addresses */
     update_data_label(IC);
     if (code_operands(file_am_name, code, IC) != 0)
     {
         free_labels();
         free_all_memory();
-        return 1; /* Indicates failure */
+        return 1; 
     }
     /* Getting the object file name */
     file_ob_name = change_extension(file_am_name, ".ob");
@@ -54,14 +53,13 @@ int run_second_pass(char *file_am_name, unsigned short *code, unsigned short *da
     }
     deallocate_memory(file_ob_name);
     free_labels();
-    printf("--- Second parsing phase completed successfully ---\n");
+    printf("Second parsing phase completed successfully \n");
     return errors_found;
 }
 int code_operands(char *file_am_name, unsigned short *code, int *IC)
 {
     int errors_found = 0;
-    int i = 0;
-    int j = 0;
+    int i, j = 0;
     Label *operand_label;
     Label *label;
     unsigned short word;

@@ -176,7 +176,7 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
         }
     }
     /* Checking if the label name is a macro name */
-    if (is_macro_name(label_identifier) != NULL)
+    if (find_macro_by_name(label_identifier) != NULL)
     {
         log_syntax_error(label_type == REGULAR ? Error_215 : label_type == OPERAND ? Error_262
                                                                           : Error_237,

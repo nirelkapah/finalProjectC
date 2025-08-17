@@ -32,21 +32,21 @@ int run_first_pass(char *file_name)
         free_labels();
         free_macros();
         free_all_memory();
-        return 1; /* Indicates faliure */
+        return 1; /*  faliure */
     }
-    free_macros(); /* Macros are no longer needed */
+    free_macros(); /* Macros are no longer needed therefor they can be freed*/
 
-    printf("--- First parsing phase completed successfully ---\n");
+    printf("First parsing phase completed successfully\n");
 
     /* Starting second pass */
     if (run_second_pass(file_am_name, code, data, &IC, &DC) != 0)
     {
         free_labels();
         free_all_memory();
-        return 1; /* Indicates faliure */
+        return 1; /* faliure */
     }
     deallocate_memory(file_am_name);
-    return 0; /* Indicates success */
+    return 0; /*  success */
 }
 
 int examine_code(char *file_am_name, unsigned short *code, unsigned short *data, int *IC, int *DC)
@@ -225,7 +225,7 @@ void examine_code_word(unsigned short *code, unsigned short *data, int *Usage, i
     }
 
     /* Handling special cases */
-    if (is_macro_name(current_word) != NULL)
+    if (find_macro_by_name(current_word) != NULL)
     {
         log_syntax_error(Error_224, line->file_am_name, line->line_num);
         *errors_found = 1;

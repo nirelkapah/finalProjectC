@@ -25,23 +25,23 @@ int add_macro(char *name,int line);
 
 /**
  * Checks if the given name is a macro name.
- * macro_name: The name to check.
- * return Pointer to the macro if found, NULL otherwise.
+ * @macro_name: The name to check.
+ * @return: Pointer to the macro if found, NULL otherwise.
  */
-Macro *is_macro_name(char *macro_name);
+Macro *find_macro_by_name(char *macro_name);
 
 
 /**
  * Changes the content of the last macro in the linked list.
- * new_content: The content to append.
- * return 0 for a successful operation, 1 if errors were detected.
+ * @new_content: The content to append.
+ * @return: 0 for a successful operation, 1 if errors were detected.
  */
 int change_macro_content(char *new_content);
 
 
 /**
  * Points to the last macro in the linked list.
- * return Pointer to the last macro.
+ * @return Pointer to the last macro.
  */
 Macro *point_last_macro();
 

@@ -15,6 +15,13 @@
 /* Defining the head of the macros linked list */
 static Macro *head = NULL;
 
+/**
+ * Function creates a new macro node, allocates memory for its name, and adds it to the end of the linked list (for the macros).
+   the function will return 0 for success, or 1 on failure (memory allocation failure).
+    * @param name The name of the macro to be added
+    * @param line The line number where the macro is defined
+    * @return 0 for success, or 1 on failure (memory allocation failure)
+ */
 int add_macro(char *name, int line) {
     Macro *last_macro;
 
@@ -32,10 +39,10 @@ int add_macro(char *name, int line) {
     }
     strcpy(new_macro->name,name);
 
-    /* Setting the content to NULL */
+    /* Setting content to NULL */
     new_macro->content = NULL;
 
-    /* Setting the line number and the next pointer */
+    /* updating line number and the next pointer */
     new_macro->line = line;
     new_macro->next = NULL;
 
@@ -47,21 +54,33 @@ int add_macro(char *name, int line) {
         last_macro = point_last_macro();
         last_macro->next = new_macro;
     }
-    return 0;  /* Indicates success */
+    return 0;  /* success */
 }
 
-Macro *is_macro_name(char *macro_name) {
+/**
+ * Function searches the macro list for a macro with the given name.
+   Returns a pointer to the macro node if found, otherwise we`ll return NULL.
+    * @param macro_name The name of the macro to search for
+    * @return Pointer to the Macro node if found, otherwise NULL
+ */
+Macro *find_macro_by_name(char *macro_name) {
     Macro *current = head;
 
     while (current != NULL) {
         if (strcmp(current->name, macro_name) == 0) {
-            return current;  /* Indicates name is a macro name and returns a pointer to its node */
+            return current;  /* Indicates that the given name is a macro name and returns a pointer to its node */
         }
         current = current->next;
     }
     return NULL;  /* Indicates name is not a macro name */
 }
 
+/**
+ * Function appends new content to the last macro in the list, reallocating memory if it is needed.
+   it returns 0 on success, 1 on memory allocation error.
+    * @param new_content The content to append to the last macro.
+    * @return 0 on success, 1 on failure which is memory allocation error
+    */
 int change_macro_content(char *new_content) {
     Macro *current;
     int current_length, new_content_length, total_length;
@@ -69,7 +88,7 @@ int change_macro_content(char *new_content) {
 
     current = point_last_macro(head);  /* Skipping to the last macro in the list */
 
-    /* Current cannot be NULL because change_macro_content is called only if a macro node was created - the list is not empty */
+    /* Current value can't be NULL because change_macro_content is called only if a macro node was created - the list is not empty */
     if (current->content != NULL) {
         current_length = strlen(current->content);
     } else {
@@ -77,25 +96,29 @@ int change_macro_content(char *new_content) {
     }
 
     new_content_length = strlen(new_content);
-    total_length = current_length + new_content_length + 1;  /* +1 to accommodate '\0' */
+    total_length = current_length + new_content_length + 1; 
 
-    new_memory = realloc(current->content,total_length);  /* Reallocating or allocating memory for the new content */
+    new_memory = realloc(current->content,total_length);  /* Reallocating (or allocating) memory for the new content */
     if (new_memory == NULL) {
         log_system_error(Error_101);
-        return 1;  /* Indicates faliure */
+        return 1;  /* Indicates failure */
     }
 
     current->content = new_memory;
 
-    if (current_length == 0) {  /* If the current content is NULL, initializing it as an empty string */
+    if (current_length == 0) {  /* If the current content is NULL, it will initialize it as an empty string */
         current->content[0] = STRING_TERMINATOR;
     }
 
-    strcat(current->content,new_content);  /* Appending the new content to the existing content */
+    strcat(current->content,new_content);  /* Adding the new content to the existing content */
 
-    return 0;  /* Indicates success */
+    return 0;  /* Success */
 }
 
+/**
+ * Function returns a pointer to the last macro node in the list.
+   if the list is empty returns NULL.
+ */
 Macro *point_last_macro() {
     Macro *current;
 
@@ -109,6 +132,10 @@ Macro *point_last_macro() {
     return current;  /* Returning the last macro in the list */
 }
 
+/**
+ * Function removes and frees the last macro node from the list,
+ * including its name and content.
+ */
 void remove_last_macro() {
     Macro *current;
 
@@ -125,27 +152,26 @@ void remove_last_macro() {
     while (current->next->next != NULL) {   /* Skipping to the second-to-last macro */
         current = current->next;
     }
-
     free(current->next->name);
     if (current->next->content)  /* Checking if content is NULL in case of "Error_209" */
         free(current->next->content);
     free(current->next);
-
     current->next = NULL;  /* Updating the second-to-last macro to be the new last */
 }
 
+/**
+ * Function frees all macro nodes in the list, 
+ * including their names and contents, and resets the list head to NULL
+ */
 void free_macros() {
     Macro *current = head;
     Macro *next;
-
     while (current != NULL) {
         next = current->next;  /* Updating the next pointer */
-
-        free(current->name);  /* Freeing the dynamically allocated name */
-        free(current->content);  /* Freeing the dynamically allocated content */
-        free(current);  /* Freeing the macro node itself */
-
-        current = next;  /* Moving to the next node */
+        free(current->name);  
+        free(current->content);  
+        free(current);  
+        current = next;  /* next node setting */
     }
     head = NULL;
 }
