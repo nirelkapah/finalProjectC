@@ -32,10 +32,10 @@ typedef struct Label {
 
 /**
  * Adds a new Label to the end of the linked list.
- * name: The name of the new label.
- * address: The address of the new label in memory.
- * type: The type of the new label.
- * location: The location of the new label in the machine code.
+ * @name: The name of the new label.
+ * @address: The address of the new label in memory.
+ * @type: The type of the new label.
+ * @location: The location of the new label in the machine code.
  * return 0 for a successful operation ,1 if errors were detected.
  */
 Label *add_label(char *name,int address,Type type,Location location);
@@ -43,7 +43,7 @@ Label *add_label(char *name,int address,Type type,Location location);
 
 /**
  * Checks if a given name is a label name.
- * label_name: The name to check.
+ * @label_name: The name to check.
  * return Pointer to the label if found, NULL otherwise.
  */
 Label *is_label_name(char *label_name);
@@ -51,7 +51,7 @@ Label *is_label_name(char *label_name);
 
 /**
  * Checks if a given label name is exist.
- * label_name: The name to check.
+ * @label_name: The name to check.
  * return Pointer to the label if found, NULL otherwise.
  */
 Label *is_label_name_exist(char *label_name);
@@ -59,7 +59,7 @@ Label *is_label_name_exist(char *label_name);
 
 /**
  * Checks if all entry type labels exist.
- * file_am_name: The name of the file being processed.
+ * @file_am_name: The name of the file being processed.
  * return 1 if errors were found, 0 otherwise.
  */
 int is_all_entry_labels_exist(char *file_am_name);
@@ -67,7 +67,7 @@ int is_all_entry_labels_exist(char *file_am_name);
 
 /**
  * Updates the addresses of data labels.
- * IC: Pointer to the instruction counter.
+ * @IC: Pointer to the instruction counter.
  */
 void update_data_label(int *IC);
 
@@ -115,7 +115,7 @@ void remove_last_label();
 
 /**
  * Removes a specific label from the linked list.
- * label: Pointer to the label to be removed.
+ * @label: Pointer to the label to be removed.
  */
 void remove_label(Label *label);
 

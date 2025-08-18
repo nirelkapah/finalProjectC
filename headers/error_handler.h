@@ -30,16 +30,16 @@ typedef enum ERROR_CODES {
 
 /**
  * Prints a system error message based on the given error code.
- * error_code: The code of the error to be printed.
+ * @error_code: The code of the error to be printed.
  */
 void log_system_error(int error_code);
 
 
 /**
  * Prints a syntax error message including the file name and line number.
- * error_code: The code of the error to be printed.
- * file_name: The name of the file where the error occurred.
- * line_num: The line number where the error occurred.
+ * @error_code: The code of the error to be printed.
+ * @file_name: The name of the file where the error occurred.
+ * @line_num: The line number where the error occurred.
  */
 void log_syntax_error(int error_code,char *file_name,int line_num);
 
