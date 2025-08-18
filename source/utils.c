@@ -42,7 +42,7 @@ void *allocate_memory(long size) {
     return ptr;
 }
 
-void deallocate_memory(void *ptr) {
+void clean_memory(void *ptr) {
     Mem_Node *current = head;
     Mem_Node *prev = NULL;
 

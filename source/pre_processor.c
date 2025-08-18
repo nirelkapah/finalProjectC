@@ -72,7 +72,7 @@ int run_pre_processing(char *file_name) {
         free_all_memory();
         return 1;  /*failure */
     }
-    deallocate_memory(file_am_name);
+    clean_memory(file_am_name);
     printf("Macro expansion stage completed successfully \n");
     return 0;  /* success */
 }

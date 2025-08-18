@@ -35,7 +35,7 @@ void *allocate_memory(long size);
  * Deallocates memory and removes it from the linked list.
  * ptr: Pointer to the memory to deallocate.
  */
-void deallocate_memory(void *ptr);
+void clean_memory(void *ptr);
 
 
 /**

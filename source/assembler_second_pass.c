@@ -42,16 +42,16 @@ int run_second_pass(char *file_am_name, unsigned short *code, unsigned short *da
     {
         file_ent_name = change_extension(file_am_name, ".ent");
         create_ent_file(file_ent_name);
-        deallocate_memory(file_ent_name);
+        clean_memory(file_ent_name);
     }
     /* Creating "file.ext" if there are "extern" labels */
     if (is_extern_exist() != 0)
     {
         file_ext_name = change_extension(file_am_name, ".ext");
         create_ext_file(file_ext_name);
-        deallocate_memory(file_ext_name);
+        clean_memory(file_ext_name);
     }
-    deallocate_memory(file_ob_name);
+    clean_memory(file_ob_name);
     free_labels();
     printf("Second parsing phase completed successfully \n");
     return errors_found;
@@ -145,7 +145,7 @@ int code_operands(char *file_am_name, unsigned short *code, int *IC)
                 clean[b] = '\0';
 
                 parsed = sscanf(clean, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg_str, col_reg_str);
-                deallocate_memory(clean);
+                clean_memory(clean);
             }
             if (parsed == 3)
             {
