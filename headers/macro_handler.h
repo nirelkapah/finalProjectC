@@ -16,8 +16,8 @@ typedef struct Macro {
 
 /**
  * Adds a new macro to the end of the linked list.
- * name: The name of the new macro.
- * line: The line number associated with the new macro.
+ * @name: The name of the new macro.
+ * @line: The line number associated with the new macro.
  * return 0 for a successful operation ,1 if errors were detected.
  */
 int add_macro(char *name,int line);

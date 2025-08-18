@@ -14,10 +14,10 @@
 /**
  * This function performs the second pass of the assembler.
  * file_am_name: The name of the input file after pre-processing.
- * code: Array containing the instruction code.
- * data: Array containing the data code.
- * ic: Pointer to the instruction counter.
- * dc: Pointer to the data counter.
+ * @code: Array containing the instruction code.
+ * @data: Array containing the data code.
+ * @ic: Pointer to the instruction counter.
+ * @dc: Pointer to the data counter.
  * return 0 for a successful operation, 1 if errors were detected.
  */
 int run_second_pass(char *file_am_name,unsigned short *code,unsigned short *data,int *ic,int *dc);
