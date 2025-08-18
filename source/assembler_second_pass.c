@@ -21,16 +21,15 @@ int run_second_pass(char *file_am_name, unsigned short *code, unsigned short *da
 
     /* Checking if all "entry" labels were defined */
     if (is_all_entry_labels_exist(file_am_name) != 0)
-    {
-        errors_found = 1; /* Indicates failure */
-    }
+        errors_found = 1; 
+    
     /* Handling uncoded label addresses */
     update_data_label(IC);
     if (code_operands(file_am_name, code, IC) != 0)
     {
         free_labels();
         free_all_memory();
-        return 1; /* Indicates failure */
+        return 1; 
     }
     /* Getting the object file name */
     file_ob_name = change_extension(file_am_name, ".ob");
@@ -43,25 +42,24 @@ int run_second_pass(char *file_am_name, unsigned short *code, unsigned short *da
     {
         file_ent_name = change_extension(file_am_name, ".ent");
         create_ent_file(file_ent_name);
-        deallocate_memory(file_ent_name);
+        clean_memory(file_ent_name);
     }
     /* Creating "file.ext" if there are "extern" labels */
     if (is_extern_exist() != 0)
     {
         file_ext_name = change_extension(file_am_name, ".ext");
         create_ext_file(file_ext_name);
-        deallocate_memory(file_ext_name);
+        clean_memory(file_ext_name);
     }
-    deallocate_memory(file_ob_name);
+    clean_memory(file_ob_name);
     free_labels();
-    printf("--- Second parsing phase completed successfully ---\n");
+    printf("Second parsing phase completed successfully \n");
     return errors_found;
 }
 int code_operands(char *file_am_name, unsigned short *code, int *IC)
 {
     int errors_found = 0;
-    int i = 0;
-    int j = 0;
+    int i, j = 0;
     Label *operand_label;
     Label *label;
     unsigned short word;
@@ -147,7 +145,7 @@ int code_operands(char *file_am_name, unsigned short *code, int *IC)
                 clean[b] = '\0';
 
                 parsed = sscanf(clean, "%30[^[][%4[^]]][%4[^]]]", label_name, row_reg_str, col_reg_str);
-                deallocate_memory(clean);
+                clean_memory(clean);
             }
             if (parsed == 3)
             {

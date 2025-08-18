@@ -20,7 +20,7 @@ static Mem_Node *head = NULL;
 
 void *allocate_memory(long size) {
     Mem_Node *new_node;
-    void *ptr = malloc(size);  /* Using void * for compatibility with different data types */
+    void *ptr = malloc(size);  /* Using void for the compatibility with different data types */
     if (ptr == NULL) {
         log_system_error(Error_101);
         free_macros();
@@ -42,7 +42,7 @@ void *allocate_memory(long size) {
     return ptr;
 }
 
-void deallocate_memory(void *ptr) {
+void clean_memory(void *ptr) {
     Mem_Node *current = head;
     Mem_Node *prev = NULL;
 

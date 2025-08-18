@@ -176,7 +176,7 @@ int validate_label_identifier(char *label_identifier, Type label_type, Line *con
         }
     }
     /* Checking if the label name is a macro name */
-    if (is_macro_name(label_identifier) != NULL)
+    if (find_macro_by_name(label_identifier) != NULL)
     {
         log_syntax_error(label_type == REGULAR ? Error_215 : label_type == OPERAND ? Error_262
                                                                           : Error_237,
@@ -401,13 +401,13 @@ int determine_operand_addressing_mode(char *operand_text, Line *context, int *er
                     {
                         log_syntax_error(Error_251, context->file_am_name, context->line_num);
                         *error_counter = 1;
-                        deallocate_memory(clean);
+                        clean_memory(clean);
                         return -1;
                     }
-                    deallocate_memory(clean);
+                    clean_memory(clean);
                     return MATRIX;
                 }
-                deallocate_memory(clean);
+                clean_memory(clean);
             }
         }
         log_syntax_error(Error_251, context->file_am_name, context->line_num);
@@ -969,7 +969,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
             { /* empty token */
                 log_syntax_error(Error_241, context->file_am_name, context->line_num);
                 *error_counter = 1;
-                if (opernad) deallocate_memory(opernad);
+                if (opernad) clean_memory(opernad);
                 return;
             }
             next = skip_spaces_const(next);
@@ -977,23 +977,23 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
             { /* extraneous text beyond operand */
                 log_syntax_error(Error_243, context->file_am_name, context->line_num);
                 *error_counter = 1;
-                deallocate_memory(opernad);
+                clean_memory(opernad);
                 return;
             }
             method = determine_operand_addressing_mode(opernad, context, error_counter);
         }
         if (method == -1)
         {
-            deallocate_memory(opernad);
+            clean_memory(opernad);
             return; /* Scanning line finished */
         }
         if (validate_addressing_mode_compatibility(context, method, instruction_index, operands_num, error_counter) != 0)
         {
-            deallocate_memory(opernad);
+            clean_memory(opernad);
             return; /* Scanning line finished */
         }
         process_one_operand(instruction_segment, memory_usage, instruction_counter, context, method, opernad, instruction_index, error_counter);
-        deallocate_memory(opernad);
+        clean_memory(opernad);
         return; /* Scanning line finished */
     case 2:
         {
@@ -1017,7 +1017,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
             {
                 log_syntax_error(Error_241, context->file_am_name, context->line_num);
                 *error_counter = 1;
-                if (opernad) deallocate_memory(opernad);
+                if (opernad) clean_memory(opernad);
                 return;
             }
             after_first = skip_spaces_const(next);
@@ -1026,7 +1026,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
                 /* extract_operand_token sets next to after comma or end; if no comma existed, it's syntax */
                 log_syntax_error(Error_247, context->file_am_name, context->line_num);
                 *error_counter = 1;
-                deallocate_memory(opernad);
+                clean_memory(opernad);
                 return;
             }
             /* Ensure we move to content after comma */
@@ -1037,7 +1037,7 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
             { /* consecutive commas */
                 log_syntax_error(Error_246, context->file_am_name, context->line_num);
                 *error_counter = 1;
-                deallocate_memory(opernad);
+                clean_memory(opernad);
                 return;
             }
             second_operand = extract_operand_token(next, &after_first);
@@ -1045,8 +1045,8 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
             {
                 log_syntax_error(Error_241, context->file_am_name, context->line_num);
                 *error_counter = 1;
-                deallocate_memory(opernad);
-                if (second_operand) deallocate_memory(second_operand);
+                clean_memory(opernad);
+                if (second_operand) clean_memory(second_operand);
                 return;
             }
             after_first = skip_spaces_const(after_first);
@@ -1054,8 +1054,8 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
             { /* extraneous text after two operands */
                 log_syntax_error(Error_245, context->file_am_name, context->line_num);
                 *error_counter = 1;
-                deallocate_memory(opernad);
-                deallocate_memory(second_operand);
+                clean_memory(opernad);
+                clean_memory(second_operand);
                 return;
             }
             method = determine_operand_addressing_mode(opernad, context, error_counter);
@@ -1063,20 +1063,20 @@ void generate_instruction_machine_code(unsigned short *instruction_segment, int 
         }
         if (method == -1 || method_2 == -1)
         {
-            deallocate_memory(opernad);
-            deallocate_memory(second_operand);
+            clean_memory(opernad);
+            clean_memory(second_operand);
             return; /* Scanning line finished */
         }
         if (validate_addressing_mode_compatibility(context, method, instruction_index, operands_num, error_counter) != 0 || /* Checking if the addressing method is legal */
             validate_addressing_mode_compatibility(context, method_2, instruction_index, operands_num - 1, error_counter) != 0)
         { /* operands_num-1 to signal that opernd is of type "destination" */
-            deallocate_memory(opernad);
-            deallocate_memory(second_operand);
+            clean_memory(opernad);
+            clean_memory(second_operand);
             return; /* Scanning line finished */
         }
         process_two_operands(instruction_segment, memory_usage, instruction_counter, context, opernad, second_operand, instruction_index, error_counter);
-        deallocate_memory(opernad);
-        deallocate_memory(second_operand);
+        clean_memory(opernad);
+        clean_memory(second_operand);
     }
 }
 
@@ -1115,5 +1115,5 @@ void parse_and_encode_numeric_data(unsigned short *data_segment, int *memory_usa
         add_data(data_segment, data_counter, num_array[i]); /* Adding machine code */
         (*memory_usage)++;                            /* Incrementing usage count */
     }
-    deallocate_memory(num_array);
+    clean_memory(num_array);
 }
